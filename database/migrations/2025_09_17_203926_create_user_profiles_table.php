@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('user_profiles', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->enum('role', ['owner', 'sitter']);
+            $table->enum('role', ['owner', 'sitter', 'admin']);
             $table->string('first_name');
             $table->string('last_name');
             $table->string('phone')->nullable();

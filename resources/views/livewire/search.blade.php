@@ -33,14 +33,21 @@
                         >
                         <button
                             wire:click="detectLocation"
-                            class="absolute right-3 top-3 text-gray-400 hover:text-indigo-600"
+                            class="absolute right-3 top-3 text-gray-400 hover:text-primary-600 transition-colors duration-200"
                             title="Wykryj moją lokalizację"
                         >
-                            📍
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
                         </button>
                     </div>
                     @if($location_detected)
-                        <p class="text-sm text-green-600 mt-1">✓ Lokalizacja wykryta</p>
+                        <p class="text-sm text-success-600 mt-1 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                            </svg>
+                            Lokalizacja wykryta
+                        </p>
                     @endif
                 </div>
 
@@ -81,49 +88,70 @@
             <!-- Filters Toggle & Search Actions -->
             <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div class="flex items-center space-x-4">
-                    <button
+                    <x-ui.button
                         wire:click="$toggle('show_filters')"
-                        class="px-4 py-2 text-indigo-600 border border-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors relative"
+                        variant="outline"
+                        size="sm"
+                        class="relative"
                     >
-                        🔍 {{ $show_filters ? 'Ukryj filtry' : 'Więcej filtrów' }}
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                        </svg>
+                        {{ $show_filters ? 'Ukryj filtry' : 'Więcej filtrów' }}
                         @if($this->active_filters_count > 0)
-                            <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                            <span class="absolute -top-2 -right-2 bg-danger-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                                 {{ $this->active_filters_count }}
                             </span>
                         @endif
-                    </button>
+                    </x-ui.button>
 
                     @if($show_map)
-                        <button
+                        <x-ui.button
                             wire:click="$toggle('show_map')"
-                            class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            variant="secondary"
+                            size="sm"
                         >
-                            📋 Lista
-                        </button>
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                            </svg>
+                            Lista
+                        </x-ui.button>
                     @else
-                        <button
+                        <x-ui.button
                             wire:click="$toggle('show_map')"
-                            class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            variant="secondary"
+                            size="sm"
                         >
-                            🗺️ Mapa
-                        </button>
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                            </svg>
+                            Mapa
+                        </x-ui.button>
                     @endif
 
-                    <button
+                    <x-ui.button
                         wire:click="clearFilters"
-                        class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                        variant="ghost"
+                        size="sm"
                     >
-                        ✕ Wyczyść
-                    </button>
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        Wyczyść
+                    </x-ui.button>
 
                     @auth
-                        <button
+                        <x-ui.button
                             wire:click="saveSearch"
-                            class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                            variant="ghost"
+                            size="sm"
                             title="Zapisz wyszukiwanie"
                         >
-                            💾 Zapisz
-                        </button>
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                            </svg>
+                            Zapisz
+                        </x-ui.button>
                     @endauth
                 </div>
 
@@ -459,15 +487,23 @@
         @else
             <!-- No Results -->
             <div class="bg-white/95 backdrop-blur-md rounded-xl shadow-lg p-12 text-center">
-                <div class="text-6xl mb-4">🔍</div>
+                <div class="w-16 h-16 mx-auto mb-6 text-gray-400">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
                 <h3 class="text-xl font-semibold text-gray-900 mb-2">Nie znaleziono opiekunów</h3>
                 <p class="text-gray-600 mb-6">Spróbuj zmienić kryteria wyszukiwania lub rozszerzyć obszar poszukiwań.</p>
-                <button
+                <x-ui.button
                     wire:click="clearFilters"
-                    class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors"
+                    variant="primary"
+                    size="lg"
                 >
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
                     Wyczyść filtry
-                </button>
+                </x-ui.button>
             </div>
         @endif
     </div>

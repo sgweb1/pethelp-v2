@@ -17,6 +17,7 @@ class LocationFactory extends Factory
     public function definition(): array
     {
         return [
+            'user_id' => \App\Models\User::factory(),
             'name' => fake()->randomElement(['Dom', 'Praca', 'Mieszkanie', 'Biuro']),
             'street' => fake()->streetAddress(),
             'city' => fake()->randomElement(['Warszawa', 'Kraków', 'Gdańsk', 'Wrocław', 'Poznań']),

@@ -42,6 +42,17 @@ class ChatWindow extends Component
         $this->booking = null;
     }
 
+    #[On('startConversationWith')]
+    public function handleStartConversation($userId, $bookingId = null)
+    {
+        $user = User::find($userId);
+        $booking = $bookingId ? Booking::find($bookingId) : null;
+
+        if ($user) {
+            $this->startConversationWith($user, $booking);
+        }
+    }
+
     public function startConversationWith(User $user, ?Booking $booking = null)
     {
         $this->conversation = Conversation::findOrCreateBetween(Auth::user(), $user, $booking);

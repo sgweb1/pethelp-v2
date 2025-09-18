@@ -1,3 +1,6 @@
+/* Import desktop-specific styles */
+@import './desktop.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

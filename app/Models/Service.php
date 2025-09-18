@@ -125,14 +125,18 @@ class Service extends Model
     // Helper Methods
     public function getDisplayPriceAttribute(): string
     {
+        $formatPrice = function($price) {
+            return number_format($price, $price == intval($price) ? 0 : 2, ',', ' ');
+        };
+
         if ($this->price_per_hour && $this->price_per_day) {
-            return "od {$this->price_per_hour}zł/h ({$this->price_per_day}zł/dzień)";
+            return "od {$formatPrice($this->price_per_hour)}zł/h ({$formatPrice($this->price_per_day)}zł/dzień)";
         }
         if ($this->price_per_hour) {
-            return "{$this->price_per_hour}zł/h";
+            return "{$formatPrice($this->price_per_hour)}zł/h";
         }
         if ($this->price_per_day) {
-            return "{$this->price_per_day}zł/dzień";
+            return "{$formatPrice($this->price_per_day)}zł/dzień";
         }
         return 'Do uzgodnienia';
     }

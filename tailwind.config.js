@@ -133,5 +133,39 @@ export default {
   },
   plugins: [
     require('@tailwindcss/forms'),
+    function({ addUtilities }) {
+      addUtilities({
+        '.hide-scrollbar': {
+          /* IE and Edge */
+          '-ms-overflow-style': 'none',
+          /* Firefox */
+          'scrollbar-width': 'none',
+          /* Safari and Chrome */
+          '&::-webkit-scrollbar': {
+            display: 'none'
+          }
+        },
+        '.desktop-window': {
+          '@media (min-width: 1024px)': {
+            'max-height': '90vh',
+            'overflow-y': 'auto',
+            /* IE and Edge */
+            '-ms-overflow-style': 'none',
+            /* Firefox */
+            'scrollbar-width': 'none',
+            /* Safari and Chrome */
+            '&::-webkit-scrollbar': {
+              display: 'none'
+            }
+          }
+        },
+        '.desktop-container': {
+          '@media (min-width: 1024px)': {
+            'height': '100vh',
+            'overflow': 'hidden'
+          }
+        }
+      })
+    }
   ],
 }

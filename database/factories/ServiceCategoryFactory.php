@@ -31,7 +31,7 @@ class ServiceCategoryFactory extends Factory
 
         return [
             'name' => $name,
-            'slug' => \Illuminate\Support\Str::slug($name),
+            'slug' => \Illuminate\Support\Str::slug($name) . '-' . uniqid(),
             'description' => fake()->sentence(),
             'icon' => fake()->randomElement(['🐕', '🐱', '🐾', '🏠', '🚗', '✂️']),
             'is_active' => true,

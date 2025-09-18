@@ -74,91 +74,153 @@
     </section>
 
     <!-- Features Section -->
-    <section class="bg-white py-12 sm:py-16 lg:py-20">
+    <section class="bg-gray-50 py-16 sm:py-20 lg:py-24">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-8 sm:mb-12 lg:mb-16 text-gray-900">
-                Dlaczego PetHelp?
-            </h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-                <!-- Feature 1 -->
-                <div class="text-center p-6 sm:p-8 rounded-2xl shadow-lg hover:shadow-xl hover:transform hover:-translate-y-2 transition-all duration-300 bg-white">
-                    <div class="text-4xl sm:text-5xl mb-4 sm:mb-6">🛡️</div>
-                    <h3 class="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 text-gray-900">Bezpieczeństwo</h3>
-                    <p class="text-gray-600 leading-relaxed text-sm sm:text-base">Wszyscy opiekunowie są weryfikowani i ubezpieczeni. Twój pupil jest w bezpiecznych rękach.</p>
-                </div>
-
-                <!-- Feature 2 -->
-                <div class="text-center p-6 sm:p-8 rounded-2xl shadow-lg hover:shadow-xl hover:transform hover:-translate-y-2 transition-all duration-300 bg-white">
-                    <div class="text-4xl sm:text-5xl mb-4 sm:mb-6">📍</div>
-                    <h3 class="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 text-gray-900">W Twojej okolicy</h3>
-                    <p class="text-gray-600 leading-relaxed text-sm sm:text-base">Znajdź opiekunów w pobliżu Twojego domu. Wygodnie i bez stresu dla zwierzęcia.</p>
-                </div>
-
-                <!-- Feature 3 -->
-                <div class="text-center p-6 sm:p-8 rounded-2xl shadow-lg hover:shadow-xl hover:transform hover:-translate-y-2 transition-all duration-300 bg-white">
-                    <div class="text-4xl sm:text-5xl mb-4 sm:mb-6">💬</div>
-                    <h3 class="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 text-gray-900">Komunikacja real-time</h3>
-                    <p class="text-gray-600 leading-relaxed text-sm sm:text-base">Bądź w stałym kontakcie z opiekunem. Otrzymuj zdjęcia i aktualizacje na żywo.</p>
-                </div>
-
-                <!-- Feature 4 -->
-                <div class="text-center p-6 sm:p-8 rounded-2xl shadow-lg hover:shadow-xl hover:transform hover:-translate-y-2 transition-all duration-300 bg-white">
-                    <div class="text-4xl sm:text-5xl mb-4 sm:mb-6">💳</div>
-                    <h3 class="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 text-gray-900">Bezpieczne płatności</h3>
-                    <p class="text-gray-600 leading-relaxed text-sm sm:text-base">Płać bezpiecznie online. Środki są blokowane do zakończenia usługi.</p>
-                </div>
-
-                <!-- Feature 5 -->
-                <div class="text-center p-6 sm:p-8 rounded-2xl shadow-lg hover:shadow-xl hover:transform hover:-translate-y-2 transition-all duration-300 bg-white">
-                    <div class="text-4xl sm:text-5xl mb-4 sm:mb-6">⭐</div>
-                    <h3 class="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 text-gray-900">System ocen</h3>
-                    <p class="text-gray-600 leading-relaxed text-sm sm:text-base">Sprawdź opinie innych właścicieli. Wybierz najlepszych opiekunów.</p>
-                </div>
-
-                <!-- Feature 6 -->
-                <div class="text-center p-6 sm:p-8 rounded-2xl shadow-lg hover:shadow-xl hover:transform hover:-translate-y-2 transition-all duration-300 bg-white">
-                    <div class="text-4xl sm:text-5xl mb-4 sm:mb-6">📱</div>
-                    <h3 class="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 text-gray-900">Mobilna aplikacja</h3>
-                    <p class="text-gray-600 leading-relaxed text-sm sm:text-base">Zarządzaj rezerwacjami z telefonu. Wszystko pod ręką, gdy tego potrzebujesz.</p>
-                </div>
+            <div class="text-center mb-16">
+                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+                    Dlaczego PetHelp?
+                </h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Oferujemy kompletną i bezpieczną platformę do opieki nad zwierzętami
+                </p>
             </div>
-        </div>
-    </section>
 
-    <!-- Stats Section -->
-    <section class="bg-gray-50 py-12 sm:py-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 text-center">
-                <div class="p-4 sm:p-6">
-                    <div class="text-3xl sm:text-4xl md:text-5xl font-bold text-indigo-600 mb-1 sm:mb-2">1,200+</div>
-                    <div class="text-sm sm:text-base lg:text-lg text-gray-600">Zweryfikowanych opiekunów</div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
+                <!-- Feature 1: Bezpieczeństwo -->
+                <div class="group text-center p-8 rounded-3xl bg-white shadow-soft hover:shadow-large transition-all duration-300 hover:-translate-y-2">
+                    <div class="w-16 h-16 mx-auto mb-6 bg-success-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-8 h-8 text-success-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4 text-gray-900">Bezpieczeństwo</h3>
+                    <p class="text-gray-600 leading-relaxed">Wszyscy opiekunowie są weryfikowani i ubezpieczeni. Twój pupil jest w bezpiecznych rękach.</p>
                 </div>
-                <div class="p-4 sm:p-6">
-                    <div class="text-3xl sm:text-4xl md:text-5xl font-bold text-indigo-600 mb-1 sm:mb-2">15,000+</div>
-                    <div class="text-sm sm:text-base lg:text-lg text-gray-600">Szczęśliwych pupili</div>
+
+                <!-- Feature 2: Lokalizacja -->
+                <div class="group text-center p-8 rounded-3xl bg-white shadow-soft hover:shadow-large transition-all duration-300 hover:-translate-y-2">
+                    <div class="w-16 h-16 mx-auto mb-6 bg-primary-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4 text-gray-900">W Twojej okolicy</h3>
+                    <p class="text-gray-600 leading-relaxed">Znajdź opiekunów w pobliżu Twojego domu. Wygodnie i bez stresu dla zwierzęcia.</p>
                 </div>
-                <div class="p-4 sm:p-6">
-                    <div class="text-3xl sm:text-4xl md:text-5xl font-bold text-indigo-600 mb-1 sm:mb-2">98%</div>
-                    <div class="text-sm sm:text-base lg:text-lg text-gray-600">Zadowolonych klientów</div>
+
+                <!-- Feature 3: Komunikacja -->
+                <div class="group text-center p-8 rounded-3xl bg-white shadow-soft hover:shadow-large transition-all duration-300 hover:-translate-y-2">
+                    <div class="w-16 h-16 mx-auto mb-6 bg-info-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-8 h-8 text-info-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4 text-gray-900">Komunikacja real-time</h3>
+                    <p class="text-gray-600 leading-relaxed">Bądź w stałym kontakcie z opiekunem. Otrzymuj zdjęcia i aktualizacje na żywo.</p>
                 </div>
-                <div class="p-4 sm:p-6">
-                    <div class="text-3xl sm:text-4xl md:text-5xl font-bold text-indigo-600 mb-1 sm:mb-2">24/7</div>
-                    <div class="text-sm sm:text-base lg:text-lg text-gray-600">Wsparcie</div>
+
+                <!-- Feature 4: Płatności -->
+                <div class="group text-center p-8 rounded-3xl bg-white shadow-soft hover:shadow-large transition-all duration-300 hover:-translate-y-2">
+                    <div class="w-16 h-16 mx-auto mb-6 bg-warm-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-8 h-8 text-warm-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4 text-gray-900">Bezpieczne płatności</h3>
+                    <p class="text-gray-600 leading-relaxed">Płać bezpiecznie online. Środki są blokowane do zakończenia usługi.</p>
+                </div>
+
+                <!-- Feature 5: Oceny -->
+                <div class="group text-center p-8 rounded-3xl bg-white shadow-soft hover:shadow-large transition-all duration-300 hover:-translate-y-2">
+                    <div class="w-16 h-16 mx-auto mb-6 bg-warning-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-8 h-8 text-warning-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4 text-gray-900">System ocen</h3>
+                    <p class="text-gray-600 leading-relaxed">Sprawdź opinie innych właścicieli. Wybierz najlepszych opiekunów.</p>
+                </div>
+
+                <!-- Feature 6: Mobilność -->
+                <div class="group text-center p-8 rounded-3xl bg-white shadow-soft hover:shadow-large transition-all duration-300 hover:-translate-y-2">
+                    <div class="w-16 h-16 mx-auto mb-6 bg-nature-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-8 h-8 text-nature-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4 text-gray-900">Mobilna aplikacja</h3>
+                    <p class="text-gray-600 leading-relaxed">Zarządzaj rezerwacjami z telefonu. Wszystko pod ręką, gdy tego potrzebujesz.</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- CTA Section -->
-    <section class="bg-gradient-to-r from-indigo-600 to-purple-600 py-16 sm:py-20 text-center text-white">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6">Zacznij już dziś!</h2>
-            <p class="text-lg sm:text-xl md:text-2xl mb-8 sm:mb-10 opacity-90 max-w-2xl mx-auto">
-                Dołącz do tysięcy zadowolonych właścicieli zwierząt
+    <section class="relative py-20 sm:py-24 overflow-hidden">
+        <!-- Background -->
+        <div class="absolute inset-0 bg-gradient-to-br from-primary-600 via-primary-700 to-warm-600">
+            <div class="absolute inset-0 bg-black/10"></div>
+        </div>
+
+        <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
+            <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
+                Zacznij już dziś!
+            </h2>
+            <p class="text-xl text-white/90 mb-10 max-w-2xl mx-auto leading-relaxed">
+                Dołącz do tysięcy zadowolonych właścicieli zwierząt i znajdź idealnego opiekuna dla swojego pupila
             </p>
-            <a href="{{ route('register') }}" class="inline-block w-full sm:w-auto px-8 sm:px-10 py-3 sm:py-4 bg-white text-indigo-600 rounded-full font-semibold text-base sm:text-lg hover:bg-gray-50 hover:transform hover:-translate-y-1 transition-all duration-300 shadow-lg max-w-xs sm:max-w-none mx-auto">
-                Utwórz darmowe konto
-            </a>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-lg mx-auto">
+                <x-ui.button
+                    variant="secondary"
+                    size="xl"
+                    fullWidth="true"
+                    class="sm:w-auto bg-white text-primary-600 hover:bg-gray-50 shadow-large"
+                >
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                    Utwórz darmowe konto
+                </x-ui.button>
+
+                <x-ui.button
+                    variant="outline"
+                    size="xl"
+                    fullWidth="true"
+                    class="sm:w-auto border-white text-white hover:bg-white/10"
+                >
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Dowiedz się więcej
+                </x-ui.button>
+            </div>
+
+            <!-- Small trust indicators -->
+            <div class="mt-12 pt-8 border-t border-white/20">
+                <p class="text-white/70 text-sm mb-4">Zaufali nam już:</p>
+                <div class="flex flex-wrap justify-center items-center gap-8 text-white/80">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-nature-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span class="text-sm">1,200+ opiekunów</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-warning-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        <span class="text-sm">98% zadowolenia</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-info-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="text-sm">24/7 wsparcie</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 </x-layouts.app>

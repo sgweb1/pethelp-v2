@@ -15,7 +15,11 @@ class Pet extends Model
     protected function casts(): array
     {
         return [
-            'special_needs' => 'array',
+            'birth_date' => 'date',
+            'weight' => 'decimal:2',
+            'medical_info' => 'array',
+            'behavior_traits' => 'array',
+            'emergency_contacts' => 'array',
             'is_active' => 'boolean',
         ];
     }
@@ -25,19 +29,26 @@ class Pet extends Model
         'name',
         'type',
         'breed',
-        'size',
-        'age',
+        'birth_date',
         'gender',
+        'weight',
         'description',
-        'special_needs',
-        'photo',
+        'medical_info',
+        'behavior_traits',
+        'photo_url',
+        'emergency_contacts',
         'is_active',
     ];
 
     // Relationships
-    public function owner(): BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    public function owner(): BelongsTo
+    {
+        return $this->user();
     }
 
     public function bookings(): HasMany

@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\User;
+use App\Models\UserProfile;
+use App\Models\Pet;
 use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\Location;
@@ -130,7 +132,25 @@ class TestDataSeeder extends Seeder
                 ]);
             }
 
-            // Pomijamy tworzenie profilu - tabela nie istnieje
+            // Tworzymy profil użytkownika jako sitter
+            $profile = UserProfile::where('user_id', $user->id)->first();
+
+            if (!$profile) {
+                $nameParts = explode(' ', $sitterData['name']);
+                $firstName = $nameParts[0];
+                $lastName = isset($nameParts[1]) ? $nameParts[1] : '';
+
+                UserProfile::create([
+                    'user_id' => $user->id,
+                    'role' => 'sitter',
+                    'first_name' => $firstName,
+                    'last_name' => $lastName,
+                    'phone' => $sitterData['phone'],
+                    'bio' => 'Doświadczony opiekun zwierząt z ' . $sitterData['city'] . '. Oferuję profesjonalną opiekę nad Twoimi pupilami.',
+                    'is_verified' => true,
+                    'verified_at' => now(),
+                ]);
+            }
 
             // Sprawdzamy czy lokalizacja już istnieje
             $location = Location::where('user_id', $user->id)->first();
@@ -180,7 +200,105 @@ class TestDataSeeder extends Seeder
             }
         }
 
+        // Dodajmy kilku właścicieli zwierząt (owners)
+        $owners = [
+            [
+                'name' => 'Jan Kowalski',
+                'email' => 'jan.kowalski@example.com',
+                'phone' => '+48 555 123 456',
+                'city' => 'Warszawa',
+            ],
+            [
+                'name' => 'Maria Nowak',
+                'email' => 'maria.nowak@example.com',
+                'phone' => '+48 555 234 567',
+                'city' => 'Kraków',
+            ],
+            [
+                'name' => 'Piotr Wiśniewski',
+                'email' => 'piotr.wisniewski@example.com',
+                'phone' => '+48 555 345 678',
+                'city' => 'Gdańsk',
+            ]
+        ];
+
+        foreach ($owners as $ownerData) {
+            $user = User::where('email', $ownerData['email'])->first();
+
+            if (!$user) {
+                $user = User::create([
+                    'name' => $ownerData['name'],
+                    'email' => $ownerData['email'],
+                    'email_verified_at' => now(),
+                    'password' => bcrypt('password')
+                ]);
+            }
+
+            // Tworzymy profil właściciela
+            $profile = UserProfile::where('user_id', $user->id)->first();
+
+            if (!$profile) {
+                $nameParts = explode(' ', $ownerData['name']);
+                $firstName = $nameParts[0];
+                $lastName = isset($nameParts[1]) ? $nameParts[1] : '';
+
+                UserProfile::create([
+                    'user_id' => $user->id,
+                    'role' => 'owner',
+                    'first_name' => $firstName,
+                    'last_name' => $lastName,
+                    'phone' => $ownerData['phone'],
+                    'bio' => 'Kochający właściciel zwierząt z ' . $ownerData['city'] . '.',
+                    'is_verified' => true,
+                    'verified_at' => now(),
+                ]);
+            }
+
+            // Dodajmy przykładowe zwierzęta dla właścicieli
+            if ($ownerData['email'] === 'jan.kowalski@example.com') {
+                $this->createPetsForUser($user, [
+                    ['name' => 'Rex', 'type' => 'dog', 'breed' => 'Golden Retriever', 'gender' => 'male', 'size' => 'large'],
+                    ['name' => 'Luna', 'type' => 'cat', 'breed' => 'Maine Coon', 'gender' => 'female', 'size' => 'medium']
+                ]);
+            } elseif ($ownerData['email'] === 'maria.nowak@example.com') {
+                $this->createPetsForUser($user, [
+                    ['name' => 'Bella', 'type' => 'dog', 'breed' => 'Labrador', 'gender' => 'female', 'size' => 'large']
+                ]);
+            } elseif ($ownerData['email'] === 'piotr.wisniewski@example.com') {
+                $this->createPetsForUser($user, [
+                    ['name' => 'Max', 'type' => 'dog', 'breed' => 'Husky', 'gender' => 'male', 'size' => 'large'],
+                    ['name' => 'Mila', 'type' => 'cat', 'breed' => 'Perski', 'gender' => 'female', 'size' => 'small'],
+                    ['name' => 'Kiwi', 'type' => 'bird', 'breed' => 'Papuga', 'gender' => 'male', 'size' => 'small']
+                ]);
+            }
+        }
+
         $this->command->info('Testowe dane zostały utworzone pomyślnie!');
         $this->command->info('Utworzono ' . count($sitters) . ' opiekunów z usługami.');
+        $this->command->info('Utworzono ' . count($owners) . ' właścicieli zwierząt.');
+    }
+
+    private function createPetsForUser($user, $pets)
+    {
+        foreach ($pets as $petData) {
+            $existingPet = Pet::where('owner_id', $user->id)
+                              ->where('name', $petData['name'])
+                              ->first();
+
+            if (!$existingPet) {
+                Pet::create([
+                    'owner_id' => $user->id,
+                    'name' => $petData['name'],
+                    'type' => $petData['type'],
+                    'breed' => $petData['breed'],
+                    'size' => $petData['size'],
+                    'age' => rand(1, 8),
+                    'gender' => $petData['gender'],
+                    'description' => 'Wspaniały pupil, bardzo przyjazny i energiczny.',
+                    'special_needs' => null,
+                    'is_active' => true
+                ]);
+            }
+        }
     }
 }

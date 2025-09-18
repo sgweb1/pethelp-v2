@@ -29,7 +29,7 @@ new class extends Component {
         <!-- Welcome Header -->
         <div class="mb-8">
             <h1 class="text-2xl sm:text-3xl font-bold text-white mb-2">
-                Witaj {{ auth()->user()->profile->first_name ?? auth()->user()->name }}! 🐾
+                Witaj {{ auth()->user()->profile?->first_name ?? auth()->user()->name }}! 🐾
             </h1>
             <p class="text-white/90">Panel właściciela - zarządzaj opieką nad swoimi pupilami</p>
         </div>

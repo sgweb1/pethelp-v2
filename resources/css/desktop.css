@@ -1,0 +1,72 @@
+/* Desktop-specific styles for PetHelp */
+
+/* Ensure all containers fit within viewport on desktop */
+@media (min-width: 1024px) {
+    /* Main body container */
+    .desktop-container {
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    /* Window-like content areas */
+    .desktop-window {
+        max-height: 90vh;
+        overflow-y: auto;
+        /* Hide scrollbars while maintaining scroll functionality */
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+
+    .desktop-window::-webkit-scrollbar {
+        display: none;  /* Safari and Chrome */
+    }
+
+    /* Content sections that need internal scrolling */
+    .desktop-content {
+        height: calc(100vh - 100px); /* Account for header */
+        overflow-y: auto;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .desktop-content::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Form containers in desktop mode */
+    .desktop-form {
+        max-height: 80vh;
+        overflow-y: auto;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .desktop-form::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Search results in desktop */
+    .desktop-search-results {
+        max-height: 70vh;
+        overflow-y: auto;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .desktop-search-results::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+/* Ensure mobile maintains normal scrolling */
+@media (max-width: 1023px) {
+    .desktop-container,
+    .desktop-window,
+    .desktop-content,
+    .desktop-form,
+    .desktop-search-results {
+        height: auto;
+        max-height: none;
+        overflow: visible;
+    }
+}

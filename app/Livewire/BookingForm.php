@@ -168,10 +168,14 @@ class BookingForm extends Component
 
         session()->flash('success', 'Rezerwacja została utworzona! Oczekuje na potwierdzenie przez opiekuna.');
 
-        return redirect()->route('dashboard');
+        // Redirect to chat with booking context
+        return redirect()->route('chat', [
+            'user' => $this->service->sitter->id,
+            'booking' => $booking->id
+        ]);
     }
 
-    public function createAndPay(): void
+    public function createAndPay()
     {
         if (!Auth::check()) {
             return redirect()->route('login');

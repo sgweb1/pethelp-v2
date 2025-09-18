@@ -7,6 +7,15 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Test CSRF
+Route::get('/test-csrf', function () {
+    return view('test-csrf');
+});
+
+Route::post('/test-csrf', function () {
+    return 'CSRF działa poprawnie!';
+})->name('test-csrf');
+
 Route::get('/search', function () {
     return view('search');
 })->name('search');
@@ -20,6 +29,14 @@ Route::get('/booking/{service}', function(\App\Models\Service $service) {
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->name('dashboard')->middleware('auth');
+
+Route::get('/pets', function () {
+    return view('pets.index');
+})->name('pets.index')->middleware('auth');
+
+Route::get('/pets/create', function () {
+    return view('pets.create');
+})->name('pets.create')->middleware('auth');
 
 Route::get('/bookings', function () {
     $view = request('view', 'owner');

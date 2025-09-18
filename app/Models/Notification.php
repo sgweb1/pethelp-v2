@@ -103,6 +103,6 @@ class Notification extends Model
             'review_received' => 'Nowa opinia',
             'reminder' => 'Przypomnienie',
             default => 'Powiadomienie'
-        ];
+        };
     }
 }

@@ -37,52 +37,73 @@ new #[Layout('layouts.guest')] class extends Component
 }; ?>
 
 <div>
-    <form wire:submit="register">
+    <form wire:submit="register" class="space-y-6">
         <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input wire:model="name" id="name" class="block mt-1 w-full" type="text" name="name" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
-        </div>
+        <x-ui.input
+            wire:model="name"
+            id="name"
+            type="text"
+            label="Imię i nazwisko"
+            icon="user"
+            required
+            autofocus
+            autocomplete="name"
+            error="{{ $errors->first('name') }}"
+            hint="Wpisz swoje imię i nazwisko"
+        />
 
         <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input wire:model="email" id="email" class="block mt-1 w-full" type="email" name="email" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+        <x-ui.input
+            wire:model="email"
+            id="email"
+            type="email"
+            label="Adres email"
+            icon="email"
+            required
+            autocomplete="username"
+            error="{{ $errors->first('email') }}"
+            hint="Będzie to Twój login do systemu"
+        />
 
         <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input wire:model="password" id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+        <x-ui.input
+            wire:model="password"
+            id="password"
+            type="password"
+            label="Hasło"
+            required
+            autocomplete="new-password"
+            error="{{ $errors->first('password') }}"
+            hint="Minimum 8 znaków, zawierające litery i cyfry"
+        />
 
         <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+        <x-ui.input
+            wire:model="password_confirmation"
+            id="password_confirmation"
+            type="password"
+            label="Potwierdź hasło"
+            required
+            autocomplete="new-password"
+            error="{{ $errors->first('password_confirmation') }}"
+            hint="Wpisz hasło ponownie"
+        />
 
-            <x-text-input wire:model="password_confirmation" id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}" wire:navigate>
-                {{ __('Already registered?') }}
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4">
+            <a
+                href="{{ route('login') }}"
+                wire:navigate
+                class="text-sm text-primary-600 hover:text-primary-700 underline-offset-4 hover:underline transition-colors duration-200"
+            >
+                Masz już konto? Zaloguj się
             </a>
 
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
+            <x-ui.button variant="primary" size="lg" type="submit" class="w-full sm:w-auto">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+                Utwórz konto
+            </x-ui.button>
         </div>
     </form>
 </div>

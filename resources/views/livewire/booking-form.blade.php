@@ -14,6 +14,25 @@
         @endif
     </div>
 
+    <!-- Chat with Sitter -->
+    @auth
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-8">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="text-2xl">💬</div>
+                    <div>
+                        <h3 class="font-semibold text-blue-900">Masz pytania?</h3>
+                        <p class="text-blue-800 text-sm">Skontaktuj się z opiekunem przed rezerwacją</p>
+                    </div>
+                </div>
+                <a href="{{ route('chat') }}?user={{ $service->sitter->id }}"
+                   class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+                    Napisz wiadomość
+                </a>
+            </div>
+        </div>
+    @endauth
+
     <!-- Booking Form -->
     <div class="bg-white/95 backdrop-blur-md rounded-xl shadow-lg p-6">
         <h2 class="text-xl font-bold text-gray-900 mb-6">Zarezerwuj tę usługę</h2>
