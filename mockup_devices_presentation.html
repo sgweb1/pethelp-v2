@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetHelp - Prezentacja na urządzeniach</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 80px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ffffff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 20px rgba(255,255,255,0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+
+        .header .tagline {
+            display: inline-block;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 12px 30px;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.2);
+            font-weight: 500;
+        }
+
+        /* Navigation */
+        .nav-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 60px;
+            z-index: 10;
+            position: relative;
+        }
+
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .nav-dot.active {
+            background: white;
+            box-shadow: 0 0 20px rgba(255,255,255,0.5);
+        }
+
+        .nav-dot:hover {
+            background: rgba(255,255,255,0.6);
+            transform: scale(1.2);
+        }
+
+        /* 3D Scene Container */
+        .scene-container {
+            perspective: 1200px;
+            perspective-origin: center center;
+            height: 600px;
+            position: relative;
+            margin-bottom: 80px;
+        }
+
+        .devices-scene {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        /* Device Frames */
+        .device {
+            position: absolute;
+            transform-style: preserve-3d;
+            transition: all 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        /* MacBook Pro */
+        .macbook {
+            left: 15%;
+            top: 20%;
+            transform: rotateX(-5deg) rotateY(15deg) rotateZ(-2deg);
+        }
+
+        .macbook-base {
+            width: 420px;
+            height: 280px;
+            background: linear-gradient(145deg, #2c2c2c 0%, #1a1a1a 100%);
+            border-radius: 12px;
+            position: relative;
+            box-shadow:
+                0 20px 60px rgba(0,0,0,0.4),
+                0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .macbook-screen {
+            width: 380px;
+            height: 240px;
+            background: #000;
+            border-radius: 8px;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            overflow: hidden;
+            border: 2px solid #333;
+        }
+
+        .macbook-screen iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            transform: scale(1);
+            transform-origin: center center;
+        }
+
+        .macbook-base::after {
+            content: '';
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: #444;
+            border-radius: 2px;
+        }
+
+        /* iPhone */
+        .iphone {
+            right: 20%;
+            top: 15%;
+            transform: rotateX(5deg) rotateY(-15deg) rotateZ(8deg);
+        }
+
+        .iphone-frame {
+            width: 160px;
+            height: 320px;
+            background: linear-gradient(145deg, #2c2c2c 0%, #1a1a1a 100%);
+            border-radius: 25px;
+            position: relative;
+            padding: 8px;
+            box-shadow:
+                0 25px 80px rgba(0,0,0,0.4),
+                0 8px 30px rgba(0,0,0,0.3);
+        }
+
+        .iphone-screen {
+            width: 100%;
+            height: 100%;
+            background: #000;
+            border-radius: 18px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .iphone-screen iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .iphone-notch {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 20px;
+            background: #1a1a1a;
+            border-radius: 10px;
+            z-index: 10;
+        }
+
+        .iphone-button {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 3px;
+            background: #444;
+            border-radius: 2px;
+        }
+
+        /* iPad */
+        .ipad {
+            left: 50%;
+            top: 40%;
+            transform: translateX(-50%) rotateX(-10deg) rotateY(0deg) rotateZ(-1deg);
+        }
+
+        .ipad-frame {
+            width: 280px;
+            height: 370px;
+            background: linear-gradient(145deg, #2c2c2c 0%, #1a1a1a 100%);
+            border-radius: 20px;
+            position: relative;
+            padding: 15px;
+            box-shadow:
+                0 30px 100px rgba(0,0,0,0.4),
+                0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .ipad-screen {
+            width: 100%;
+            height: 100%;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .ipad-screen iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            transform: scale(1);
+            transform-origin: center center;
+        }
+
+        .ipad-button {
+            position: absolute;
+            bottom: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 3px;
+            background: #444;
+            border-radius: 2px;
+        }
+
+        /* Apple Watch */
+        .apple-watch {
+            right: 8%;
+            bottom: 25%;
+            transform: rotateX(10deg) rotateY(-25deg) rotateZ(15deg);
+        }
+
+        .watch-frame {
+            width: 120px;
+            height: 140px;
+            background: linear-gradient(145deg, #2c2c2c 0%, #1a1a1a 100%);
+            border-radius: 25px;
+            position: relative;
+            padding: 8px;
+            box-shadow:
+                0 20px 60px rgba(0,0,0,0.5),
+                0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .watch-screen {
+            width: 100%;
+            height: 100%;
+            background: #000;
+            border-radius: 18px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .watch-crown {
+            position: absolute;
+            right: -3px;
+            top: 30%;
+            width: 6px;
+            height: 15px;
+            background: #444;
+            border-radius: 3px;
+        }
+
+        .watch-band {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 20px;
+            background: #333;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .watch-band::after {
+            content: '';
+            position: absolute;
+            bottom: -140px;
+            left: 0;
+            width: 30px;
+            height: 20px;
+            background: #333;
+            border-radius: 0 0 15px 15px;
+        }
+
+        /* Scene Variations */
+        .scene-1 .macbook { transform: rotateX(-5deg) rotateY(15deg) rotateZ(-2deg); }
+        .scene-1 .iphone { transform: rotateX(5deg) rotateY(-15deg) rotateZ(8deg); }
+        .scene-1 .ipad { transform: translateX(-50%) rotateX(-10deg) rotateY(0deg) rotateZ(-1deg); }
+        .scene-1 .apple-watch { transform: rotateX(10deg) rotateY(-25deg) rotateZ(15deg); }
+
+        .scene-2 .macbook { transform: rotateX(-8deg) rotateY(25deg) rotateZ(-3deg) translateZ(20px); }
+        .scene-2 .iphone { transform: rotateX(8deg) rotateY(-25deg) rotateZ(12deg) translateZ(30px); }
+        .scene-2 .ipad { transform: translateX(-50%) rotateX(-15deg) rotateY(5deg) rotateZ(-2deg) translateZ(10px); }
+        .scene-2 .apple-watch { transform: rotateX(15deg) rotateY(-35deg) rotateZ(20deg) translateZ(25px); }
+
+        .scene-3 .macbook { transform: rotateX(-3deg) rotateY(5deg) rotateZ(-1deg) translateZ(15px); }
+        .scene-3 .iphone { transform: rotateX(3deg) rotateY(-5deg) rotateZ(4deg) translateZ(20px); }
+        .scene-3 .ipad { transform: translateX(-50%) rotateX(-5deg) rotateY(-3deg) rotateZ(0deg) translateZ(5px); }
+        .scene-3 .apple-watch { transform: rotateX(5deg) rotateY(-15deg) rotateZ(8deg) translateZ(15px); }
+
+        /* Floating Elements */
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .floating-icon {
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0.15;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-icon:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+        .floating-icon:nth-child(2) { top: 20%; right: 15%; animation-delay: 1s; }
+        .floating-icon:nth-child(3) { bottom: 20%; left: 20%; animation-delay: 2s; }
+        .floating-icon:nth-child(4) { bottom: 30%; right: 10%; animation-delay: 3s; }
+        .floating-icon:nth-child(5) { top: 50%; left: 5%; animation-delay: 4s; }
+        .floating-icon:nth-child(6) { top: 60%; right: 5%; animation-delay: 5s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        /* Info Panel */
+        .info-panel {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .info-panel h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .info-panel p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .feature-item {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.15);
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .feature-item h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .feature-item p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin: 0;
+        }
+
+        /* Call to Action */
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .cta-btn {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 15px 35px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            border: 1px solid rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .cta-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .cta-btn.primary {
+            background: white;
+            color: #1e3c72;
+        }
+
+        .cta-btn.primary:hover {
+            background: #f8f9ff;
+            color: #1e3c72;
+        }
+
+        /* Auto-rotation */
+        .auto-rotate .devices-scene {
+            animation: autoRotate 20s infinite linear;
+        }
+
+        @keyframes autoRotate {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .scene-container { height: 500px; }
+            .macbook-base { width: 350px; height: 240px; }
+            .macbook-screen { width: 310px; height: 200px; top: 20px; left: 20px; }
+            .ipad-frame { width: 240px; height: 320px; }
+            .iphone-frame { width: 140px; height: 280px; }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2.5rem; }
+            .header .subtitle { font-size: 1.1rem; }
+            .scene-container { height: 400px; }
+            .macbook { left: 10%; }
+            .iphone { right: 15%; }
+            .apple-watch { right: 5%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🐾 PetHelp</h1>
+            <p class="subtitle">Profesjonalna platforma łącząca właścicieli zwierząt z opiekunami</p>
+            <span class="tagline">Dostępna na wszystkich urządzeniach</span>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-controls">
+            <div class="nav-dot active" onclick="changeScene(1)"></div>
+            <div class="nav-dot" onclick="changeScene(2)"></div>
+            <div class="nav-dot" onclick="changeScene(3)"></div>
+        </div>
+
+        <!-- 3D Scene -->
+        <div class="scene-container">
+            <div class="devices-scene scene-1" id="devicesScene">
+                <!-- Floating Elements -->
+                <div class="floating-elements">
+                    <div class="floating-icon">🐕</div>
+                    <div class="floating-icon">🐱</div>
+                    <div class="floating-icon">🐾</div>
+                    <div class="floating-icon">❤️</div>
+                    <div class="floating-icon">⭐</div>
+                    <div class="floating-icon">🏠</div>
+                </div>
+
+                <!-- MacBook Pro -->
+                <div class="device macbook">
+                    <div class="macbook-base">
+                        <div class="macbook-screen">
+                            <iframe src="mockup_desktop_landing.html"></iframe>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- iPhone -->
+                <div class="device iphone">
+                    <div class="iphone-frame">
+                        <div class="iphone-notch"></div>
+                        <div class="iphone-screen">
+                            <iframe src="mockup_mobile_landing.html"></iframe>
+                        </div>
+                        <div class="iphone-button"></div>
+                    </div>
+                </div>
+
+                <!-- iPad -->
+                <div class="device ipad">
+                    <div class="ipad-frame">
+                        <div class="ipad-screen">
+                            <iframe src="mockup_desktop_dashboard.html"></iframe>
+                        </div>
+                        <div class="ipad-button"></div>
+                    </div>
+                </div>
+
+                <!-- Apple Watch -->
+                <div class="device apple-watch">
+                    <div class="watch-frame">
+                        <div class="watch-crown"></div>
+                        <div class="watch-band"></div>
+                        <div class="watch-screen">🐾</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Panel -->
+        <div class="info-panel">
+            <h2>Nowoczesna aplikacja PetHelp</h2>
+            <p>Kompleksowe rozwiązanie dla właścicieli zwierząt i opiekunów. Zbudowana w oparciu o najnowsze technologie z myślą o bezpieczeństwie i wygodzie użytkowników.</p>
+
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <span class="feature-icon">🖥️</span>
+                    <h3>Web App</h3>
+                    <p>Responsywna aplikacja webowa</p>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">📱</span>
+                    <h3>Mobile First</h3>
+                    <p>Optymalizowana dla urządzeń mobilnych</p>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">⚡</span>
+                    <h3>Real-time</h3>
+                    <p>Komunikacja i powiadomienia na żywo</p>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🔒</span>
+                    <h3>Bezpieczeństwo</h3>
+                    <p>Weryfikacja i ubezpieczenie</p>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">💳</span>
+                    <h3>Płatności</h3>
+                    <p>Bezpieczne transakcje online</p>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🗺️</span>
+                    <h3>Geolokalizacja</h3>
+                    <p>Znajdź opiekunów w okolicy</p>
+                </div>
+            </div>
+
+            <div class="cta-buttons">
+                <a href="mockup_presentation.html" class="cta-btn">Pełna prezentacja</a>
+                <a href="mockup_desktop_landing.html" class="cta-btn">Landing Desktop</a>
+                <a href="mockup_desktop_dashboard.html" class="cta-btn">Dashboard Desktop</a>
+                <a href="mockup_desktop_search.html" class="cta-btn">Search Desktop</a>
+                <a href="mockup_mobile_landing.html" class="cta-btn">Landing Mobile</a>
+                <a href="mockup_mobile_dashboard.html" class="cta-btn">Dashboard Mobile</a>
+                <a href="mockup_mobile_search.html" class="cta-btn">Search Mobile</a>
+                <a href="HARMONOGRAM_WDROZENIA_PETHELP.md" class="cta-btn">Harmonogram</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentScene = 1;
+        let autoRotateTimer;
+
+        function changeScene(sceneNumber) {
+            const scene = document.getElementById('devicesScene');
+            const dots = document.querySelectorAll('.nav-dot');
+
+            // Remove all scene classes
+            scene.className = 'devices-scene';
+
+            // Add new scene class
+            scene.classList.add(`scene-${sceneNumber}`);
+
+            // Update dots
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index + 1 === sceneNumber);
+            });
+
+            currentScene = sceneNumber;
+
+            // Update device content based on scene
+            updateDeviceContent(sceneNumber);
+
+            // Reset auto-rotation
+            clearTimeout(autoRotateTimer);
+            scene.classList.remove('auto-rotate');
+
+            // Start auto-rotation after 5 seconds
+            autoRotateTimer = setTimeout(() => {
+                scene.classList.add('auto-rotate');
+            }, 5000);
+        }
+
+        function updateDeviceContent(sceneNumber) {
+            const macbookIframe = document.querySelector('.macbook iframe');
+            const ipadIframe = document.querySelector('.ipad iframe');
+            const iphoneIframe = document.querySelector('.iphone iframe');
+
+            switch(sceneNumber) {
+                case 1:
+                    macbookIframe.src = 'mockup_desktop_landing.html';
+                    ipadIframe.src = 'mockup_desktop_dashboard.html';
+                    iphoneIframe.src = 'mockup_mobile_landing.html';
+                    break;
+                case 2:
+                    macbookIframe.src = 'mockup_desktop_dashboard.html';
+                    ipadIframe.src = 'mockup_desktop_search.html';
+                    iphoneIframe.src = 'mockup_mobile_dashboard.html';
+                    break;
+                case 3:
+                    macbookIframe.src = 'mockup_desktop_search.html';
+                    ipadIframe.src = 'mockup_desktop_landing.html';
+                    iphoneIframe.src = 'mockup_mobile_search.html';
+                    break;
+            }
+        }
+
+        // Auto-advance scenes
+        setInterval(() => {
+            currentScene = currentScene >= 3 ? 1 : currentScene + 1;
+            changeScene(currentScene);
+        }, 8000);
+
+        // Mouse interaction
+        let mouseX = 0;
+        let mouseY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+            mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+
+            const scene = document.getElementById('devicesScene');
+            if (!scene.classList.contains('auto-rotate')) {
+                const rotateY = mouseX * 10;
+                const rotateX = mouseY * -5;
+                scene.style.transform = `rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
+            }
+        });
+
+        // Initialize
+        changeScene(1);
+
+        // Touch support for mobile
+        let touchStartX = 0;
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            const touchEndX = e.changedTouches[0].clientX;
+            const diff = touchStartX - touchEndX;
+
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) {
+                    // Swipe left - next scene
+                    currentScene = currentScene >= 3 ? 1 : currentScene + 1;
+                } else {
+                    // Swipe right - previous scene
+                    currentScene = currentScene <= 1 ? 3 : currentScene - 1;
+                }
+                changeScene(currentScene);
+            }
+        });
+    </script>
+</body>
+</html>

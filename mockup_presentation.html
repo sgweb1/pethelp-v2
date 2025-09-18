@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetHelp - Prezentacja aplikacji</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .header h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 24px;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .header-badges {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-tab {
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .nav-tab.active {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Device Frames */
+        .devices-showcase {
+            display: none;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            margin-bottom: 60px;
+        }
+
+        .devices-showcase.active {
+            display: grid;
+        }
+
+        .device-frame {
+            position: relative;
+            background: #333;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        /* Desktop Frame */
+        .desktop-frame {
+            background: linear-gradient(145deg, #2c2c2c, #1a1a1a);
+            border-radius: 15px;
+            padding: 30px 30px 60px;
+            position: relative;
+        }
+
+        .desktop-frame::after {
+            content: "";
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 8px;
+            background: #555;
+            border-radius: 4px;
+        }
+
+        .desktop-screen {
+            width: 100%;
+            height: 400px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .desktop-screen iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            transform: scale(1);
+            transform-origin: center center;
+        }
+
+        /* Mobile Frame */
+        .mobile-frame {
+            background: linear-gradient(145deg, #2c2c2c, #1a1a1a);
+            border-radius: 25px;
+            padding: 20px;
+            width: 280px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .mobile-frame::before {
+            content: "";
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 5px;
+            background: #666;
+            border-radius: 3px;
+        }
+
+        .mobile-frame::after {
+            content: "";
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 4px;
+            background: #666;
+            border-radius: 2px;
+        }
+
+        .mobile-screen {
+            width: 100%;
+            height: 500px;
+            border-radius: 15px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .mobile-screen iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .feature-card p {
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        /* Tech Stack */
+        .tech-stack {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 60px;
+        }
+
+        .tech-stack h2 {
+            text-align: center;
+            font-size: 32px;
+            margin-bottom: 30px;
+        }
+
+        .tech-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .tech-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .tech-item h4 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .tech-item p {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        /* Device Info */
+        .device-info {
+            text-align: center;
+        }
+
+        .device-info h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        .device-info p {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .device-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            text-align: left;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .feature-item span {
+            font-size: 20px;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 60px 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .cta-section h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        .cta-section p {
+            font-size: 20px;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .cta-btn {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s;
+        }
+
+        .cta-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+        }
+
+        .cta-btn.primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .cta-btn.primary:hover {
+            background: #f8f9ff;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .devices-showcase {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .desktop-screen {
+                height: 300px;
+            }
+
+            .mobile-frame {
+                width: 240px;
+            }
+
+            .mobile-screen {
+                height: 400px;
+            }
+
+            .header h1 {
+                font-size: 32px;
+            }
+
+            .header p {
+                font-size: 18px;
+            }
+
+            .device-features {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🐾 PetHelp</h1>
+            <p>Platforma łącząca właścicieli zwierząt z opiekunami</p>
+            <div class="header-badges">
+                <span class="badge">Laravel 12</span>
+                <span class="badge">Vue.js 3</span>
+                <span class="badge">Inertia.js</span>
+                <span class="badge">Tailwind CSS</span>
+                <span class="badge">Real-time Chat</span>
+                <span class="badge">PayU Integration</span>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showSection('landing')">Strona główna</button>
+            <button class="nav-tab" onclick="showSection('dashboard')">Dashboard</button>
+            <button class="nav-tab" onclick="showSection('search')">Wyszukiwanie</button>
+            <button class="nav-tab" onclick="showSection('features')">Funkcjonalności</button>
+            <button class="nav-tab" onclick="showSection('tech')">Technologie</button>
+        </div>
+
+        <!-- Landing Section -->
+        <div id="landing" class="devices-showcase active">
+            <div class="device-frame desktop-frame">
+                <div class="desktop-screen">
+                    <iframe src="mockup_desktop_landing.html"></iframe>
+                </div>
+            </div>
+            <div class="device-info">
+                <h2>Strona główna</h2>
+                <p>Nowoczesna strona landing z hero section, funkcjonalnościami i call-to-action. Responsywny design z gradientami i animacjami.</p>
+                <div class="device-features">
+                    <div class="feature-item">
+                        <span>🎨</span>
+                        <span>Nowoczesny design</span>
+                    </div>
+                    <div class="feature-item">
+                        <span>📱</span>
+                        <span>Responsywny layout</span>
+                    </div>
+                    <div class="feature-item">
+                        <span>🚀</span>
+                        <span>Szybkie ładowanie</span>
+                    </div>
+                    <div class="feature-item">
+                        <span>✨</span>
+                        <span>Animacje CSS</span>
+                    </div>
+                </div>
+                <br>
+                <div class="mobile-frame">
+                    <div class="mobile-screen">
+                        <iframe src="mockup_mobile_landing.html"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="devices-showcase">
+            <div class="device-frame desktop-frame">
+                <div class="desktop-screen">
+                    <iframe src="mockup_desktop_dashboard.html"></iframe>
+                </div>
+            </div>
+            <div class="device-info">
+                <h2>Dashboard właściciela</h2>
+                <p>Intuicyjny dashboard z statystykami, szybkimi akcjami, przeglądem zwierząt i aktywnością. Real-time updates i notyfikacje.</p>
+                <div class="device-features">
+                    <div class="feature-item">
+                        <span>📊</span>
+                        <span>Statystyki w czasie rzeczywistym</span>
+                    </div>
+                    <div class="feature-item">
+                        <span>🔔</span>
+                        <span>Powiadomienia push</span>
+                    </div>
+                    <div class="feature-item">
+                        <span>⚡</span>
+                        <span>Szybkie akcje</span>
+                    </div>
+                    <div class="feature-item">
+                        <span>📅</span>
+                        <span>Kalendarz rezerwacji</span>
+                    </div>
+                </div>
+                <br>
+                <div class="mobile-frame">
+                    <div class="mobile-screen">
+                        <iframe src="mockup_mobile_dashboard.html"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Section -->
+        <div id="search" class="devices-showcase">
+            <div class="device-frame desktop-frame">
+                <div class="desktop-screen">
+                    <iframe src="mockup_desktop_search.html"></iframe>
+                </div>
+            </div>
+            <div class="device-info">
+                <h2>Wyszukiwanie opiekunów</h2>
+                <p>Zaawansowany system wyszukiwania z filtrami, mapą, ocenami i dostępnością. Integracja z geolokalizacją.</p>
+                <div class="device-features">
+                    <div class="feature-item">
+                        <span>🗺️</span>
+                        <span>Mapa interaktywna</span>
+                    </div>
+                    <div class="feature-item">
+                        <span>🔍</span>
+                        <span>Zaawansowane filtry</span>
+                    </div>
+                    <div class="feature-item">
+                        <span>⭐</span>
+                        <span>System ocen</span>
+                    </div>
+                    <div class="feature-item">
+                        <span>📍</span>
+                        <span>Geolokalizacja</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div id="features" class="features-grid" style="display: none;">
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3>Bezpieczeństwo</h3>
+                <p>Weryfikacja tożsamości, sprawdzanie przeszłości kryminalnej, ubezpieczenie i system escrow dla płatności.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💬</div>
+                <h3>Real-time Chat</h3>
+                <p>Komunikacja na żywo z Laravel Reverb, wysyłanie zdjęć, lokalizacji i statusów opieki.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💳</div>
+                <h3>Płatności PayU</h3>
+                <p>Bezpieczne płatności online z PayU, automatyczne blokowanie środków i wypłaty po zakończeniu usługi.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⭐</div>
+                <h3>System ocen</h3>
+                <p>Szczegółowe oceny komunikacji, niezawodności i jakości opieki z możliwością komentarzy.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📅</div>
+                <h3>Kalendarz dostępności</h3>
+                <p>Zarządzanie dostępnością opiekunów, automatyczne rezerwacje i przypomnienia.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🐾</div>
+                <h3>Profile zwierząt</h3>
+                <p>Szczegółowe profile z danymi medycznymi, preferencjami, zdjęciami i historią opieki.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔔</div>
+                <h3>Powiadomienia</h3>
+                <p>Push notifications, email i SMS o statusie rezerwacji, wiadomościach i aktulalizacjach.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🏥</div>
+                <h3>Integracja z weterynarzami</h3>
+                <p>Współpraca z klinikami weterynaryjnymi, dostęp do historii medycznej i nagłe przypadki.</p>
+            </div>
+        </div>
+
+        <!-- Tech Stack Section -->
+        <div id="tech" class="tech-stack" style="display: none;">
+            <h2>Stack technologiczny</h2>
+            <div class="tech-items">
+                <div class="tech-item">
+                    <h4>🐘 Laravel 12</h4>
+                    <p>Najnowsza wersja frameworka PHP z usprawnieniami wydajności</p>
+                </div>
+                <div class="tech-item">
+                    <h4>🖼️ Filament 4</h4>
+                    <p>Panel administracyjny z zaawansowanymi funkcjami CRUD</p>
+                </div>
+                <div class="tech-item">
+                    <h4>⚡ Vue.js 3</h4>
+                    <p>Composition API, TypeScript i reaktywność</p>
+                </div>
+                <div class="tech-item">
+                    <h4>🔗 Inertia.js</h4>
+                    <p>SPA bez API - łączy Laravel z Vue.js</p>
+                </div>
+                <div class="tech-item">
+                    <h4>💨 Tailwind CSS</h4>
+                    <p>Utility-first CSS framework</p>
+                </div>
+                <div class="tech-item">
+                    <h4>📡 Laravel Reverb</h4>
+                    <p>WebSocket server dla komunikacji real-time</p>
+                </div>
+                <div class="tech-item">
+                    <h4>💳 PayU</h4>
+                    <p>Integracja z polskim systemem płatności</p>
+                </div>
+                <div class="tech-item">
+                    <h4>🗃️ SQLite</h4>
+                    <p>Baza danych dla rozwoju, PostgreSQL dla produkcji</p>
+                </div>
+                <div class="tech-item">
+                    <h4>📦 Vite</h4>
+                    <p>Szybki build tool z hot module replacement</p>
+                </div>
+                <div class="tech-item">
+                    <h4>🧪 Pest</h4>
+                    <p>Framework testowy dla PHP z elegantną składnią</p>
+                </div>
+                <div class="tech-item">
+                    <h4>🗺️ Leaflet</h4>
+                    <p>Interaktywne mapy OpenStreetMap</p>
+                </div>
+                <div class="tech-item">
+                    <h4>🎨 Alpine.js</h4>
+                    <p>Minimalistyczny framework JS dla interaktywności</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA Section -->
+        <div class="cta-section">
+            <h2>Gotowy do wdrożenia</h2>
+            <p>Kompletna aplikacja typu marketplace dla usług pet-sitting z zaawansowanymi funkcjonalnościami</p>
+            <div class="cta-buttons">
+                <a href="mockup_devices_presentation.html" class="cta-btn">Prezentacja 3D</a>
+                <a href="mockup_desktop_landing.html" class="cta-btn">Landing Desktop</a>
+                <a href="mockup_desktop_dashboard.html" class="cta-btn">Dashboard Desktop</a>
+                <a href="mockup_desktop_search.html" class="cta-btn">Search Desktop</a>
+                <a href="mockup_mobile_landing.html" class="cta-btn">Landing Mobile</a>
+                <a href="mockup_mobile_dashboard.html" class="cta-btn">Dashboard Mobile</a>
+                <a href="mockup_mobile_search.html" class="cta-btn">Search Mobile</a>
+                <a href="HARMONOGRAM_WDROZENIA_PETHELP.md" class="cta-btn">Harmonogram wdrożenia</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.devices-showcase, .features-grid, .tech-stack').forEach(el => {
+                el.style.display = 'none';
+                el.classList.remove('active');
+            });
+
+            // Remove active class from all tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected section
+            const section = document.getElementById(sectionName);
+            if (section) {
+                if (sectionName === 'features') {
+                    section.style.display = 'grid';
+                } else if (sectionName === 'tech') {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'grid';
+                    section.classList.add('active');
+                }
+            }
+
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        // Auto-refresh iframes for development
+        setInterval(() => {
+            document.querySelectorAll('iframe').forEach(iframe => {
+                const src = iframe.src;
+                iframe.src = '';
+                iframe.src = src;
+            });
+        }, 30000); // Refresh every 30 seconds
+    </script>
+</body>
+</html>

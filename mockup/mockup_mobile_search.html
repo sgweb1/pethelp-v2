@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetHelp - Wyszukaj opiekuna (Mobile)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9ff;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        /* Mobile Header */
+        .header {
+            background: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .filter-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            background: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e7ff;
+            border-radius: 25px;
+            font-size: 16px;
+            background: #f8f9ff;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Quick Filters */
+        .quick-filters {
+            padding: 15px 20px;
+            background: white;
+            overflow-x: auto;
+        }
+
+        .filters-scroll {
+            display: flex;
+            gap: 10px;
+            padding-bottom: 5px;
+        }
+
+        .filter-chip {
+            background: #f0f0f0;
+            padding: 8px 16px;
+            border-radius: 20px;
+            white-space: nowrap;
+            font-size: 14px;
+            color: #666;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-chip.active {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Map View Toggle */
+        .view-toggle {
+            background: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .toggle-buttons {
+            display: flex;
+            background: #f0f0f0;
+            border-radius: 8px;
+            padding: 3px;
+        }
+
+        .toggle-btn {
+            padding: 8px 20px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-btn.active {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Results */
+        .results-section {
+            padding: 0 20px 20px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .results-count {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .sort-btn {
+            background: white;
+            border: 2px solid #e0e7ff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        /* Map Container */
+        .map-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            height: 250px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 16px;
+        }
+
+        .map-container.active {
+            display: flex;
+        }
+
+        /* Sitter Cards */
+        .sitter-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .sitter-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .sitter-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .sitter-card-content {
+            display: flex;
+            padding: 15px;
+            gap: 15px;
+        }
+
+        .sitter-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .sitter-info {
+            flex: 1;
+        }
+
+        .sitter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .sitter-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .sitter-badge {
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .sitter-location {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .sitter-rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .stars {
+            color: #fbbf24;
+            font-size: 14px;
+        }
+
+        .rating-text {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .sitter-services {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .service-tag {
+            background: #f0f0f0;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            color: #666;
+        }
+
+        .sitter-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price {
+            font-size: 16px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .available-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #16a34a;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .available-dot {
+            width: 6px;
+            height: 6px;
+            background: #16a34a;
+            border-radius: 50%;
+        }
+
+        .contact-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 15px 0 25px;
+            box-shadow: 0 -2px 20px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .nav-items {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #666;
+            font-size: 12px;
+            transition: color 0.3s;
+        }
+
+        .nav-item.active {
+            color: #667eea;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            border: none;
+            font-size: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <button class="back-btn">←</button>
+            <div class="header-title">Znajdź opiekuna</div>
+            <button class="filter-btn">Filtry</button>
+        </nav>
+    </header>
+
+    <!-- Search Bar -->
+    <div class="search-bar">
+        <input type="text" class="search-input" placeholder="Lokalizacja, usługa..." value="Warszawa">
+    </div>
+
+    <!-- Quick Filters -->
+    <div class="quick-filters">
+        <div class="filters-scroll">
+            <span class="filter-chip active">Wszystkie</span>
+            <span class="filter-chip">Psy</span>
+            <span class="filter-chip">Koty</span>
+            <span class="filter-chip">U opiekuna</span>
+            <span class="filter-chip">U właściciela</span>
+            <span class="filter-chip">Spacery</span>
+            <span class="filter-chip">Dostępni dziś</span>
+        </div>
+    </div>
+
+    <!-- View Toggle -->
+    <div class="view-toggle">
+        <div class="toggle-buttons">
+            <button class="toggle-btn" onclick="toggleView('map')">🗺️ Mapa</button>
+            <button class="toggle-btn active" onclick="toggleView('list')">📋 Lista</button>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    <div class="results-section">
+        <div class="results-header">
+            <span class="results-count">24 opiekunów</span>
+            <button class="sort-btn">Sortuj ▼</button>
+        </div>
+
+        <!-- Map Container -->
+        <div class="map-container" id="mapContainer">
+            🗺️ Interaktywna mapa z lokalizacjami opiekunów
+        </div>
+
+        <!-- Sitter List -->
+        <div class="sitter-list" id="sitterList">
+            <div class="sitter-card">
+                <div class="sitter-card-content">
+                    <div class="sitter-avatar">👩‍🦱</div>
+                    <div class="sitter-info">
+                        <div class="sitter-header">
+                            <div class="sitter-name">Anna Kowalska</div>
+                            <div class="sitter-badge">TOP</div>
+                        </div>
+                        <div class="sitter-location">📍 Mokotów, 2.3 km</div>
+                        <div class="sitter-rating">
+                            <span class="stars">⭐⭐⭐⭐⭐</span>
+                            <span class="rating-text">4.9 (127)</span>
+                        </div>
+                        <div class="sitter-services">
+                            <span class="service-tag">Spacery</span>
+                            <span class="service-tag">U opiekuna</span>
+                            <span class="service-tag">Duże psy</span>
+                        </div>
+                        <div class="sitter-footer">
+                            <div>
+                                <div class="price">od 80 PLN/dzień</div>
+                                <div class="available-indicator">
+                                    <div class="available-dot"></div>
+                                    Dostępna dziś
+                                </div>
+                            </div>
+                            <button class="contact-btn">Kontakt</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sitter-card">
+                <div class="sitter-card-content">
+                    <div class="sitter-avatar">🧔‍♂️</div>
+                    <div class="sitter-info">
+                        <div class="sitter-header">
+                            <div class="sitter-name">Marek Nowak</div>
+                            <div class="sitter-badge">VET</div>
+                        </div>
+                        <div class="sitter-location">📍 Praga, 3.1 km</div>
+                        <div class="sitter-rating">
+                            <span class="stars">⭐⭐⭐⭐⭐</span>
+                            <span class="rating-text">4.8 (89)</span>
+                        </div>
+                        <div class="sitter-services">
+                            <span class="service-tag">Weterynarz</span>
+                            <span class="service-tag">Wizyty</span>
+                            <span class="service-tag">Leki</span>
+                        </div>
+                        <div class="sitter-footer">
+                            <div>
+                                <div class="price">od 120 PLN/dzień</div>
+                                <div class="available-indicator">
+                                    <div class="available-dot"></div>
+                                    Dostępny jutro
+                                </div>
+                            </div>
+                            <button class="contact-btn">Kontakt</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sitter-card">
+                <div class="sitter-card-content">
+                    <div class="sitter-avatar">👱‍♀️</div>
+                    <div class="sitter-info">
+                        <div class="sitter-header">
+                            <div class="sitter-name">Katarzyna Wiśniewska</div>
+                        </div>
+                        <div class="sitter-location">📍 Żoliborz, 4.2 km</div>
+                        <div class="sitter-rating">
+                            <span class="stars">⭐⭐⭐⭐⭐</span>
+                            <span class="rating-text">4.7 (156)</span>
+                        </div>
+                        <div class="sitter-services">
+                            <span class="service-tag">Koty</span>
+                            <span class="service-tag">U właściciela</span>
+                            <span class="service-tag">Długoterminowa</span>
+                        </div>
+                        <div class="sitter-footer">
+                            <div>
+                                <div class="price">od 60 PLN/dzień</div>
+                                <div class="available-indicator">
+                                    <div class="available-dot"></div>
+                                    Dostępna na weekend
+                                </div>
+                            </div>
+                            <button class="contact-btn">Kontakt</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sitter-card">
+                <div class="sitter-card-content">
+                    <div class="sitter-avatar">👨‍🦲</div>
+                    <div class="sitter-info">
+                        <div class="sitter-header">
+                            <div class="sitter-name">Piotr Zieliński</div>
+                        </div>
+                        <div class="sitter-location">📍 Wola, 1.8 km</div>
+                        <div class="sitter-rating">
+                            <span class="stars">⭐⭐⭐⭐</span>
+                            <span class="rating-text">4.6 (203)</span>
+                        </div>
+                        <div class="sitter-services">
+                            <span class="service-tag">Trening</span>
+                            <span class="service-tag">Spacery</span>
+                            <span class="service-tag">Aktywne psy</span>
+                        </div>
+                        <div class="sitter-footer">
+                            <div>
+                                <div class="price">od 90 PLN/dzień</div>
+                                <div class="available-indicator">
+                                    <div class="available-dot"></div>
+                                    Dostępny codziennie
+                                </div>
+                            </div>
+                            <button class="contact-btn">Kontakt</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sitter-card">
+                <div class="sitter-card-content">
+                    <div class="sitter-avatar">👩‍🦳</div>
+                    <div class="sitter-info">
+                        <div class="sitter-header">
+                            <div class="sitter-name">Maria Dąbrowska</div>
+                        </div>
+                        <div class="sitter-location">📍 Ursynów, 5.1 km</div>
+                        <div class="sitter-rating">
+                            <span class="stars">⭐⭐⭐⭐⭐</span>
+                            <span class="rating-text">4.9 (78)</span>
+                        </div>
+                        <div class="sitter-services">
+                            <span class="service-tag">Seniorzy</span>
+                            <span class="service-tag">Małe psy</span>
+                            <span class="service-tag">Opieka domowa</span>
+                        </div>
+                        <div class="sitter-footer">
+                            <div>
+                                <div class="price">od 70 PLN/dzień</div>
+                                <div class="available-indicator">
+                                    <div class="available-dot"></div>
+                                    Dostępna w weekendy
+                                </div>
+                            </div>
+                            <button class="contact-btn">Kontakt</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <div class="nav-items">
+            <a href="/dashboard" class="nav-item">
+                <div class="nav-icon">🏠</div>
+                <span>Główna</span>
+            </a>
+            <a href="/search" class="nav-item active">
+                <div class="nav-icon">🔍</div>
+                <span>Szukaj</span>
+            </a>
+            <a href="/bookings" class="nav-item">
+                <div class="nav-icon">📅</div>
+                <span>Rezerwacje</span>
+            </a>
+            <a href="/messages" class="nav-item">
+                <div class="nav-icon">💬</div>
+                <span>Czat</span>
+            </a>
+            <a href="/profile" class="nav-item">
+                <div class="nav-icon">👤</div>
+                <span>Profil</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Floating Action Button -->
+    <button class="fab">🔍</button>
+
+    <script>
+        function toggleView(view) {
+            const mapContainer = document.getElementById('mapContainer');
+            const sitterList = document.getElementById('sitterList');
+            const buttons = document.querySelectorAll('.toggle-btn');
+
+            // Remove active class from all buttons
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            if (view === 'map') {
+                mapContainer.classList.add('active');
+                sitterList.style.display = 'none';
+                event.target.classList.add('active');
+            } else {
+                mapContainer.classList.remove('active');
+                sitterList.style.display = 'flex';
+                event.target.classList.add('active');
+            }
+        }
+
+        // Filter chips functionality
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

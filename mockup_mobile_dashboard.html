@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetHelp - Dashboard (Mobile)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9ff;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        /* Mobile Header */
+        .header {
+            background: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .logo::before {
+            content: "🐾";
+            margin-right: 8px;
+            font-size: 24px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .notifications {
+            position: relative;
+            background: #f8f9ff;
+            border: 2px solid #e0e7ff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .notifications::after {
+            content: "3";
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Main Content */
+        .main {
+            padding: 20px;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .page-subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stats-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .stats-card:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+        }
+
+        .stats-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .stats-card:nth-child(1) .stats-icon {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .stats-card:nth-child(2) .stats-icon {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+        }
+
+        .stats-card:nth-child(3) .stats-icon {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+        }
+
+        .stats-card:nth-child(4) .stats-icon {
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+        }
+
+        .stats-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .stats-label {
+            color: #666;
+            font-size: 12px;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .action-card {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .action-card:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .action-icon {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .action-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .action-desc {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        /* Pets Preview */
+        .pets-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        .pets-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .add-pet-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .pets-list {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .pet-card {
+            min-width: 120px;
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .pet-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .pet-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #667eea;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .pet-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .pet-breed {
+            color: #666;
+            font-size: 12px;
+        }
+
+        /* Recent Activity */
+        .activity-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 12px;
+            font-size: 14px;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 3px;
+            font-size: 14px;
+        }
+
+        .activity-time {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .status-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .status-confirmed {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 15px 0 25px;
+            box-shadow: 0 -2px 20px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .nav-items {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #666;
+            font-size: 12px;
+            transition: color 0.3s;
+        }
+
+        .nav-item.active {
+            color: #667eea;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            border: none;
+            font-size: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+        }
+
+        /* Upcoming Section */
+        .upcoming-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .upcoming-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .upcoming-item:last-child {
+            border-bottom: none;
+        }
+
+        .upcoming-date {
+            background: #667eea;
+            color: white;
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+            margin-right: 15px;
+            min-width: 50px;
+        }
+
+        .upcoming-date-day {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .upcoming-date-month {
+            font-size: 10px;
+        }
+
+        .upcoming-content {
+            flex: 1;
+        }
+
+        .upcoming-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .upcoming-time {
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">PetHelp</div>
+            <div class="header-actions">
+                <div class="notifications">🔔</div>
+                <div class="avatar">JK</div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="page-header">
+            <h1 class="page-title">Witaj ponownie, Jan!</h1>
+            <p class="page-subtitle">Oto przegląd Twoich aktywności</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stats-card">
+                <div class="stats-icon">🐕</div>
+                <div class="stats-number">3</div>
+                <div class="stats-label">Zwierzęta</div>
+            </div>
+            <div class="stats-card">
+                <div class="stats-icon">📅</div>
+                <div class="stats-number">7</div>
+                <div class="stats-label">Rezerwacje</div>
+            </div>
+            <div class="stats-card">
+                <div class="stats-icon">⭐</div>
+                <div class="stats-number">4.9</div>
+                <div class="stats-label">Ocena</div>
+            </div>
+            <div class="stats-card">
+                <div class="stats-icon">💬</div>
+                <div class="stats-number">12</div>
+                <div class="stats-label">Wiadomości</div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <h2 class="section-title">Szybkie akcje</h2>
+            <div class="actions-grid">
+                <div class="action-card">
+                    <div class="action-icon">🔍</div>
+                    <div class="action-title">Znajdź opiekuna</div>
+                    <div class="action-desc">Wyszukaj w okolicy</div>
+                </div>
+                <div class="action-card">
+                    <div class="action-icon">📅</div>
+                    <div class="action-title">Nowa rezerwacja</div>
+                    <div class="action-desc">Zarezerwuj opiekę</div>
+                </div>
+                <div class="action-card">
+                    <div class="action-icon">🐾</div>
+                    <div class="action-title">Dodaj zwierzę</div>
+                    <div class="action-desc">Nowy profil</div>
+                </div>
+                <div class="action-card">
+                    <div class="action-icon">💬</div>
+                    <div class="action-title">Wiadomości</div>
+                    <div class="action-desc">Czat z opiekunami</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pets Section -->
+        <div class="pets-section">
+            <div class="pets-header">
+                <h2 class="section-title">Twoje zwierzęta</h2>
+                <button class="add-pet-btn">+ Dodaj</button>
+            </div>
+            <div class="pets-list">
+                <div class="pet-card">
+                    <div class="pet-avatar">🐕</div>
+                    <div class="pet-name">Burek</div>
+                    <div class="pet-breed">Labrador</div>
+                </div>
+                <div class="pet-card">
+                    <div class="pet-avatar">🐺</div>
+                    <div class="pet-name">Filemon</div>
+                    <div class="pet-breed">Owczarek</div>
+                </div>
+                <div class="pet-card">
+                    <div class="pet-avatar">🐱</div>
+                    <div class="pet-name">Mruczek</div>
+                    <div class="pet-breed">Kot perski</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="activity-section">
+            <h2 class="section-title">Ostatnia aktywność</h2>
+
+            <div class="activity-item">
+                <div class="activity-avatar">AK</div>
+                <div class="activity-content">
+                    <div class="activity-title">Anna zaakceptowała rezerwację</div>
+                    <div class="activity-time">2 godziny temu • Burek</div>
+                </div>
+                <div class="status-badge status-confirmed">✓</div>
+            </div>
+
+            <div class="activity-item">
+                <div class="activity-avatar">MN</div>
+                <div class="activity-content">
+                    <div class="activity-title">Marek wysłał wiadomość</div>
+                    <div class="activity-time">5 godzin temu • Filemon</div>
+                </div>
+                <div class="status-badge status-pending">●</div>
+            </div>
+
+            <div class="activity-item">
+                <div class="activity-avatar">KW</div>
+                <div class="activity-content">
+                    <div class="activity-title">Katarzyna zakończyła opiekę</div>
+                    <div class="activity-time">1 dzień temu • Mruczek</div>
+                </div>
+                <div class="status-badge status-confirmed">✓</div>
+            </div>
+        </div>
+
+        <!-- Upcoming -->
+        <div class="upcoming-section">
+            <h2 class="section-title">Nadchodzące rezerwacje</h2>
+
+            <div class="upcoming-item">
+                <div class="upcoming-date">
+                    <div class="upcoming-date-day">15</div>
+                    <div class="upcoming-date-month">STY</div>
+                </div>
+                <div class="upcoming-content">
+                    <div class="upcoming-title">Opieka nad Burkiem</div>
+                    <div class="upcoming-time">Jutro 9:00 - 17:00 • Anna K.</div>
+                </div>
+            </div>
+
+            <div class="upcoming-item">
+                <div class="upcoming-date">
+                    <div class="upcoming-date-day">17</div>
+                    <div class="upcoming-date-month">STY</div>
+                </div>
+                <div class="upcoming-content">
+                    <div class="upcoming-title">Spacer z Filemonem</div>
+                    <div class="upcoming-time">14:00 - 16:00 • Marek N.</div>
+                </div>
+            </div>
+
+            <div class="upcoming-item">
+                <div class="upcoming-date">
+                    <div class="upcoming-date-day">20</div>
+                    <div class="upcoming-date-month">STY</div>
+                </div>
+                <div class="upcoming-content">
+                    <div class="upcoming-title">Weekend z Mruczkiem</div>
+                    <div class="upcoming-time">20-22 stycznia • Katarzyna W.</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <div class="nav-items">
+            <a href="/dashboard" class="nav-item active">
+                <div class="nav-icon">🏠</div>
+                <span>Główna</span>
+            </a>
+            <a href="/search" class="nav-item">
+                <div class="nav-icon">🔍</div>
+                <span>Szukaj</span>
+            </a>
+            <a href="/bookings" class="nav-item">
+                <div class="nav-icon">📅</div>
+                <span>Rezerwacje</span>
+            </a>
+            <a href="/messages" class="nav-item">
+                <div class="nav-icon">💬</div>
+                <span>Czat</span>
+            </a>
+            <a href="/profile" class="nav-item">
+                <div class="nav-icon">👤</div>
+                <span>Profil</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Floating Action Button -->
+    <button class="fab">+</button>
+</body>
+</html>
