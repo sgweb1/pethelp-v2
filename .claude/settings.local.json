@@ -84,7 +84,8 @@
       "Read(//c/laragon/**)",
       "Bash(\"/c/laragon/bin/mysql/mysql-8.4.3-winx64/bin/mysql.exe\" -u root -e \"CREATE DATABASE IF NOT EXISTS pethelp_test;\")",
       "Bash(git remote add:*)",
-      "Bash(vendor/bin/pint:*)"
+      "Bash(vendor/bin/pint:*)",
+      "Bash(\"/c/laragon/bin/mysql/mysql-8.4.3-winx64/bin/mysql.exe\" -u root -e \"DESCRIBE pethelp.sessions;\")"
     ],
     "deny": [],
     "ask": []

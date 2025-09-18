@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetHelp - Dokumentacja mockupów UI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: white;
+            line-height: 1.8;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin: -40px -20px 60px -20px;
+        }
+
+        .header h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 20px;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin: 0 5px;
+        }
+
+        .section {
+            margin-bottom: 80px;
+            page-break-inside: avoid;
+        }
+
+        .section h2 {
+            font-size: 32px;
+            color: #667eea;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .mockup-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 60px;
+            padding: 30px;
+            background: #f8f9ff;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+            page-break-inside: avoid;
+        }
+
+        .mockup-preview {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            height: 400px;
+        }
+
+        .mockup-preview iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            overflow: hidden;
+        }
+
+        .mockup-preview iframe.desktop {
+            transform: scale(0.6);
+            transform-origin: top left;
+            width: 166.67%;
+            height: 166.67%;
+        }
+
+        .mockup-info h3 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .mockup-info p {
+            font-size: 16px;
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .features-list {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .features-list li {
+            background: white;
+            padding: 12px 16px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            font-weight: 500;
+        }
+
+        .features-list li::before {
+            content: "✓";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .tech-stack {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            margin: 60px 0;
+        }
+
+        .tech-stack h2 {
+            color: white;
+            border-bottom: 3px solid white;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .tech-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .tech-item h4 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .responsive-note {
+            background: #e8f2ff;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 30px 0;
+        }
+
+        .responsive-note h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .mobile-mockup {
+            max-width: 350px;
+            height: 500px;
+            margin: 0 auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 2px solid #f0f0f0;
+        }
+
+        .stat-card h3 {
+            font-size: 32px;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            font-weight: 600;
+            color: #666;
+        }
+
+        @media print {
+            .section, .mockup-item {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
+            .header {
+                margin: 0;
+            }
+
+            body {
+                font-size: 12px;
+                line-height: 1.6;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .mockup-item {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .mockup-preview {
+                height: 300px;
+            }
+
+            .header h1 {
+                font-size: 32px;
+            }
+
+            .header p {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>🐾 PetHelp</h1>
+        <p>Dokumentacja mockupów interfejsu użytkownika</p>
+        <p style="font-size: 16px;">Platforma łącząca właścicieli zwierząt z opiekunami</p>
+        <div style="margin-top: 20px;">
+            <span class="badge">Laravel 12</span>
+            <span class="badge">Livewire 3</span>
+            <span class="badge">Tailwind CSS</span>
+            <span class="badge">Real-time Chat</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Statystyki projektu -->
+        <div class="section">
+            <h2>📊 Statystyki projektu</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>8</h3>
+                    <p>Mockupów UI</p>
+                </div>
+                <div class="stat-card">
+                    <h3>3</h3>
+                    <p>Główne sekcje</p>
+                </div>
+                <div class="stat-card">
+                    <h3>100%</h3>
+                    <p>Responsywność</p>
+                </div>
+                <div class="stat-card">
+                    <h3>12+</h3>
+                    <p>Kluczowych funkcji</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop Mockups -->
+        <div class="section">
+            <h2>💻 Wersje Desktop</h2>
+
+            <!-- Landing Page Desktop -->
+            <div class="mockup-item">
+                <div class="mockup-preview">
+                    <iframe src="mockup_desktop_landing.html" class="desktop"></iframe>
+                </div>
+                <div class="mockup-info">
+                    <h3>Strona główna - Desktop</h3>
+                    <p>Nowoczesna strona landing z hero section, prezentacją kluczowych funkcjonalności i call-to-action. Wykorzystuje gradienty, animacje CSS i responsywny design.</p>
+
+                    <h4>Kluczowe elementy:</h4>
+                    <ul class="features-list">
+                        <li>Hero section z głównym komunikatem</li>
+                        <li>Sekcja funkcjonalności z ikonami</li>
+                        <li>Testimoniale i opinie użytkowników</li>
+                        <li>Call-to-action do rejestracji</li>
+                        <li>Navigation bar z menu głównym</li>
+                        <li>Footer z linkami i informacjami</li>
+                    </ul>
+
+                    <div class="responsive-note">
+                        <h4>📱 Responsywność</h4>
+                        <p>Automatyczne dostosowanie do różnych rozdzielczości ekranu z optymalizacją dla tabletów i mobilnych.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Desktop -->
+            <div class="mockup-item">
+                <div class="mockup-preview">
+                    <iframe src="mockup_desktop_dashboard.html" class="desktop"></iframe>
+                </div>
+                <div class="mockup-info">
+                    <h3>Dashboard właściciela - Desktop</h3>
+                    <p>Kompleksowy panel użytkownika z statystykami, szybkimi akcjami, przeglądem zwierząt i aktywnością. Real-time updates i system powiadomień.</p>
+
+                    <h4>Kluczowe elementy:</h4>
+                    <ul class="features-list">
+                        <li>Statystyki w czasie rzeczywistym</li>
+                        <li>Kalendarz rezerwacji i dostępności</li>
+                        <li>Lista zwierząt z szybkimi akcjami</li>
+                        <li>Centrum powiadomień</li>
+                        <li>Ostatnie wiadomości i aktywność</li>
+                        <li>Szybkie akcje (nowa rezerwacja, profil)</li>
+                    </ul>
+
+                    <div class="responsive-note">
+                        <h4>⚡ Real-time</h4>
+                        <p>Dashboard aktualizuje się automatycznie dzięki Laravel Reverb i WebSocket connections.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Desktop -->
+            <div class="mockup-item">
+                <div class="mockup-preview">
+                    <iframe src="mockup_desktop_search.html" class="desktop"></iframe>
+                </div>
+                <div class="mockup-info">
+                    <h3>Wyszukiwanie opiekunów - Desktop</h3>
+                    <p>Zaawansowany system wyszukiwania z interaktywną mapą, filtrami, ocenami i kalendarzem dostępności. Integracja z geolokalizacją.</p>
+
+                    <h4>Kluczowe elementy:</h4>
+                    <ul class="features-list">
+                        <li>Interaktywna mapa z pinami opiekunów</li>
+                        <li>Panel filtrów (lokalizacja, cena, usługi)</li>
+                        <li>Lista wyników z kartami opiekunów</li>
+                        <li>System ocen i komentarzy</li>
+                        <li>Kalendarz dostępności</li>
+                        <li>Funkcja instant booking</li>
+                    </ul>
+
+                    <div class="responsive-note">
+                        <h4>🗺️ Geolokalizacja</h4>
+                        <p>Automatyczne wykrywanie lokalizacji użytkownika i wyświetlanie najbliższych opiekunów.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Mockups -->
+        <div class="section">
+            <h2>📱 Wersje Mobile</h2>
+
+            <!-- Landing Page Mobile -->
+            <div class="mockup-item">
+                <div class="mockup-preview mobile-mockup">
+                    <iframe src="mockup_mobile_landing.html"></iframe>
+                </div>
+                <div class="mockup-info">
+                    <h3>Strona główna - Mobile</h3>
+                    <p>Zoptymalizowana wersja mobilna strony głównej z touch-friendly navigation, accordion menu i przystosowanymi rozmiarami elementów.</p>
+
+                    <h4>Optymalizacje mobile:</h4>
+                    <ul class="features-list">
+                        <li>Hamburger menu z smooth animations</li>
+                        <li>Touch-friendly buttons i linki</li>
+                        <li>Swipe gestures dla galerii</li>
+                        <li>Zoptymalizowane rozmiary czcionek</li>
+                        <li>Stack layout dla lepszej czytelności</li>
+                        <li>Floating action button</li>
+                    </ul>
+
+                    <div class="responsive-note">
+                        <h4>📱 Touch UX</h4>
+                        <p>Wszystkie elementy są dostosowane do obsługi dotykowej z odpowiednimi rozmiarami target areas.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Mobile -->
+            <div class="mockup-item">
+                <div class="mockup-preview mobile-mockup">
+                    <iframe src="mockup_mobile_dashboard.html"></iframe>
+                </div>
+                <div class="mockup-info">
+                    <h3>Dashboard właściciela - Mobile</h3>
+                    <p>Mobilny dashboard z kartami, swipe gestures i bottom navigation. Zachowuje pełną funkcjonalność w kompaktowej formie.</p>
+
+                    <h4>Funkcje mobilne:</h4>
+                    <ul class="features-list">
+                        <li>Bottom navigation bar</li>
+                        <li>Card-based layout z swipe</li>
+                        <li>Pull-to-refresh dla aktualizacji</li>
+                        <li>Floating action buttons</li>
+                        <li>Sticky headers w listach</li>
+                        <li>Push notifications preview</li>
+                    </ul>
+
+                    <div class="responsive-note">
+                        <h4>🔄 Synchronizacja</h4>
+                        <p>Dane synchronizują się w czasie rzeczywistym między wersją desktop a mobile.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Mobile -->
+            <div class="mockup-item">
+                <div class="mockup-preview mobile-mockup">
+                    <iframe src="mockup_mobile_search.html"></iframe>
+                </div>
+                <div class="mockup-info">
+                    <h3>Wyszukiwanie opiekunów - Mobile</h3>
+                    <p>Mobilna wersja wyszukiwania z fullscreen mapą, slide-up panels i gesture-based navigation.</p>
+
+                    <h4>Mobile features:</h4>
+                    <ul class="features-list">
+                        <li>Fullscreen interactive map</li>
+                        <li>Slide-up bottom sheet z wynikami</li>
+                        <li>Floating search bar z autocomplete</li>
+                        <li>Quick filters w horizontal scroll</li>
+                        <li>Card carousel dla wyników</li>
+                        <li>Location permission handling</li>
+                    </ul>
+
+                    <div class="responsive-note">
+                        <h4>📍 GPS Integration</h4>
+                        <p>Wykorzystuje GPS urządzenia do precyzyjnego pozycjonowania i nawigacji.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prezentacje specjalne -->
+        <div class="section">
+            <h2>🎭 Prezentacje specjalne</h2>
+
+            <!-- Devices Presentation -->
+            <div class="mockup-item">
+                <div class="mockup-preview">
+                    <iframe src="mockup_devices_presentation.html"></iframe>
+                </div>
+                <div class="mockup-info">
+                    <h3>Prezentacja na urządzeniach</h3>
+                    <p>3D prezentacja pokazująca aplikację na różnych urządzeniach - desktop, tablet i smartphone z realistycznymi ramkami urządzeń.</p>
+
+                    <h4>Elementy prezentacji:</h4>
+                    <ul class="features-list">
+                        <li>3D ramki urządzeń (Desktop, Tablet, Mobile)</li>
+                        <li>Smooth transitions między urządzeniami</li>
+                        <li>Live preview wszystkich ekranów</li>
+                        <li>Interactive navigation</li>
+                        <li>Realistic device mockups</li>
+                        <li>Auto-rotation animations</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Presentation -->
+            <div class="mockup-item">
+                <div class="mockup-preview">
+                    <iframe src="mockup_presentation.html"></iframe>
+                </div>
+                <div class="mockup-info">
+                    <h3>Główna prezentacja aplikacji</h3>
+                    <p>Kompleksowa prezentacja pokazująca wszystkie aspekty aplikacji - UI, funkcjonalności, stack technologiczny i roadmap rozwoju.</p>
+
+                    <h4>Sekcje prezentacji:</h4>
+                    <ul class="features-list">
+                        <li>Overview aplikacji z live mockups</li>
+                        <li>Kluczowe funkcjonalności</li>
+                        <li>Stack technologiczny</li>
+                        <li>Security features</li>
+                        <li>Performance metrics</li>
+                        <li>Roadmap i przyszłe funkcje</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tech Stack -->
+        <div class="tech-stack">
+            <h2>🔧 Stack technologiczny</h2>
+            <p style="text-align: center; font-size: 18px; margin-bottom: 30px;">
+                Nowoczesne technologie zapewniające wysoką wydajność i skalowalność
+            </p>
+
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <h4>🐘 Laravel 12</h4>
+                    <p>Backend framework z najnowszymi funkcjami</p>
+                </div>
+                <div class="tech-item">
+                    <h4>⚡ Livewire 3</h4>
+                    <p>Reactive components</p>
+                </div>
+                <div class="tech-item">
+                    <h4>💨 Tailwind CSS</h4>
+                    <p>Utility-first styling</p>
+                </div>
+                <div class="tech-item">
+                    <h4>📡 Laravel Reverb</h4>
+                    <p>Real-time WebSocket</p>
+                </div>
+                <div class="tech-item">
+                    <h4>💳 PayU</h4>
+                    <p>Payment gateway</p>
+                </div>
+                <div class="tech-item">
+                    <h4>🧪 Pest</h4>
+                    <p>Testing framework</p>
+                </div>
+                <div class="tech-item">
+                    <h4>🗺️ Leaflet</h4>
+                    <p>Interactive maps</p>
+                </div>
+                <div class="tech-item">
+                    <h4>🎨 Alpine.js</h4>
+                    <p>Lightweight JS</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Podsumowanie -->
+        <div class="section">
+            <h2>📋 Podsumowanie funkcjonalności</h2>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+                <div style="background: #f8f9ff; padding: 25px; border-radius: 15px; border-left: 5px solid #667eea;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">🔐 Bezpieczeństwo</h3>
+                    <p>Weryfikacja tożsamości, sprawdzanie przeszłości, ubezpieczenie i system escrow dla płatności.</p>
+                </div>
+
+                <div style="background: #f8f9ff; padding: 25px; border-radius: 15px; border-left: 5px solid #667eea;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">💬 Real-time Chat</h3>
+                    <p>Komunikacja na żywo z Laravel Reverb, wysyłanie zdjęć, lokalizacji i statusów opieki.</p>
+                </div>
+
+                <div style="background: #f8f9ff; padding: 25px; border-radius: 15px; border-left: 5px solid #667eea;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">💳 Płatności PayU</h3>
+                    <p>Bezpieczne płatności online, automatyczne blokowanie środków i wypłaty po usłudze.</p>
+                </div>
+
+                <div style="background: #f8f9ff; padding: 25px; border-radius: 15px; border-left: 5px solid #667eea;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">⭐ System ocen</h3>
+                    <p>Szczegółowe oceny komunikacji, niezawodności i jakości opieki z komentarzami.</p>
+                </div>
+
+                <div style="background: #f8f9ff; padding: 25px; border-radius: 15px; border-left: 5px solid #667eea;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">📅 Kalendarz</h3>
+                    <p>Zarządzanie dostępnością opiekunów, automatyczne rezerwacje i przypomnienia.</p>
+                </div>
+
+                <div style="background: #f8f9ff; padding: 25px; border-radius: 15px; border-left: 5px solid #667eea;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">🐾 Profile zwierząt</h3>
+                    <p>Szczegółowe profile z danymi medycznymi, preferencjami i historią opieki.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instrukcje do PDF -->
+        <div style="background: #e8f2ff; border: 2px solid #667eea; border-radius: 15px; padding: 30px; margin: 40px 0; text-align: center;">
+            <h3 style="color: #667eea; margin-bottom: 15px;">📄 Jak wygenerować PDF</h3>
+            <p style="margin-bottom: 20px; font-size: 16px;">
+                Aby wygenerować PDF z tej dokumentacji:
+            </p>
+            <div style="text-align: left; max-width: 600px; margin: 0 auto;">
+                <ol style="line-height: 2; font-weight: 500;">
+                    <li>Otwórz tę stronę w przeglądarce Chrome lub Firefox</li>
+                    <li>Naciśnij <strong>Ctrl+P</strong> (Windows) lub <strong>Cmd+P</strong> (Mac)</li>
+                    <li>Wybierz <strong>"Zapisz jako PDF"</strong> jako drukarkę</li>
+                    <li>Ustaw orientację na <strong>"Portret"</strong></li>
+                    <li>Zaznacz <strong>"Więcej ustawień"</strong> → <strong>"Grafika"</strong></li>
+                    <li>Kliknij <strong>"Zapisz"</strong></li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

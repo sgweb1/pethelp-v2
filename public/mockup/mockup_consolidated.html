@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetHelp - Wszystkie mockupy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: white;
+            line-height: 1.6;
+        }
+
+        .page-break {
+            page-break-before: always;
+            margin-top: 40px;
+            padding-top: 40px;
+        }
+
+        .mockup-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            margin-bottom: 40px;
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .mockup-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .mockup-frame {
+            width: 100%;
+            min-height: 800px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .mockup-frame.desktop {
+            transform: scale(0.7);
+            transform-origin: top left;
+            width: 142.86%;
+            height: 1142px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .header p {
+            font-size: 20px;
+            opacity: 0.9;
+        }
+
+        @media print {
+            .mockup-container {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
+            .page-break {
+                page-break-before: always;
+            }
+
+            body {
+                background: white !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>🐾 PetHelp</h1>
+        <p>Wszystkie mockupy interfejsu użytkownika</p>
+        <p style="font-size: 16px; margin-top: 10px;">Platforma łącząca właścicieli zwierząt z opiekunami</p>
+    </div>
+
+    <!-- Desktop Landing -->
+    <div class="mockup-container">
+        <div class="mockup-title">Strona główna - Desktop</div>
+        <iframe src="mockup_desktop_landing.html" class="mockup-frame desktop" frameborder="0"></iframe>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- Desktop Dashboard -->
+    <div class="mockup-container">
+        <div class="mockup-title">Dashboard właściciela - Desktop</div>
+        <iframe src="mockup_desktop_dashboard.html" class="mockup-frame desktop" frameborder="0"></iframe>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- Desktop Search -->
+    <div class="mockup-container">
+        <div class="mockup-title">Wyszukiwanie opiekunów - Desktop</div>
+        <iframe src="mockup_desktop_search.html" class="mockup-frame desktop" frameborder="0"></iframe>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- Mobile Landing -->
+    <div class="mockup-container">
+        <div class="mockup-title">Strona główna - Mobile</div>
+        <iframe src="mockup_mobile_landing.html" class="mockup-frame" style="max-width: 400px; margin: 0 auto; display: block;" frameborder="0"></iframe>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- Mobile Dashboard -->
+    <div class="mockup-container">
+        <div class="mockup-title">Dashboard właściciela - Mobile</div>
+        <iframe src="mockup_mobile_dashboard.html" class="mockup-frame" style="max-width: 400px; margin: 0 auto; display: block;" frameborder="0"></iframe>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- Mobile Search -->
+    <div class="mockup-container">
+        <div class="mockup-title">Wyszukiwanie opiekunów - Mobile</div>
+        <iframe src="mockup_mobile_search.html" class="mockup-frame" style="max-width: 400px; margin: 0 auto; display: block;" frameborder="0"></iframe>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- Devices Presentation -->
+    <div class="mockup-container">
+        <div class="mockup-title">Prezentacja na różnych urządzeniach</div>
+        <iframe src="mockup_devices_presentation.html" class="mockup-frame" frameborder="0"></iframe>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- Main Presentation -->
+    <div class="mockup-container">
+        <div class="mockup-title">Główna prezentacja aplikacji</div>
+        <iframe src="mockup_presentation.html" class="mockup-frame" frameborder="0"></iframe>
+    </div>
+</body>
+</html>

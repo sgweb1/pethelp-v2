@@ -70,3 +70,17 @@ Route::get('/chat', function () {
 Route::get('/availability', function () {
     return view('availability.calendar');
 })->name('availability.calendar')->middleware('auth');
+
+// Debug routes for CSRF testing
+Route::get('/test-csrf', function () {
+    return view('test-csrf');
+});
+
+Route::post('/test-csrf', function (\Illuminate\Http\Request $request) {
+    return response()->json([
+        'success' => true,
+        'token' => csrf_token(),
+        'session_id' => session()->getId(),
+        'data' => $request->all()
+    ]);
+})->name('test-csrf');
