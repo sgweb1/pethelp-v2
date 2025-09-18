@@ -34,13 +34,15 @@ class ConversationList extends Component
         $user = User::find($userId);
         $booking = $bookingId ? Booking::find($bookingId) : null;
 
-        if ($user) {
+        if ($user && $user->id !== Auth::id()) {
             // Find or create conversation
             $conversation = Conversation::findOrCreateBetween(Auth::user(), $user, $booking);
 
-            // Select this conversation
-            $this->selectedConversationId = $conversation->id;
-            $this->dispatch('conversationSelected', $conversation->id);
+            // Only select if not already selected to avoid loops
+            if ($this->selectedConversationId !== $conversation->id) {
+                $this->selectedConversationId = $conversation->id;
+                $this->dispatch('conversationSelected', $conversation->id);
+            }
         }
     }
 

@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Auth;
 
 class ChatApp extends Component
 {
+    public $autoStartUserId = null;
+    public $autoStartBookingId = null;
+
     public function mount()
     {
         // Handle URL parameters for starting conversation
@@ -22,20 +25,16 @@ class ChatApp extends Component
             if ($user && $booking) {
                 // Verify user has access to this booking
                 if ($booking->owner_id === Auth::id() || $booking->sitter_id === Auth::id()) {
-                    $this->dispatch('startConversationWith', [
-                        'userId' => $user->id,
-                        'bookingId' => $booking->id
-                    ]);
+                    $this->autoStartUserId = $user->id;
+                    $this->autoStartBookingId = $booking->id;
                 }
             }
         } elseif ($userId) {
             $user = User::find($userId);
 
             if ($user) {
-                $this->dispatch('startConversationWith', [
-                    'userId' => $user->id,
-                    'bookingId' => null
-                ]);
+                $this->autoStartUserId = $user->id;
+                $this->autoStartBookingId = null;
             }
         }
     }

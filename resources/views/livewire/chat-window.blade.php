@@ -135,13 +135,17 @@
 <script>
     // Auto-scroll to bottom when new messages arrive
     document.addEventListener('livewire:init', () => {
+        let isScrolling = false;
+
         Livewire.hook('message.processed', (message, component) => {
-            if (component.fingerprint.name === 'chat-window') {
+            if (component.fingerprint.name === 'chat-window' && !isScrolling) {
+                isScrolling = true;
                 setTimeout(() => {
                     const container = document.getElementById('messagesContainer');
                     if (container) {
                         container.scrollTop = container.scrollHeight;
                     }
+                    isScrolling = false;
                 }, 100);
             }
         });

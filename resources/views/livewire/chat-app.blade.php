@@ -1,4 +1,7 @@
-<div class="h-screen bg-gray-100">
+<div class="h-screen bg-gray-100"
+     @if($autoStartUserId)
+     wire:init="$dispatch('startConversationWith', { userId: {{ $autoStartUserId }}, bookingId: {{ $autoStartBookingId ?? 'null' }} })"
+     @endif>
     <div class="max-w-7xl mx-auto h-full">
         <div class="flex h-full">
             <!-- Conversations Sidebar -->

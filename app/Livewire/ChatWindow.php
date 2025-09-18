@@ -48,8 +48,14 @@ class ChatWindow extends Component
         $user = User::find($userId);
         $booking = $bookingId ? Booking::find($bookingId) : null;
 
-        if ($user) {
-            $this->startConversationWith($user, $booking);
+        if ($user && $user->id !== Auth::id()) {
+            // Only start if we don't already have this conversation
+            $existingConversation = $this->conversation;
+            $newConversation = Conversation::findOrCreateBetween(Auth::user(), $user, $booking);
+
+            if (!$existingConversation || $existingConversation->id !== $newConversation->id) {
+                $this->startConversationWith($user, $booking);
+            }
         }
     }
 
