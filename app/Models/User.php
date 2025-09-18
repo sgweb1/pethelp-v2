@@ -38,7 +38,7 @@ class User extends Authenticatable
 
     public function pets(): HasMany
     {
-        return $this->hasMany(Pet::class, 'owner_id');
+        return $this->hasMany(Pet::class, 'user_id');
     }
 
     public function services(): HasMany

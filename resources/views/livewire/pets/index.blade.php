@@ -5,17 +5,87 @@ use Livewire\Volt\Component;
 use Livewire\Attributes\Layout;
 
 new #[Layout('layouts.app')] class extends Component {
+    public $search = '';
+    public $filterType = '';
+    public $filterStatus = '';
+    public $sortBy = 'created_at';
+    public $sortDirection = 'desc';
+
     public function with()
     {
+        $query = auth()->user()->pets();
+
+        // Search by name or breed
+        if ($this->search) {
+            $query->where(function($q) {
+                $q->where('name', 'like', '%' . $this->search . '%')
+                  ->orWhere('breed', 'like', '%' . $this->search . '%');
+            });
+        }
+
+        // Filter by type
+        if ($this->filterType) {
+            $query->where('type', $this->filterType);
+        }
+
+        // Filter by status
+        if ($this->filterStatus !== '') {
+            $query->where('is_active', $this->filterStatus);
+        }
+
+        // Sort
+        $query->orderBy($this->sortBy, $this->sortDirection);
+
         return [
-            'pets' => auth()->user()->pets()->orderBy('created_at', 'desc')->get(),
+            'pets' => $query->get(),
+            'petCounts' => [
+                'total' => auth()->user()->pets()->count(),
+                'active' => auth()->user()->pets()->where('is_active', true)->count(),
+                'inactive' => auth()->user()->pets()->where('is_active', false)->count(),
+            ]
         ];
+    }
+
+    public function updatedSearch()
+    {
+        // Reset to first page when searching
+    }
+
+    public function clearFilters()
+    {
+        $this->search = '';
+        $this->filterType = '';
+        $this->filterStatus = '';
+    }
+
+    public function sortBy($field)
+    {
+        if ($this->sortBy === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortBy = $field;
+            $this->sortDirection = 'asc';
+        }
+    }
+
+    public function toggleStatus(Pet $pet)
+    {
+        // Check if the pet belongs to the authenticated user
+        if ($pet->user_id !== auth()->id()) {
+            session()->flash('error', 'Nie masz uprawnień do modyfikacji tego zwierzęcia.');
+            return;
+        }
+
+        $pet->update(['is_active' => !$pet->is_active]);
+
+        $status = $pet->is_active ? 'aktywowany' : 'dezaktywowany';
+        session()->flash('success', "Profil zwierzęcia {$pet->name} został {$status}.");
     }
 
     public function deletePet(Pet $pet)
     {
         // Sprawdź czy zwierzę należy do zalogowanego użytkownika
-        if ($pet->owner_id !== auth()->id()) {
+        if ($pet->user_id !== auth()->id()) {
             session()->flash('error', 'Nie masz uprawnień do usunięcia tego zwierzęcia.');
             return;
         }
@@ -134,9 +204,9 @@ new #[Layout('layouts.app')] class extends Component {
 
                                     <div x-show="open" @click.away="open = false" x-transition class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
                                         <div class="py-1">
-                                            <button class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                            <a href="{{ route('pets.edit', $pet) }}" wire:navigate class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 block">
                                                 Edytuj
-                                            </button>
+                                            </a>
                                             <button wire:click="deletePet({{ $pet->id }})" wire:confirm="Czy na pewno chcesz usunąć profil zwierzęcia {{ $pet->name }}?" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
                                                 Usuń
                                             </button>
@@ -150,21 +220,18 @@ new #[Layout('layouts.app')] class extends Component {
                         <div class="space-y-2 text-sm text-gray-600">
                             <div class="flex justify-between">
                                 <span>Płeć:</span>
-                                <span class="font-medium">{{ $pet->gender === 'male' ? 'Samiec' : 'Samica' }}</span>
+                                <span class="font-medium">{{ ucfirst($pet->gender) }}</span>
                             </div>
-                            <div class="flex justify-between">
-                                <span>Rozmiar:</span>
-                                <span class="font-medium">
-                                    @if($pet->size === 'small') Mały
-                                    @elseif($pet->size === 'medium') Średni
-                                    @else Duży
-                                    @endif
-                                </span>
-                            </div>
-                            @if($pet->age)
+                            @if($pet->weight)
+                                <div class="flex justify-between">
+                                    <span>Waga:</span>
+                                    <span class="font-medium">{{ $pet->weight }} kg</span>
+                                </div>
+                            @endif
+                            @if($pet->birth_date)
                                 <div class="flex justify-between">
                                     <span>Wiek:</span>
-                                    <span class="font-medium">{{ $pet->age }} {{ $pet->age === 1 ? 'rok' : 'lat' }}</span>
+                                    <span class="font-medium">{{ $pet->birth_date->diffForHumans() }}</span>
                                 </div>
                             @endif
                         </div>

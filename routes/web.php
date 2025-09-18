@@ -38,6 +38,10 @@ Route::get('/pets/create', function () {
     return view('pets.create');
 })->name('pets.create')->middleware('auth');
 
+Route::get('/pets/{pet}/edit', function (\App\Models\Pet $pet) {
+    return view('pets.edit', compact('pet'));
+})->name('pets.edit')->middleware('auth');
+
 Route::get('/bookings', function () {
     $view = request('view', 'owner');
     return view('bookings', compact('view'));
