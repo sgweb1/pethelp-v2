@@ -43,7 +43,7 @@ class Pet extends Model
     // Relationships
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'owner_id');
     }
 
     public function owner(): BelongsTo

@@ -12,6 +12,5 @@ if (token) {
     console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
 }
 
-import Alpine from 'alpinejs';
-window.Alpine = Alpine;
-Alpine.start();
+// Alpine.js is loaded by Livewire - we don't need to import it manually
+// Livewire will handle Alpine initialization and make it available on window.Alpine

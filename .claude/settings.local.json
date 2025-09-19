@@ -85,7 +85,17 @@
       "Bash(\"/c/laragon/bin/mysql/mysql-8.4.3-winx64/bin/mysql.exe\" -u root -e \"CREATE DATABASE IF NOT EXISTS pethelp_test;\")",
       "Bash(git remote add:*)",
       "Bash(vendor/bin/pint:*)",
-      "Bash(\"/c/laragon/bin/mysql/mysql-8.4.3-winx64/bin/mysql.exe\" -u root -e \"DESCRIBE pethelp.sessions;\")"
+      "Bash(\"/c/laragon/bin/mysql/mysql-8.4.3-winx64/bin/mysql.exe\" -u root -e \"DESCRIBE pethelp.sessions;\")",
+      "Bash(if not exist \"storage\\logs\" mkdir \"storage\\logs\")",
+      "Bash(\"/c/laragon/bin/mysql/mysql-8.4.3-winx64/bin/mysql.exe\" -u root -e \"SELECT id, title, zoom_level_min FROM pethelp.map_items LIMIT 5;\")",
+      "Bash(\"/c/laragon/bin/mysql/mysql-8.4.3-winx64/bin/mysql.exe\" -u root -e \"SHOW INDEX FROM pethelp.map_items;\")",
+      "Bash(\"/c/laragon/bin/mysql/mysql-8.4.3-winx64/bin/mysql.exe\" -u root -e \"SELECT COUNT(*) as total_items, COUNT(CASE WHEN status = ''published'' THEN 1 END) as published_items FROM pethelp.map_items;\")",
+      "Bash(vendor/bin/pest:*)",
+      "Bash(/c/laragon/bin/mysql/mysql-8.4.3-winx64/bin/mysql.exe -u root -e \"DESCRIBE pethelp.pets;\")",
+      "Bash(/c/laragon/bin/mysql/mysql-8.4.3-winx64/bin/mysql.exe -u root -e \"SELECT content_type, category_name, COUNT(*) as count FROM pethelp.map_items GROUP BY content_type, category_name ORDER BY content_type, count DESC;\")",
+      "Bash(del \"C:\\laragon\\www\\pethelp\\database\\migrations\\2025_09_19_101208_create_payments_table.php\")",
+      "Bash(/c/laragon/bin/mysql/mysql-8.4.3-winx64/bin/mysql.exe -u root -e \"SELECT DISTINCT content_type FROM pethelp.map_items;\")",
+      "WebFetch(domain:www.rover.com)"
     ],
     "deny": [],
     "ask": []

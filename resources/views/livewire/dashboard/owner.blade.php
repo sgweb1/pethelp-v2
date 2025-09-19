@@ -24,7 +24,7 @@ new class extends Component {
     }
 }; ?>
 
-<div class="py-8">
+<div class="py-8 desktop-content">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Welcome Header -->
         <div class="mb-8">

@@ -268,8 +268,8 @@
                                     <div class="text-sm">
                                         <span class="font-medium text-orange-700">Specjalne potrzeby:</span>
                                         <div class="flex flex-wrap gap-1 mt-1">
-                                            @foreach($selectedBooking->pet->special_needs_list as $need)
-                                                <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs">{{ $need }}</span>
+                                            @foreach($selectedBooking->pet->special_needs_list as $index => $need)
+                                                <span wire:key="special-need-{{ $selectedBooking->pet->id }}-{{ $index }}" class="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs">{{ $need }}</span>
                                             @endforeach
                                         </div>
                                     </div>

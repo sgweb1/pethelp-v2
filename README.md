@@ -40,10 +40,14 @@
 - 🏠 **Landing page** - bazująca na mockupach
 - 🧭 **Nawigacja** - zgodna z UX mockupów
 
+### ✅ Zaimplementowane (ETAP 2)
+- 🐾 **Zarządzanie zwierzętami** - profile zwierząt z pełnymi danymi medycznymi
+- 📅 **Moduł "Spotkajmy się"** - system wydarzeń i spotkań dla właścicieli zwierząt
+
 ### 📋 Planowane
-- 👥 **System użytkowników** - właściciele i opiekunowie
+- 👥 **System użytkowników** - rozbudowa profili właścicieli i opiekunów
 - 🔍 **Wyszukiwarka** - znajdź opiekuna w okolicy
-- 📅 **Rezerwacje** - system bookingu usług
+- 📅 **Rezerwacje** - system bookingu usług opieki
 - 💳 **Płatności** - integracja z PayU
 - ⭐ **Oceny** - system opinii i ocen
 
@@ -101,6 +105,7 @@ Dostępne komponenty w `resources/views/components/ui/`:
 - 🎯 [**docs/PLAN_WDROZENIA_PETHELP.md**](docs/PLAN_WDROZENIA_PETHELP.md) - Plan 6 etapów
 - 🎨 [**docs/KOMPONENTY_UI.md**](docs/KOMPONENTY_UI.md) - Przewodnik po komponentach
 - 🗄️ [**docs/STRUKTURA_BAZY_DANYCH.md**](docs/STRUKTURA_BAZY_DANYCH.md) - Schemat bazy
+- 📅 [**docs/MODUL_WYDARZENIA.md**](docs/MODUL_WYDARZENIA.md) - Dokumentacja modułu wydarzeń
 - 📁 [**docs/archive/**](docs/archive/) - Archiwum dokumentacji
 
 ## 🎯 Mockupy

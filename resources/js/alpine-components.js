@@ -10,6 +10,17 @@ document.addEventListener('alpine:init', () => {
     Alpine.data('dropdown', dropdown);
     Alpine.data('geolocation', geolocation);
     Alpine.data('toast', toast);
+
+    // Global stores
+    Alpine.store('mobileMenu', {
+        open: false,
+        toggle() {
+            this.open = !this.open;
+        },
+        close() {
+            this.open = false;
+        }
+    });
 });
 
 // Global utility functions for Alpine.js

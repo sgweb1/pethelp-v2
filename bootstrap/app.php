@@ -8,9 +8,11 @@ use Illuminate\Support\Facades\Route;
 return Application::configure(basePath: dirname(__DIR__))
     ->withProviders([
         \App\Providers\VoltServiceProvider::class,
+        \App\Providers\MapServiceProvider::class,
     ])
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
         then: function () {
@@ -28,7 +30,26 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\SetLocale::class,
         ]);
+
+        $middleware->alias([
+            'map.throttle' => \App\Http\Middleware\MapApiThrottle::class,
+            'requires.feature' => \App\Http\Middleware\RequiresFeature::class,
+            'requires.subscription' => \App\Http\Middleware\RequiresActiveSubscription::class,
+            'check.listing.limits' => \App\Http\Middleware\CheckListingLimits::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->dontReportDuplicates();
+        $exceptions->dontFlash([
+            'current_password',
+            'password',
+            'password_confirmation',
+        ]);
+
+        // Disable syntax highlighting to avoid phiki/phiki issues
+        $exceptions->context(function () {
+            return [
+                'SYNTAX_HIGHLIGHTING_ENABLED' => false,
+            ];
+        });
     })->create();

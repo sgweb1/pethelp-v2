@@ -16,7 +16,7 @@
         @livewireStyles
     </head>
     <body class="font-sans antialiased">
-        <div class="desktop-container min-h-screen bg-gradient-to-br from-primary-600 via-primary-700 to-warm-600 flex flex-col sm:justify-center items-center pt-6 sm:pt-0 hide-scrollbar">
+        <div class="desktop-container min-h-screen bg-gradient-to-br from-primary-600 via-primary-700 to-warm-600 flex flex-col sm:justify-center items-center pt-6 sm:pt-0">
             <!-- Logo Section -->
             <div class="mb-8">
                 <a href="/" wire:navigate class="flex items-center group">
@@ -30,7 +30,7 @@
             </div>
 
             <!-- Auth Card -->
-            <div class="w-full sm:max-w-md bg-white/95 backdrop-blur-md shadow-large px-8 py-10 rounded-3xl border border-white/20">
+            <div class="w-full sm:max-w-md bg-white/95 backdrop-blur-md shadow-large px-8 py-10 rounded-3xl border border-white/20 desktop-form">
                 {{ $slot }}
             </div>
 

@@ -532,4 +532,65 @@ $delete = fn(Product $product) => $product->delete();
 Always use context7 when I need code generation, setup or configuration steps, or
 library/API documentation. This means you should automatically use the Context7 MCP
 tools to resolve library id and get library docs without me having to explicitly ask.
+
+# Testing Environment
+
+## Development Domain
+- **Aplikacja testowa działa na**: `http://pethelp.test`
+- **API endpoints**: `http://pethelp.test/map/data`, `http://pethelp.test/map/categories`, etc.
+- **Używaj tej domeny do wszystkich testów i requests API**
+
+# Debugging Tools
+
+## Laravel Log Monitoring (PHP/Backend)
+Aplikacja ma skonfigurowany monitor logów Laravel w czasie rzeczywistym:
+
+```bash
+node log-monitor.cjs
+```
+
+Ten skrypt monitoruje `storage/logs/laravel.log` i wyświetla wszystkie nowe wpisy na żywo. Uruchom go w tle podczas debugowania problemów z:
+- Błędami bazy danych
+- Problemami z walidacją
+- Błędami Livewire/Volt
+- Problemami z autoryzacją
+- Błędami konfiguracji
+
+## JavaScript Error Logging (Frontend)
+Aplikacja ma również system zbierania błędów JavaScript:
+
+### Automatyczne zbieranie błędów
+System automatycznie przechwytuje z przeglądarki:
+- Błędy JavaScript (`window.addEventListener('error')`)
+- Odrzucone Promise (`unhandledrejection`)
+- Console errors/warnings
+- Informacje o sesji i lokalizacji błędu
+
+### Ręczne logowanie
+```javascript
+window.logError('Custom error message', {data: 'extra info'});
+window.logInfo('Debug information');
+```
+
+### Dashboard logów JavaScript
+Dostęp przez komponent Livewire `<livewire:logs-dashboard />`:
+- Przeglądanie logów JS z danego dnia
+- Filtrowanie po typie błędu
+- Wyszukiwanie w logach
+- Statystyki błędów i sesji
+
+### Pliki logów JavaScript
+- Zapisywane w: `storage/app/logs/js-errors-YYYY-MM-DD.log`
+- API: `GET /api/js-logs?date=YYYY-MM-DD`
+
+## Enhanced Monitor (oba systemy)
+Monitor `node log-monitor.cjs` został rozszerzony i pokazuje jednocześnie:
+- **Laravel logs** (niebieskie) - błędy PHP/backend
+- **JavaScript logs** (fioletowe) - błędy frontend
+
+**Kolorowe formatowanie:**
+- 🔴 Błędy krytyczne
+- 🟡 Ostrzeżenia
+- 🔵 Laravel logs
+- 🟣 JavaScript logs
 </laravel-boost-guidelines>

@@ -1,0 +1,268 @@
+/* Mobile-First Responsive Utilities for PetHelp */
+
+/* Mobile-optimized touch targets */
+.touch-target {
+    @apply min-h-[44px] min-w-[44px];
+}
+
+/* Mobile-friendly spacing */
+.mobile-padding {
+    @apply px-4 py-3 sm:px-6 sm:py-4;
+}
+
+.mobile-margin {
+    @apply m-4 sm:m-6;
+}
+
+/* Text scaling for mobile */
+.mobile-text {
+    @apply text-sm sm:text-base;
+}
+
+.mobile-heading {
+    @apply text-lg sm:text-xl lg:text-2xl;
+}
+
+.mobile-title {
+    @apply text-xl sm:text-2xl lg:text-3xl;
+}
+
+/* Button variants for mobile */
+.mobile-btn {
+    @apply px-3 py-2 sm:px-4 sm:py-2.5 text-sm sm:text-base;
+}
+
+.mobile-btn-sm {
+    @apply px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm;
+}
+
+.mobile-btn-lg {
+    @apply px-4 py-3 sm:px-6 sm:py-4 text-base sm:text-lg;
+}
+
+/* Card spacing for mobile */
+.mobile-card {
+    @apply p-4 sm:p-6 rounded-lg sm:rounded-xl;
+}
+
+.mobile-card-sm {
+    @apply p-3 sm:p-4 rounded-md sm:rounded-lg;
+}
+
+/* Grid layouts for mobile */
+.mobile-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6;
+}
+
+.mobile-grid-2 {
+    @apply grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4;
+}
+
+.mobile-grid-4 {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4;
+}
+
+/* Form inputs for mobile */
+.mobile-input {
+    @apply px-3 py-2 sm:px-4 sm:py-3 text-base rounded-lg;
+}
+
+.mobile-select {
+    @apply px-3 py-2 sm:px-4 sm:py-3 text-base rounded-lg;
+}
+
+/* Navigation adjustments */
+.mobile-nav {
+    @apply flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4;
+}
+
+.mobile-nav-item {
+    @apply w-full sm:w-auto text-center sm:text-left;
+}
+
+/* Container widths */
+.mobile-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.mobile-container-sm {
+    @apply max-w-4xl mx-auto px-4 sm:px-6;
+}
+
+/* Modal/popup adjustments */
+.mobile-modal {
+    @apply w-full sm:w-auto sm:max-w-md mx-4 sm:mx-auto;
+}
+
+.mobile-popup {
+    @apply fixed inset-x-4 bottom-4 sm:relative sm:inset-x-auto sm:bottom-auto;
+}
+
+/* Map specific mobile styles */
+.mobile-map-container {
+    @apply relative rounded-lg overflow-hidden;
+    min-height: 250px;
+    height: 300px;
+}
+
+@media (min-width: 640px) {
+    .mobile-map-container {
+        height: 400px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .mobile-map-container {
+        height: 500px;
+    }
+}
+
+/* Search result layouts */
+.mobile-search-results {
+    @apply space-y-3 sm:space-y-4;
+}
+
+.mobile-search-card {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden;
+}
+
+.mobile-search-card-content {
+    @apply p-4 sm:p-6;
+}
+
+.mobile-search-card-image {
+    @apply w-full h-48 sm:h-56 lg:h-64 object-cover;
+}
+
+/* Filter section mobile styles */
+.mobile-filters {
+    @apply bg-white/95 backdrop-blur-md rounded-xl shadow-lg p-4 sm:p-6;
+}
+
+.mobile-filters-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4;
+}
+
+.mobile-filter-item {
+    @apply space-y-2;
+}
+
+.mobile-filter-label {
+    @apply block text-sm font-medium text-gray-700;
+}
+
+/* Responsive typography */
+.mobile-responsive-text {
+    @apply text-sm sm:text-base lg:text-lg;
+    line-height: 1.5;
+}
+
+.mobile-responsive-text-sm {
+    @apply text-xs sm:text-sm lg:text-base;
+    line-height: 1.4;
+}
+
+/* Loading states for mobile */
+.mobile-loading-skeleton {
+    @apply animate-pulse bg-gray-200 rounded;
+}
+
+.mobile-loading-text {
+    @apply h-4 bg-gray-200 rounded;
+}
+
+.mobile-loading-button {
+    @apply h-9 sm:h-10 bg-gray-200 rounded-lg;
+}
+
+/* Error states */
+.mobile-error {
+    @apply bg-red-50 border border-red-200 rounded-lg p-4 text-red-700;
+}
+
+.mobile-warning {
+    @apply bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-700;
+}
+
+.mobile-success {
+    @apply bg-green-50 border border-green-200 rounded-lg p-4 text-green-700;
+}
+
+/* Tablet specific breakpoint adjustments */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .tablet-optimized {
+        @apply px-6 py-4;
+    }
+
+    .tablet-grid {
+        @apply grid-cols-2;
+    }
+
+    .tablet-text {
+        @apply text-base;
+    }
+}
+
+/* Mobile landscape optimizations */
+@media (max-width: 767px) and (orientation: landscape) {
+    .mobile-landscape-map {
+        height: 200px;
+    }
+
+    .mobile-landscape-modal {
+        @apply max-h-[70vh] overflow-y-auto;
+    }
+}
+
+/* Touch interaction improvements */
+.touch-friendly {
+    @apply select-none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.touch-friendly:active {
+    @apply scale-95;
+    transition: transform 0.1s ease-in-out;
+}
+
+/* Safe area adjustments for mobile devices */
+.mobile-safe-area {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Dark mode mobile adjustments */
+@media (prefers-color-scheme: dark) {
+    .mobile-dark-card {
+        @apply bg-gray-800 border-gray-700;
+    }
+
+    .mobile-dark-text {
+        @apply text-gray-200;
+    }
+
+    .mobile-dark-input {
+        @apply bg-gray-700 border-gray-600 text-gray-200;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .mobile-high-contrast {
+        @apply border-2 border-gray-900;
+    }
+
+    .mobile-high-contrast-text {
+        @apply text-gray-900 font-semibold;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .mobile-no-animation {
+        animation: none;
+        transition: none;
+    }
+}

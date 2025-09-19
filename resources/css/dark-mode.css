@@ -1,0 +1,444 @@
+/* Dark Mode Styles for PetHelp */
+
+/* Base dark mode colors */
+:root {
+    /* Light mode colors (default) */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f9fafb;
+    --bg-tertiary: #f3f4f6;
+    --text-primary: #111827;
+    --text-secondary: #6b7280;
+    --text-tertiary: #9ca3af;
+    --border-primary: #e5e7eb;
+    --border-secondary: #d1d5db;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}
+
+/* Dark mode color variables */
+.dark {
+    --bg-primary: #111827;
+    --bg-secondary: #1f2937;
+    --bg-tertiary: #374151;
+    --text-primary: #f9fafb;
+    --text-secondary: #d1d5db;
+    --text-tertiary: #9ca3af;
+    --border-primary: #374151;
+    --border-secondary: #4b5563;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4);
+}
+
+/* Body and base styles */
+.dark body {
+    @apply bg-gray-900 text-gray-100;
+}
+
+/* Background gradients */
+.dark .bg-gradient-to-br {
+    @apply from-gray-900 via-gray-800 to-gray-900;
+}
+
+/* Cards and containers */
+.dark .bg-white {
+    @apply bg-gray-800 text-gray-100;
+}
+
+.dark .bg-white\/95 {
+    @apply bg-gray-800/95 text-gray-100;
+}
+
+.dark .bg-gray-50 {
+    @apply bg-gray-800;
+}
+
+.dark .bg-gray-100 {
+    @apply bg-gray-700;
+}
+
+.dark .bg-gray-200 {
+    @apply bg-gray-600;
+}
+
+/* Text colors */
+.dark .text-gray-900 {
+    @apply text-gray-100;
+}
+
+.dark .text-gray-800 {
+    @apply text-gray-200;
+}
+
+.dark .text-gray-700 {
+    @apply text-gray-300;
+}
+
+.dark .text-gray-600 {
+    @apply text-gray-400;
+}
+
+.dark .text-gray-500 {
+    @apply text-gray-500;
+}
+
+/* Border colors */
+.dark .border-gray-200 {
+    @apply border-gray-700;
+}
+
+.dark .border-gray-300 {
+    @apply border-gray-600;
+}
+
+.dark .border-gray-400 {
+    @apply border-gray-500;
+}
+
+/* Form elements */
+.dark input,
+.dark select,
+.dark textarea {
+    @apply bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400;
+}
+
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+    @apply border-blue-500 ring-blue-500 bg-gray-700;
+}
+
+/* Buttons */
+.dark .bg-blue-600 {
+    @apply bg-blue-600;
+}
+
+.dark .bg-blue-600:hover {
+    @apply bg-blue-700;
+}
+
+.dark .bg-blue-100 {
+    @apply bg-blue-900;
+}
+
+.dark .text-blue-700 {
+    @apply text-blue-300;
+}
+
+.dark .text-blue-800 {
+    @apply text-blue-200;
+}
+
+/* Status colors adjustments */
+.dark .bg-green-100 {
+    @apply bg-green-900;
+}
+
+.dark .text-green-800 {
+    @apply text-green-200;
+}
+
+.dark .bg-red-100 {
+    @apply bg-red-900;
+}
+
+.dark .text-red-800 {
+    @apply text-red-200;
+}
+
+.dark .bg-yellow-100 {
+    @apply bg-yellow-900;
+}
+
+.dark .text-yellow-800 {
+    @apply text-yellow-200;
+}
+
+.dark .bg-orange-100 {
+    @apply bg-orange-900;
+}
+
+.dark .text-orange-800 {
+    @apply text-orange-200;
+}
+
+.dark .bg-purple-100 {
+    @apply bg-purple-900;
+}
+
+.dark .text-purple-800 {
+    @apply text-purple-200;
+}
+
+/* Shadows */
+.dark .shadow-sm {
+    @apply shadow-gray-900/25;
+}
+
+.dark .shadow {
+    @apply shadow-gray-900/25;
+}
+
+.dark .shadow-md {
+    @apply shadow-gray-900/30;
+}
+
+.dark .shadow-lg {
+    @apply shadow-gray-900/40;
+}
+
+.dark .shadow-xl {
+    @apply shadow-gray-900/50;
+}
+
+/* Navigation specific */
+.dark nav {
+    @apply bg-gray-800/95;
+}
+
+.dark .bg-white\/95.backdrop-blur-md {
+    @apply bg-gray-800/95;
+}
+
+/* Search filters dark mode */
+.dark .mobile-filters {
+    @apply bg-gray-800/95 border-gray-700;
+}
+
+/* Map dark mode adjustments */
+.dark #search-map {
+    filter: brightness(0.8) contrast(1.1);
+}
+
+.dark .leaflet-container {
+    background: #1f2937;
+}
+
+.dark .leaflet-control-zoom a {
+    background-color: #374151;
+    color: #f9fafb;
+    border-color: #4b5563;
+}
+
+.dark .leaflet-control-zoom a:hover {
+    background-color: #4b5563;
+}
+
+.dark .leaflet-popup-content-wrapper {
+    background-color: #374151;
+    color: #f9fafb;
+}
+
+.dark .leaflet-popup-tip {
+    background-color: #374151;
+}
+
+/* Custom components dark mode */
+.dark .search-card {
+    @apply bg-gray-800 border-gray-700;
+}
+
+.dark .search-card:hover {
+    @apply bg-gray-700 border-gray-600;
+}
+
+/* Loading states */
+.dark .mobile-loading-skeleton {
+    @apply bg-gray-700;
+}
+
+.dark .mobile-loading-text {
+    @apply bg-gray-700;
+}
+
+.dark .mobile-loading-button {
+    @apply bg-gray-700;
+}
+
+/* Error states dark mode */
+.dark .mobile-error {
+    @apply bg-red-900/20 border-red-800 text-red-200;
+}
+
+.dark .mobile-warning {
+    @apply bg-yellow-900/20 border-yellow-800 text-yellow-200;
+}
+
+.dark .mobile-success {
+    @apply bg-green-900/20 border-green-800 text-green-200;
+}
+
+/* Tables */
+.dark table {
+    @apply bg-gray-800;
+}
+
+.dark th {
+    @apply bg-gray-700 text-gray-300;
+}
+
+.dark td {
+    @apply border-gray-700;
+}
+
+.dark tr:nth-child(even) {
+    @apply bg-gray-700;
+}
+
+/* Modals and overlays */
+.dark .modal-backdrop {
+    @apply bg-gray-900/75;
+}
+
+.dark .modal-content {
+    @apply bg-gray-800 border-gray-700;
+}
+
+/* Dropdown menus */
+.dark .dropdown-menu {
+    @apply bg-gray-800 border-gray-700 shadow-lg;
+}
+
+.dark .dropdown-item {
+    @apply text-gray-300 hover:bg-gray-700 hover:text-gray-100;
+}
+
+/* Code blocks */
+.dark code {
+    @apply bg-gray-800 text-gray-300;
+}
+
+.dark pre {
+    @apply bg-gray-800 border-gray-700;
+}
+
+/* Links */
+.dark a {
+    @apply text-blue-400;
+}
+
+.dark a:hover {
+    @apply text-blue-300;
+}
+
+/* Selection */
+.dark ::selection {
+    @apply bg-blue-600 text-white;
+}
+
+/* Scrollbars (webkit) */
+.dark ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.dark ::-webkit-scrollbar-track {
+    @apply bg-gray-800;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+    @apply bg-gray-600 rounded;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-500;
+}
+
+/* Focus states */
+.dark *:focus {
+    @apply outline-blue-500;
+}
+
+.dark .focus\:ring-indigo-500:focus {
+    @apply ring-blue-500;
+}
+
+/* Specific component adjustments */
+
+/* Search filters in dark mode */
+.dark .search-filters-container {
+    @apply bg-gray-800/95 backdrop-blur-md border-gray-700;
+}
+
+/* Map controls dark mode */
+.dark .map-controls {
+    @apply bg-gray-800 border-gray-700;
+}
+
+.dark .map-control-button {
+    @apply bg-gray-700 text-gray-300 border-gray-600;
+}
+
+.dark .map-control-button:hover {
+    @apply bg-gray-600 text-gray-100;
+}
+
+/* Statistics badges */
+.dark .stats-badge {
+    @apply bg-gray-700 text-gray-300;
+}
+
+/* Content type filters */
+.dark .content-type-filter {
+    @apply bg-gray-700 text-gray-300 border-gray-600;
+}
+
+.dark .content-type-filter.active {
+    @apply bg-blue-600 text-white border-blue-500;
+}
+
+/* Search results dark mode */
+.dark .search-result-card {
+    @apply bg-gray-800 border-gray-700;
+}
+
+.dark .search-result-card:hover {
+    @apply bg-gray-700 border-gray-600;
+}
+
+/* Pagination */
+.dark .pagination {
+    @apply bg-gray-800;
+}
+
+.dark .pagination-link {
+    @apply bg-gray-700 text-gray-300 border-gray-600;
+}
+
+.dark .pagination-link:hover {
+    @apply bg-gray-600 text-gray-100;
+}
+
+.dark .pagination-link.active {
+    @apply bg-blue-600 text-white border-blue-500;
+}
+
+/* Animation improvements for dark mode */
+@media (prefers-reduced-motion: no-preference) {
+    .dark * {
+        transition: background-color 0.3s ease,
+                   border-color 0.3s ease,
+                   color 0.3s ease,
+                   box-shadow 0.3s ease;
+    }
+}
+
+/* High contrast dark mode support */
+@media (prefers-contrast: high) {
+    .dark {
+        --bg-primary: #000000;
+        --bg-secondary: #1a1a1a;
+        --text-primary: #ffffff;
+        --border-primary: #666666;
+    }
+}
+
+/* Print styles for dark mode */
+@media print {
+    .dark * {
+        background: white !important;
+        color: black !important;
+        box-shadow: none !important;
+    }
+}

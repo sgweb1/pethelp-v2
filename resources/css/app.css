@@ -1,6 +1,12 @@
 /* Import desktop-specific styles */
 @import './desktop.css';
 
+/* Import mobile-responsive utilities */
+@import './mobile-responsive.css';
+
+/* Import accessibility improvements */
+@import './accessibility.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

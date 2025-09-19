@@ -38,7 +38,7 @@ class User extends Authenticatable
 
     public function pets(): HasMany
     {
-        return $this->hasMany(Pet::class, 'user_id');
+        return $this->hasMany(Pet::class, 'owner_id');
     }
 
     public function services(): HasMany
@@ -107,10 +107,53 @@ class User extends Authenticatable
         return $this->hasMany(Message::class, 'sender_id');
     }
 
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function activeSubscription(): HasOne
+    {
+        return $this->hasOne(Subscription::class)->where('status', Subscription::STATUS_ACTIVE)
+                    ->where('starts_at', '<=', now())
+                    ->where('ends_at', '>', now());
+    }
+
+    public function advertisements(): HasMany
+    {
+        return $this->hasMany(Advertisement::class);
+    }
+
     public function getUnreadMessagesCount(): int
     {
         return Message::whereHas('conversation', function($query) {
             $query->forUser($this->id);
         })->forReceiver($this->id)->unread()->count();
+    }
+
+    public function hasFeature(string $feature): bool
+    {
+        $subscription = $this->activeSubscription;
+        return $subscription && $subscription->hasFeature($feature);
+    }
+
+    public function hasActiveSubscription(): bool
+    {
+        return $this->activeSubscription !== null;
+    }
+
+    public function canCreateListing(): bool
+    {
+        $subscription = $this->activeSubscription;
+
+        if (!$subscription) {
+            return $this->advertisements()->count() < 3; // Basic plan limit
+        }
+
+        if ($subscription->hasUnlimitedListings()) {
+            return true;
+        }
+
+        return $this->advertisements()->count() < $subscription->subscriptionPlan->max_listings;
     }
 }

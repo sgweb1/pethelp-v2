@@ -142,7 +142,7 @@ new #[Layout('layouts.app')] class extends Component {
                     @if($recentPets->count() > 0)
                         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                             @foreach($recentPets as $pet)
-                                <x-dashboard.pet-card :pet="$pet" compact="true" />
+                                <x-dashboard.pet-card wire:key="pet-{{ $pet->id }}" :pet="$pet" compact="true" />
                             @endforeach
                         </div>
                     @else

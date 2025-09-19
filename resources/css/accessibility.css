@@ -1,0 +1,451 @@
+/* WCAG 2.1 Accessibility Improvements for PetHelp */
+
+/* Focus Management */
+/* Zapewnia widoczne focus states dla wszystkich interaktywnych elementów */
+*:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* Skip navigation link dla screen readers */
+.skip-navigation {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: #3b82f6;
+    color: white;
+    padding: 8px;
+    text-decoration: none;
+    border-radius: 4px;
+    z-index: 9999;
+    font-weight: 600;
+}
+
+.skip-navigation:focus {
+    top: 6px;
+    outline: 2px solid #ffffff;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    :root {
+        --text-contrast: #000000;
+        --bg-contrast: #ffffff;
+        --border-contrast: #000000;
+    }
+
+    .dark {
+        --text-contrast: #ffffff;
+        --bg-contrast: #000000;
+        --border-contrast: #ffffff;
+    }
+
+    * {
+        border-color: var(--border-contrast) !important;
+    }
+
+    .text-gray-700, .text-gray-600, .text-gray-500 {
+        color: var(--text-contrast) !important;
+    }
+
+    .bg-white, .bg-gray-50, .bg-gray-100 {
+        background-color: var(--bg-contrast) !important;
+        color: var(--text-contrast) !important;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    /* Disable hover animations when reduced motion is preferred */
+    .hover\:scale-105:hover {
+        transform: none !important;
+    }
+
+    .hover\:-translate-y-0\.5:hover {
+        transform: none !important;
+    }
+}
+
+/* Color blind friendly improvements */
+.status-success {
+    background-color: #10b981;
+    position: relative;
+}
+
+.status-success::before {
+    content: "✓";
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;
+    font-weight: bold;
+}
+
+.status-error {
+    background-color: #ef4444;
+    position: relative;
+}
+
+.status-error::before {
+    content: "✗";
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;
+    font-weight: bold;
+}
+
+.status-warning {
+    background-color: #f59e0b;
+    position: relative;
+}
+
+.status-warning::before {
+    content: "⚠";
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;
+    font-weight: bold;
+}
+
+/* Enhanced button accessibility */
+.btn-accessible {
+    min-height: 44px; /* WCAG minimum touch target size */
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+/* Loading state accessibility */
+.loading-accessible {
+    position: relative;
+}
+
+.loading-accessible::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.loading-accessible[aria-busy="true"]::after {
+    content: "Ładowanie...";
+    font-weight: 600;
+    color: #374151;
+}
+
+/* Form accessibility improvements */
+.form-field-accessible {
+    position: relative;
+}
+
+.form-field-accessible .required::after {
+    content: " *";
+    color: #ef4444;
+    font-weight: bold;
+}
+
+.form-field-accessible .error-message {
+    color: #ef4444;
+    font-size: 0.875rem;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+}
+
+.form-field-accessible .error-message::before {
+    content: "⚠";
+    margin-right: 4px;
+}
+
+.form-field-accessible .help-text {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-top: 4px;
+}
+
+/* Screen reader only content */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.sr-only-focusable:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: inherit;
+    margin: inherit;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+}
+
+/* Enhanced link accessibility */
+.link-accessible {
+    color: #3b82f6;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 2px;
+}
+
+.link-accessible:hover {
+    text-decoration-thickness: 3px;
+}
+
+.link-accessible:focus {
+    background-color: #3b82f6;
+    color: white;
+    text-decoration: none;
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+
+/* Modal accessibility */
+.modal-accessible {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-accessible[aria-hidden="true"] {
+    display: none;
+}
+
+.modal-content-accessible {
+    background: white;
+    border-radius: 8px;
+    padding: 24px;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.modal-content-accessible:focus {
+    outline: none;
+}
+
+/* Toast notifications accessibility */
+.toast-accessible {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    z-index: 50;
+    min-width: 300px;
+    role: alert;
+}
+
+.toast-accessible.toast-success {
+    border-left: 4px solid #10b981;
+}
+
+.toast-accessible.toast-error {
+    border-left: 4px solid #ef4444;
+}
+
+.toast-accessible.toast-warning {
+    border-left: 4px solid #f59e0b;
+}
+
+/* Table accessibility */
+.table-accessible {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-accessible th {
+    background-color: #f9fafb;
+    font-weight: 600;
+    text-align: left;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+}
+
+.table-accessible td {
+    padding: 12px;
+    border: 1px solid #d1d5db;
+}
+
+.table-accessible tbody tr:nth-child(even) {
+    background-color: #f9fafb;
+}
+
+.table-accessible tbody tr:hover {
+    background-color: #f3f4f6;
+}
+
+/* Card accessibility */
+.card-accessible {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 16px;
+    background: white;
+}
+
+.card-accessible:focus-within {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Navigation accessibility */
+.nav-accessible a[aria-current="page"] {
+    background-color: #3b82f6;
+    color: white;
+    font-weight: 600;
+}
+
+/* Map accessibility */
+.map-accessible {
+    position: relative;
+}
+
+.map-accessible::before {
+    content: "Mapa interaktywna. Użyj klawiatury Tab aby nawigować po elementach mapy.";
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.map-accessible:focus-within::before {
+    opacity: 1;
+}
+
+/* Search results accessibility */
+.search-results-accessible {
+    position: relative;
+}
+
+.search-results-accessible[aria-live="polite"]::before {
+    content: attr(data-results-count) " wyników znalezionych";
+    position: absolute;
+    top: -30px;
+    left: 0;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+/* Dark mode accessibility adjustments */
+.dark .modal-content-accessible {
+    background: #1f2937;
+    color: #f9fafb;
+}
+
+.dark .table-accessible th {
+    background-color: #374151;
+    color: #f9fafb;
+}
+
+.dark .table-accessible tbody tr:nth-child(even) {
+    background-color: #374151;
+}
+
+.dark .table-accessible tbody tr:hover {
+    background-color: #4b5563;
+}
+
+.dark .card-accessible {
+    background: #1f2937;
+    border-color: #374151;
+    color: #f9fafb;
+}
+
+.dark .toast-accessible {
+    background: #1f2937;
+    color: #f9fafb;
+    border-color: #374151;
+}
+
+/* Custom focus indicators for specific components */
+.custom-checkbox:focus + label {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.custom-radio:focus + label {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+    border-radius: 50%;
+}
+
+/* Keyboard navigation helpers */
+.keyboard-nav-helper {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    z-index: 9999;
+    text-align: center;
+}
+
+.keyboard-nav-helper.show {
+    display: block;
+}
+
+/* Print accessibility */
+@media print {
+    .skip-navigation,
+    .keyboard-nav-helper {
+        display: none !important;
+    }
+
+    .link-accessible {
+        color: #000000 !important;
+        text-decoration: underline !important;
+    }
+
+    .card-accessible {
+        border: 1px solid #000000 !important;
+        background: white !important;
+        color: #000000 !important;
+    }
+}

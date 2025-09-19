@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders; 
+namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 
@@ -14,6 +14,10 @@ class DatabaseSeeder extends Seeder
         $this->call([
             ServiceCategorySeeder::class,
             TestDataSeeder::class,
+            EventTypeSeeder::class,
+            MapItemSeeder::class,
+            EventSeeder::class,
+            ProfessionalServiceSeeder::class,
         ]);
     }
 }
