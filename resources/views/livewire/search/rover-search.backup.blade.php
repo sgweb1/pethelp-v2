@@ -58,139 +58,148 @@
                 </div>
 
                 <!-- Main Search Row -->
-                <div class="space-y-4">
-                    <!-- First Row: Location and Pet Info -->
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
-                        <!-- Location Input -->
-                        <div class="lg:col-span-1">
-                            <x-address-search
-                                wire-model="location"
-                                label="Lokalizacja"
-                                placeholder="Wpisz miasto lub adres..."
-                                :show-current-location="true"
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6">
+                    <!-- Location Input -->
+                    <div class="lg:col-span-1">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <span class="flex items-center">
+                                <svg class="w-4 h-4 mr-1 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                                Lokalizacja
+                            </span>
+                        </label>
+                        <div class="relative">
+                            <input
+                                wire:model.live.debounce.300ms="location"
+                                x-ref="locationInput"
+                                type="text"
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl text-base focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white transition-colors"
+                                placeholder="Wpisz miasto..."
+                                autocomplete="off"
+                                @click="$wire.showSuggestions = true"
+                                @keydown.escape="$wire.showSuggestions = false"
                             />
-                        </div>
 
-                        <!-- Pet Type & Count -->
-                        <div class="lg:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                <span class="flex items-center">
-                                    <svg class="w-4 h-4 mr-1 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
-                                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
-                                    </svg>
-                                    Twój pupil
-                                </span>
-                            </label>
-                            <div class="grid grid-cols-2 gap-3">
-                                <!-- Pet Type -->
-                                <select
-                                    wire:model.live="petType"
-                                    class="px-4 py-3.5 border border-gray-300 dark:border-gray-600 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white min-h-[48px]"
-                                >
-                                    @foreach($this->petTypes as $type => $config)
-                                    <option value="{{ $type }}">{{ $config['icon'] }} {{ $config['name'] }}</option>
-                                    @endforeach
-                                </select>
+                            <!-- GPS Button -->
+                            <button
+                                type="button"
+                                wire:click="getCurrentLocation"
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-purple-600 transition-colors"
+                                title="Użyj mojej lokalizacji"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                </svg>
+                            </button>
 
-                                <!-- Pet Count -->
-                                <select
-                                    wire:model.live="petCount"
-                                    class="px-4 py-3.5 border border-gray-300 dark:border-gray-600 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white min-h-[48px]"
+                            <!-- Location Suggestions Dropdown -->
+                            @if($showSuggestions && $this->locationSuggestions->isNotEmpty())
+                            <div
+                                class="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl shadow-lg max-h-64 overflow-auto"
+                                @click.away="$wire.showSuggestions = false"
+                            >
+                                @foreach($this->locationSuggestions as $suggestion)
+                                <button
+                                    type="button"
+                                    wire:click="selectSuggestion('{{ $suggestion['city'] }}', '{{ $suggestion['address'] }}')"
+                                    class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                                 >
-                                    @for($i = 1; $i <= 5; $i++)
-                                    <option value="{{ $i }}">{{ $i }} {{ $i === 1 ? 'pupil' : 'pupili' }}</option>
-                                    @endfor
-                                    <option value="6">6+ pupili</option>
-                                </select>
+                                    <div class="font-medium text-gray-900 dark:text-white">{{ $suggestion['city'] }}</div>
+                                    @if($suggestion['address'])
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">{{ $suggestion['address'] }}</div>
+                                    @endif
+                                </button>
+                                @endforeach
                             </div>
+                            @endif
                         </div>
                     </div>
 
-                    <!-- Second Row: Dates and Search Button (for pet sitters) -->
+                    <!-- Pet Type & Count -->
+                    <div class="lg:col-span-1">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <span class="flex items-center">
+                                <svg class="w-4 h-4 mr-1 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                                    <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                                </svg>
+                                Twój pupil
+                            </span>
+                        </label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <!-- Pet Type -->
+                            <select
+                                wire:model.live="petType"
+                                class="px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white"
+                            >
+                                @foreach($this->petTypes as $type => $config)
+                                <option value="{{ $type }}">{{ $config['icon'] }} {{ $config['name'] }}</option>
+                                @endforeach
+                            </select>
+
+                            <!-- Pet Count -->
+                            <select
+                                wire:model.live="petCount"
+                                class="px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white"
+                            >
+                                @for($i = 1; $i <= 5; $i++)
+                                <option value="{{ $i }}">{{ $i }} {{ $i === 1 ? 'pupil' : 'pupili' }}</option>
+                                @endfor
+                                <option value="6">6+ pupili</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Dates (for pet sitters) -->
                     @if($serviceType === 'pet_sitter')
-                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6">
-                        <!-- Start Date -->
-                        <div class="lg:col-span-1">
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                <span class="flex items-center">
-                                    <svg class="w-4 h-4 mr-1 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z"/>
-                                    </svg>
-                                    Data rozpoczęcia
-                                </span>
-                            </label>
+                    <div class="lg:col-span-1">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <span class="flex items-center">
+                                <svg class="w-4 h-4 mr-1 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                Kiedy potrzebujesz?
+                            </span>
+                        </label>
+                        <div class="grid grid-cols-2 gap-2">
                             <x-date-picker
                                 wire-model="startDate"
-                                placeholder="Wybierz datę rozpoczęcia"
+                                placeholder="Data rozpoczęcia"
                                 min-date="{{ date('Y-m-d') }}"
                             />
-                        </div>
-
-                        <!-- End Date -->
-                        <div class="lg:col-span-1">
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                <span class="flex items-center">
-                                    <svg class="w-4 h-4 mr-1 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z"/>
-                                    </svg>
-                                    Data zakończenia
-                                </span>
-                            </label>
                             <x-date-picker
                                 wire-model="endDate"
-                                placeholder="Wybierz datę zakończenia"
+                                placeholder="Data zakończenia"
                                 min-date="{{ date('Y-m-d') }}"
                             />
                         </div>
-
-                        <!-- Search Button -->
-                        <div class="lg:col-span-2 flex items-end">
-                            <button
-                                type="submit"
-                                wire:loading.attr="disabled"
-                                class="w-full bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-h-[48px]"
-                            >
-                                <span wire:loading.remove wire:target="search" class="flex items-center">
-                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 1 1 -14 0 7 7 0 0 1 14 0z"/>
-                                    </svg>
-                                    Wyszukaj opiekuna
-                                </span>
-                                <span wire:loading wire:target="search" class="flex items-center">
-                                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-900" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    Szukam...
-                                </span>
-                            </button>
-                        </div>
                     </div>
-                    @else
-                    <!-- Search Button for other services -->
-                    <div class="flex justify-center">
+                    @endif
+
+                    <!-- Search Button -->
+                    <div class="lg:col-span-1 flex items-end">
                         <button
                             type="submit"
                             wire:loading.attr="disabled"
-                            class="bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-bold py-4 px-12 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-h-[48px]"
+                            class="w-full bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                         >
                             <span wire:loading.remove wire:target="search" class="flex items-center">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 1 1 -14 0 7 7 0 0 1 14 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                                 </svg>
                                 Wyszukaj
                             </span>
                             <span wire:loading wire:target="search" class="flex items-center">
                                 <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-900" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
                                 Szukam...
                             </span>
                         </button>
                     </div>
-                    @endif
                 </div>
 
                 <!-- Service-specific filters -->
@@ -287,13 +296,13 @@
                         <div x-show="showPriceDetails" x-transition class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Cena od (zł/godz)</label>
-                                <input type="number" wire:model.live.debounce.500ms="minPrice" min="0" max="500"
-                                       class="w-full px-4 py-3.5 border border-gray-300 dark:border-gray-600 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white min-h-[48px]">
+                                <input type="number" wire:model.live="minPrice" min="0" max="500"
+                                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white">
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Cena do (zł/godz)</label>
-                                <input type="number" wire:model.live.debounce.500ms="maxPrice" min="0" max="500"
-                                       class="w-full px-4 py-3.5 border border-gray-300 dark:border-gray-600 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white min-h-[48px]">
+                                <input type="number" wire:model.live="maxPrice" min="0" max="500"
+                                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white">
                             </div>
                         </div>
                     </div>

@@ -44,6 +44,18 @@ This application is a Laravel application and its main Laravel ecosystems packag
 ## Replies
 - Be concise in your explanations - focus on what's important rather than explaining obvious details.
 
+## SVG Standards
+- **CRITICAL**: When working with SVG paths, ensure proper spacing in arc commands
+- Arc flags must be separated by spaces: `a3 3 0 1 1 -6 0` NOT `a3 3 0 1 1-6 0`
+- Always check console for SVG path errors after changes
+- See `docs/SVG_STANDARDS.md` for detailed guidelines
+
+## Alpine.js & Livewire Event Standards
+- **CRITICAL**: Alpine.js `$dispatch()` second parameter must be an object: `$dispatch('event', { data: value })`
+- Livewire `$this->dispatch()` should use arrays: `$this->dispatch('event', ['key' => 'value'])`
+- Never use raw values as second parameter: `$dispatch('event', value)` ❌
+- Always use objects/arrays: `$dispatch('event', { key: value })` ✅
+
 ## Documentation Files
 - You must only create documentation files if explicitly requested by the user.
 

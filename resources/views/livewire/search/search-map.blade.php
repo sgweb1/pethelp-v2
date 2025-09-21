@@ -1,43 +1,7 @@
 <div class="w-full h-full flex flex-col">
-    {{-- Compact Map Header --}}
-    <div class="flex-shrink-0 px-3 py-2 bg-gray-50 border-b border-gray-200">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                @if($location_detected)
-                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                        </svg>
-                        <span class="hidden sm:inline">GPS</span>
-                    </span>
-                @endif
-
-                {{-- Statistics Badge --}}
-                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                      x-data="{ stats: @js($this->mapStatistics) }">
-                    <span x-text="stats.total_items || 0"></span> wyników
-                </span>
-            </div>
-
-            <div class="flex items-center gap-1">
-                {{-- Detect Location Button --}}
-                <button wire:click="detectLocation"
-                        class="flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors"
-                        title="Wykryj moją lokalizację">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M15 11a3 3 0 11-6 0 3 3 0z"/>
-                    </svg>
-                    <span class="hidden sm:inline">GPS</span>
-                </button>
-            </div>
-        </div>
-    </div>
 
     {{-- Map Container - Always Visible, Full Height --}}
-    <div class="flex-1 relative min-h-0">
+    <div class="flex-1 relative min-h-0 h-full">
         {{-- Map will be rendered here by JavaScript --}}
         <div id="search-map"
              wire:ignore
@@ -64,29 +28,41 @@
         {{-- Map Controls --}}
         <div class="absolute top-2 right-2 flex flex-col gap-1">
             {{-- Zoom Controls --}}
-            <div class="bg-white rounded shadow-lg overflow-hidden">
+            <div class="leaflet-control-zoom leaflet-bar leaflet-control bg-white rounded shadow-lg overflow-hidden">
                 <button class="block w-8 h-8 flex items-center justify-center hover:bg-gray-50 border-b"
-                        onclick="zoomIn()">
+                        onclick="zoomIn()"
+                        title="Powiększ">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                     </svg>
                 </button>
                 <button class="block w-8 h-8 flex items-center justify-center hover:bg-gray-50"
-                        onclick="zoomOut()">
+                        onclick="zoomOut()"
+                        title="Pomniejsz">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 12H6"/>
                     </svg>
                 </button>
             </div>
 
-            {{-- My Location --}}
-            <button class="w-8 h-8 bg-white rounded shadow-lg flex items-center justify-center hover:bg-gray-50"
-                    onclick="centerOnLocation()">
+            {{-- Location Detection --}}
+            <button class="leaflet-control-zoom leaflet-bar leaflet-control w-8 h-8 bg-white rounded shadow-lg flex items-center justify-center hover:bg-gray-50"
+                    onclick="detectUserLocation()"
+                    title="Wykryj moją lokalizację">
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M15 11a3 3 0 11-6 0 3 3 0z"/>
+                          d="M15 11a3 3 0 1 1 -6 0 3 3 0 0 1 6 0z"/>
+                </svg>
+            </button>
+
+            {{-- Center on Current Location --}}
+            <button class="leaflet-control-zoom leaflet-bar leaflet-control w-8 h-8 bg-white rounded shadow-lg flex items-center justify-center hover:bg-gray-50"
+                    onclick="centerOnLocation()"
+                    title="Wycentruj na aktualnej lokalizacji">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                 </svg>
             </button>
         </div>
@@ -142,9 +118,11 @@ document.addEventListener('livewire:init', () => {
         const mapElement = document.getElementById('search-map');
         if (!mapElement || map) return;
 
-        const lat = parseFloat(mapElement.dataset.latitude) || 52.2297;
-        const lng = parseFloat(mapElement.dataset.longitude) || 21.0122;
-        const zoom = parseInt(mapElement.dataset.zoom) || 13;
+        // Get coordinates from URL parameters or dataset
+        const urlParams = new URLSearchParams(window.location.search);
+        const lat = parseFloat(urlParams.get('lat')) || parseFloat(mapElement.dataset.latitude) || 52.2297;
+        const lng = parseFloat(urlParams.get('lng')) || parseFloat(mapElement.dataset.longitude) || 21.0122;
+        const zoom = parseInt(urlParams.get('zoom')) || parseInt(mapElement.dataset.zoom) || 13;
 
         map = L.map('search-map').setView([lat, lng], zoom);
 
@@ -184,7 +162,9 @@ document.addEventListener('livewire:init', () => {
         map.on('moveend zoomend', function() {
             const bounds = map.getBounds();
             const zoom = map.getZoom();
+            const center = map.getCenter();
 
+            // Update bounds for area-based search
             @this.call('updateMapBounds', [
                 bounds.getSouth(),
                 bounds.getWest(),
@@ -192,99 +172,117 @@ document.addEventListener('livewire:init', () => {
                 bounds.getEast()
             ]);
 
+            // Update zoom level
             @this.call('updateZoomLevel', zoom);
+
+            // Update center coordinates
+            @this.call('updateMapCenter', center.lat, center.lng);
+        });
+
+        // Listen for dragend to update center position
+        map.on('dragend', function() {
+            const center = map.getCenter();
+            @this.call('updateMapCenter', center.lat, center.lng);
         });
     }
 
     function loadMapItems() {
-        @this.get('mapItems').then(items => {
-            // Clear existing markers
-            if (markerClusterGroup) {
-                map.removeLayer(markerClusterGroup);
-            }
-            markers.forEach(marker => map.removeLayer(marker));
-            markers = [];
+        // Use the direct map items property
+        const items = @json($this->directMapItems ?? []);
+        console.log('Loading map items:', items.length);
 
-            // Create cluster group if clustering is enabled
-            const clusterMode = document.getElementById('search-map').dataset.clusterMode === 'true';
-            if (clusterMode && window.L && window.L.markerClusterGroup) {
-                markerClusterGroup = L.markerClusterGroup({
-                    chunkedLoading: true,
-                    chunkInterval: 200,
-                    chunkDelay: 50
-                });
-            }
+        // Clear existing markers
+        if (markerClusterGroup) {
+            map.removeLayer(markerClusterGroup);
+        }
+        markers.forEach(marker => map.removeLayer(marker));
+        markers = [];
 
-            // Add item markers
-            items.forEach(item => {
-                if (item.coordinates && item.coordinates.latitude && item.coordinates.longitude) {
-                    const iconColor = getContentTypeColor(item.content.content_type);
-                    const isSpecial = item.status.is_featured || item.status.is_urgent;
-
-                    // Create custom icon
-                    const icon = L.divIcon({
-                        className: 'custom-div-icon',
-                        html: `<div class="w-6 h-6 ${iconColor} rounded-full flex items-center justify-center text-white text-xs font-bold ${isSpecial ? 'ring-2 ring-yellow-400' : ''}">
-                            ${item.status.is_featured ? '★' : (item.status.is_urgent ? '!' : '•')}
-                        </div>`,
-                        iconSize: [24, 24],
-                        iconAnchor: [12, 12]
-                    });
-
-                    const marker = L.marker([
-                        item.coordinates.latitude,
-                        item.coordinates.longitude
-                    ], { icon: icon });
-
-                    const popupContent = createPopupContent(item);
-                    marker.bindPopup(popupContent);
-
-                    if (clusterMode && markerClusterGroup) {
-                        markerClusterGroup.addLayer(marker);
-                    } else {
-                        marker.addTo(map);
-                    }
-
-                    markers.push(marker);
-                }
+        // Create cluster group if clustering is enabled
+        const clusterMode = document.getElementById('search-map').dataset.clusterMode === 'true';
+        if (clusterMode && window.L && window.L.markerClusterGroup) {
+            markerClusterGroup = L.markerClusterGroup({
+                chunkedLoading: true,
+                chunkInterval: 200,
+                chunkDelay: 50
             });
+        }
 
-            if (clusterMode && markerClusterGroup) {
-                map.addLayer(markerClusterGroup);
+        // Add item markers
+        items.forEach(item => {
+            if (item.latitude && item.longitude) {
+                const iconColor = getContentTypeColor(item.content_type);
+                const isSpecial = item.is_featured || item.is_urgent;
+
+                // Create custom icon
+                const icon = L.divIcon({
+                    className: 'custom-div-icon',
+                    html: `<div class="w-6 h-6 ${iconColor} rounded-full flex items-center justify-center text-white text-xs font-bold ${isSpecial ? 'ring-2 ring-yellow-400' : ''}">
+                        ${item.is_featured ? '★' : (item.is_urgent ? '!' : '•')}
+                    </div>`,
+                    iconSize: [24, 24],
+                    iconAnchor: [12, 12]
+                });
+
+                const marker = L.marker([
+                    item.latitude,
+                    item.longitude
+                ], { icon: icon });
+
+                // Store item ID for highlighting
+                marker.itemId = item.id;
+
+                const popupContent = createPopupContent(item);
+                marker.bindPopup(popupContent);
+
+                if (clusterMode && markerClusterGroup) {
+                    markerClusterGroup.addLayer(marker);
+                } else {
+                    marker.addTo(map);
+                }
+
+                markers.push(marker);
             }
         });
+
+        if (clusterMode && markerClusterGroup) {
+            map.addLayer(markerClusterGroup);
+        }
     }
 
     function createPopupContent(item) {
         return `
             <div class="p-3 min-w-64 max-w-80">
                 <div class="flex items-start gap-3">
-                    ${item.content.primary_image_url ?
-                        `<img src="${item.content.primary_image_url}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0" alt="${item.content.title}">` :
+                    ${item.primary_image_url ?
+                        `<img src="${item.primary_image_url}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0" alt="${item.title}">` :
                         '<div class="w-16 h-16 bg-gray-200 rounded-lg flex-shrink-0 flex items-center justify-center"><span class="text-gray-400 text-xs">Brak zdjęcia</span></div>'
                     }
                     <div class="flex-1 min-w-0">
-                        <h4 class="font-semibold text-sm text-gray-900 truncate">${item.content.title}</h4>
-                        <p class="text-xs text-gray-600 mt-1">${item.category.name}</p>
-                        ${item.content.description_short ? `<p class="text-xs text-gray-500 mt-1 line-clamp-2">${item.content.description_short}</p>` : ''}
+                        <h4 class="font-semibold text-sm text-gray-900 truncate">${item.title}</h4>
+                        <p class="text-xs text-gray-600 mt-1">${item.category_name}</p>
+                        ${item.description_short ? `<p class="text-xs text-gray-500 mt-1 line-clamp-2">${item.description_short}</p>` : ''}
 
                         <div class="flex items-center gap-2 mt-2">
-                            ${item.pricing ? `<span class="text-xs font-medium text-green-600">${item.pricing.price_from} ${item.pricing.currency}</span>` : ''}
-                            ${item.status.is_featured ? '<span class="text-xs bg-yellow-100 text-yellow-800 px-1 rounded">★ Wyróżnione</span>' : ''}
-                            ${item.status.is_urgent ? '<span class="text-xs bg-red-100 text-red-800 px-1 rounded">! Pilne</span>' : ''}
+                            ${item.price_from ? `<span class="text-xs font-medium text-green-600">${item.price_from} ${item.currency || 'zł'}</span>` : ''}
+                            ${item.is_featured ? '<span class="text-xs bg-yellow-100 text-yellow-800 px-1 rounded">★ Wyróżnione</span>' : ''}
+                            ${item.is_urgent ? '<span class="text-xs bg-red-100 text-red-800 px-1 rounded">! Pilne</span>' : ''}
                         </div>
 
-                        ${item.engagement.rating ?
+                        ${item.rating_avg && item.rating_avg > 0 ?
                             `<div class="flex items-center gap-1 mt-1">
                                 <span class="text-xs text-yellow-500">★</span>
-                                <span class="text-xs text-gray-600">${item.engagement.rating.average} (${item.engagement.rating.count})</span>
+                                <span class="text-xs text-gray-600">${item.rating_avg} (${item.rating_count || 0})</span>
                             </div>` : ''
                         }
 
                         <div class="flex gap-2 mt-2">
-                            ${item.links.view !== '#' ? `<a href="${item.links.view}" class="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">Zobacz</a>` : ''}
-                            ${item.links.contact ? `<a href="${item.links.contact}" class="text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700">Kontakt</a>` : ''}
+                            <a href="#" class="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">Zobacz</a>
+                            <a href="#" class="text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700">Kontakt</a>
                         </div>
+
+                        ${item.user ? `<p class="text-xs text-gray-500 mt-1">Przez: ${item.user.name}</p>` : ''}
+                        <p class="text-xs text-gray-500 mt-1">${item.city}</p>
                     </div>
                 </div>
             </div>
@@ -293,12 +291,10 @@ document.addEventListener('livewire:init', () => {
 
     function getContentTypeColor(contentType) {
         const colors = {
+            'pet_sitter': 'bg-purple-500',
             'service': 'bg-blue-500',
-            'event': 'bg-green-500',
-            'adoption': 'bg-red-500',
-            'lost_pet': 'bg-orange-500',
-            'found_pet': 'bg-emerald-500',
-            'supplies': 'bg-purple-500'
+            'event_public': 'bg-green-500',
+            'advertisement': 'bg-orange-500'
         };
         return colors[contentType] || 'bg-gray-500';
     }
@@ -307,6 +303,10 @@ document.addEventListener('livewire:init', () => {
     Livewire.hook('message.processed', (message, component) => {
         if (component.fingerprint.name === 'search.search-map') {
             setTimeout(initializeMap, 100);
+            // Reload map items when filters change
+            if (map) {
+                setTimeout(loadMapItems, 200);
+            }
         }
     });
 
@@ -341,6 +341,72 @@ document.addEventListener('livewire:init', () => {
         }
     });
 
+    // Listen for marker highlighting from search results
+    document.addEventListener('highlight-map-marker', (event) => {
+        const markerId = event.detail?.id;
+        highlightMapMarker(markerId);
+    });
+
+    // Listen for marker focusing from search results
+    document.addEventListener('focus-map-marker', (event) => {
+        const markerId = event.detail?.id;
+        focusMapMarker(markerId);
+    });
+
+    // Listen for Livewire filter updates
+    Livewire.on('filters-updated', () => {
+        console.log('Filters updated, reloading map items');
+        if (map) {
+            setTimeout(loadMapItems, 100);
+        }
+    });
+
+    Livewire.on('update-map-filters', () => {
+        console.log('Map filters updated, reloading map items');
+        if (map) {
+            setTimeout(loadMapItems, 100);
+        }
+    });
+
+    // Listen for URL updates
+    Livewire.on('update-browser-url', (newUrl) => {
+        if (history.replaceState) {
+            history.replaceState(null, null, newUrl);
+        }
+    });
+
+    function highlightMapMarker(markerId) {
+        // Find marker by item ID and highlight it
+        markers.forEach(marker => {
+            const markerElement = marker.getElement ? marker.getElement() : marker._icon;
+            if (markerElement) {
+                if (marker.itemId === markerId) {
+                    markerElement.style.transform = 'scale(1.3)';
+                    markerElement.style.zIndex = '1000';
+                    markerElement.style.filter = 'drop-shadow(0 0 10px rgba(59, 130, 246, 0.8))';
+                } else {
+                    markerElement.style.transform = 'scale(1)';
+                    markerElement.style.zIndex = 'auto';
+                    markerElement.style.filter = 'none';
+                }
+            }
+        });
+    }
+
+    function focusMapMarker(markerId) {
+        // Find marker by item ID and center map on it
+        const targetMarker = markers.find(marker => marker.itemId === markerId);
+        if (targetMarker && map) {
+            const latlng = targetMarker.getLatLng();
+            map.setView(latlng, Math.max(14, map.getZoom()));
+
+            // Open popup
+            setTimeout(() => {
+                targetMarker.openPopup();
+            }, 300);
+        }
+    }
+
     // Global functions for map controls
     window.zoomIn = function() {
         if (map) map.zoomIn();
@@ -348,6 +414,29 @@ document.addEventListener('livewire:init', () => {
 
     window.zoomOut = function() {
         if (map) map.zoomOut();
+    };
+
+    window.detectUserLocation = function() {
+        if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+
+                    @this.call('setLocation', lat, lng, 'Lokalizacja wykryta automatycznie');
+
+                    if (map) {
+                        map.setView([lat, lng], 13);
+                    }
+                },
+                function(error) {
+                    console.error('Error detecting location:', error);
+                    alert('Nie udało się wykryć lokalizacji. Sprawdź ustawienia przeglądarki.');
+                }
+            );
+        } else {
+            alert('Geolokalizacja nie jest obsługiwana przez tę przeglądarkę.');
+        }
     };
 
     window.centerOnLocation = function() {

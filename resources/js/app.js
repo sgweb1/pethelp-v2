@@ -7,6 +7,39 @@ import './mobile-touch';
 import './dark-mode';
 import './accessibility';
 
+// Safe clipboard function to prevent clipboard API errors
+window.copyToClipboard = async function(text) {
+    try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+            return true;
+        } else {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                document.body.removeChild(textArea);
+                return successful;
+            } catch (err) {
+                document.body.removeChild(textArea);
+                console.error('Fallback copy failed:', err);
+                return false;
+            }
+        }
+    } catch (err) {
+        console.error('Copy to clipboard failed:', err);
+        return false;
+    }
+};
+
 // Ensure map component is available immediately
 window.createMapComponent = createMapComponent;
 

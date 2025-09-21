@@ -22,6 +22,19 @@ class RoverSearch extends Component
     public int $radius = 25; // km - Rover uses larger default radius
     public string $sortBy = 'rating';
 
+    // Advanced filters
+    public string $petSize = ''; // small, medium, large
+    public string $priceRange = ''; // budget, mid, premium
+    public float $minPrice = 0;
+    public float $maxPrice = 1000;
+    public bool $instantBooking = false;
+    public bool $verifiedOnly = false;
+    public bool $hasReviews = false;
+    public int $minRating = 0;
+    public array $specialServices = []; // emergency, overnight, medication, etc.
+    public string $availability = ''; // weekend, weekday, flexible
+    public string $experienceLevel = ''; // beginner, experienced, expert
+
     // UI state
     public bool $showSuggestions = false;
     public bool $showAdvanced = false;
@@ -193,11 +206,56 @@ class RoverSearch extends Component
 
     public function resetSearch(): void
     {
-        $this->reset(['location', 'serviceType', 'petType', 'petCount', 'frequency', 'startDate', 'endDate', 'radius', 'userLat', 'userLng']);
+        $this->reset([
+            'location', 'serviceType', 'petType', 'petCount', 'frequency',
+            'startDate', 'endDate', 'radius', 'userLat', 'userLng',
+            'petSize', 'priceRange', 'minPrice', 'maxPrice', 'instantBooking',
+            'verifiedOnly', 'hasReviews', 'minRating', 'specialServices',
+            'availability', 'experienceLevel'
+        ]);
         $this->showSuggestions = false;
+        $this->showAdvanced = false;
         $this->serviceType = 'pet_sitter'; // Reset to default core business
         $this->petType = 'dog';
         $this->petCount = 1;
+        $this->minPrice = 0;
+        $this->maxPrice = 1000;
+        $this->specialServices = [];
+    }
+
+    #[Computed]
+    public function petSizes(): array
+    {
+        return [
+            'small' => ['name' => 'Mały', 'icon' => '🐕‍🦺'],
+            'medium' => ['name' => 'Średni', 'icon' => '🐕'],
+            'large' => ['name' => 'Duży', 'icon' => '🐕‍🦺']
+        ];
+    }
+
+    #[Computed]
+    public function priceRanges(): array
+    {
+        return [
+            'budget' => ['name' => 'Budżetowe', 'range' => '20-40 zł/godz', 'min' => 20, 'max' => 40],
+            'mid' => ['name' => 'Średnie', 'range' => '40-80 zł/godz', 'min' => 40, 'max' => 80],
+            'premium' => ['name' => 'Premium', 'range' => '80+ zł/godz', 'min' => 80, 'max' => 200]
+        ];
+    }
+
+    #[Computed]
+    public function availableSpecialServices(): array
+    {
+        return [
+            'emergency' => 'Opieka w nagłych przypadkach',
+            'overnight' => 'Opieka nocna',
+            'medication' => 'Podawanie leków',
+            'senior_care' => 'Opieka nad seniorami',
+            'puppy_care' => 'Opieka nad szczeniakami',
+            'special_needs' => 'Specjalne potrzeby',
+            'grooming' => 'Podstawowy grooming',
+            'training' => 'Podstawowy trening'
+        ];
     }
 
     public function toggle(string $property): void

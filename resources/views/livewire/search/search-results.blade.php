@@ -1,114 +1,126 @@
 <div class="space-y-6">
-    {{-- Results Header --}}
-    <div class="flex items-center justify-between bg-white rounded-lg shadow-sm p-4">
-        <div class="flex items-center gap-3">
-            <div class="text-sm text-gray-600">
-                Znaleziono <span class="font-semibold text-gray-900">{{ $this->resultsCount }}</span>
-                @if($this->resultsCount === 1) usługę @elseif($this->resultsCount < 5) usługi @else usług @endif
-            </div>
-        </div>
 
-        <div class="flex items-center gap-3">
-            {{-- Loading indicator --}}
-            <div wire:loading class="flex items-center gap-2 text-sm text-gray-500">
-                <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span>Ładowanie...</span>
-            </div>
-        </div>
-    </div>
-
-    {{-- Services Grid --}}
-    @if($this->services->count() > 0)
-        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            @foreach($this->services as $service)
-                <div wire:key="service-{{ $service->id }}"
-                     class="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow duration-200">
-                    <div class="p-6">
-                        {{-- Service Header --}}
+    {{-- Results Grid/List --}}
+    @if($this->items->count() > 0)
+        <div class="
+            @if($viewMode === 'grid')
+                grid gap-6 md:grid-cols-2 lg:grid-cols-3
+            @else
+                space-y-4
+            @endif
+        " style="@if($viewMode === 'grid') grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); @endif">
+            @foreach($this->items as $item)
+                <div wire:key="item-{{ $item->id }}"
+                     class="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow duration-200
+                            @if($viewMode === 'list') flex @endif"
+                     x-data
+                     @mouseenter="$dispatch('highlight-map-marker', { id: {{ $item->id }} })"
+                     @mouseleave="$dispatch('highlight-map-marker', { id: null })"
+                     @click="$dispatch('focus-map-marker', { id: {{ $item->id }} })"
+                     style="cursor: pointer;"
+                >
+                    <div class="p-6 @if($viewMode === 'list') flex-1 @endif">
+                        {{-- Item Header --}}
                         <div class="flex items-start justify-between mb-4">
                             <div class="flex-1">
                                 <h3 class="font-semibold text-lg text-gray-900 line-clamp-2">
-                                    {{ $service->title }}
+                                    {{ $item->title }}
                                 </h3>
                                 <p class="text-sm text-gray-600 mt-1">
-                                    {{ $service->category->name }}
+                                    {{ $item->category_name }}
                                 </p>
                             </div>
-                            @if($service->category->icon)
+                            @if($item->category_icon)
                                 <div class="text-2xl ml-3">
-                                    {{ $service->category->icon }}
+                                    {{ $item->category_icon }}
                                 </div>
                             @endif
                         </div>
 
-                        {{-- Sitter Info --}}
+                        {{-- Owner Info --}}
                         <div class="flex items-center gap-3 mb-4">
                             <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
                                 <span class="text-sm font-medium text-gray-600">
-                                    {{ substr($service->sitter->profile->first_name ?? $service->sitter->name, 0, 1) }}
+                                    {{ substr($item->user->name ?? 'U', 0, 1) }}
                                 </span>
                             </div>
                             <div>
                                 <p class="font-medium text-gray-900">
-                                    {{ $service->sitter->profile->first_name ?? '' }}
-                                    {{ $service->sitter->profile->last_name ?? $service->sitter->name }}
+                                    {{ $item->user->name ?? 'Użytkownik' }}
                                 </p>
                                 <div class="flex items-center gap-2 text-sm text-gray-600">
-                                    @if($service->sitter->location)
+                                    @if($item->city)
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                   d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                   d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                                         </svg>
-                                        <span>{{ $service->sitter->location->city }}</span>
+                                        <span>{{ $item->city }}</span>
                                     @endif
                                 </div>
                             </div>
                         </div>
 
-                        {{-- Service Description --}}
-                        <p class="text-gray-700 text-sm mb-4 line-clamp-3">
-                            {{ $service->description }}
-                        </p>
+                        {{-- Description --}}
+                        @if($item->description_short)
+                            <p class="text-gray-700 text-sm mb-4 line-clamp-3">
+                                {{ $item->description_short }}
+                            </p>
+                        @endif
 
-                        {{-- Service Details --}}
+                        {{-- Price Details --}}
                         <div class="space-y-2 mb-4">
-                            @if($service->price_per_hour)
+                            @if($item->price_from)
                                 <div class="flex items-center justify-between text-sm">
-                                    <span class="text-gray-600">Za godzinę:</span>
-                                    <span class="font-semibold text-gray-900">{{ $service->price_per_hour }} zł</span>
+                                    <span class="text-gray-600">Cena od:</span>
+                                    <span class="font-semibold text-gray-900">
+                                        {{ number_format($item->price_from, 2) }} {{ $item->currency ?? 'zł' }}
+                                        @if($item->price_to && $item->price_to != $item->price_from)
+                                            - {{ number_format($item->price_to, 2) }} {{ $item->currency ?? 'zł' }}
+                                        @endif
+                                    </span>
                                 </div>
                             @endif
-                            @if($service->price_per_day)
-                                <div class="flex items-center justify-between text-sm">
-                                    <span class="text-gray-600">Za dzień:</span>
-                                    <span class="font-semibold text-gray-900">{{ $service->price_per_day }} zł</span>
+                        </div>
+
+                        {{-- Rating and Stats --}}
+                        <div class="flex items-center gap-4 mb-4">
+                            @if($item->rating_avg > 0)
+                                <div class="flex items-center gap-1">
+                                    <div class="flex">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <svg class="w-4 h-4 {{ $i <= floor($item->rating_avg) ? 'text-yellow-400' : 'text-gray-300' }}" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                            </svg>
+                                        @endfor
+                                    </div>
+                                    <span class="text-sm text-gray-600">{{ number_format($item->rating_avg, 1) }}</span>
+                                    @if($item->rating_count > 0)
+                                        <span class="text-xs text-gray-500">({{ $item->rating_count }})</span>
+                                    @endif
                                 </div>
                             @endif
                         </div>
 
                         {{-- Badges --}}
                         <div class="flex flex-wrap gap-2 mb-4">
-                            @if($service->sitter->profile && $service->sitter->profile->is_verified)
-                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            @if($item->is_featured)
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                                     <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                                     </svg>
-                                    Zweryfikowany
+                                    Polecane
                                 </span>
                             @endif
-                            @if($service->sitter->profile && $service->sitter->profile->has_insurance)
-                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                    Ubezpieczony
+                            @if($item->is_urgent)
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    Pilne
                                 </span>
                             @endif
-                            @if($service->sitter->profile && $service->sitter->profile->experience_years > 0)
+                            @if($item->content_type === 'pet_sitter')
                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                    {{ $service->sitter->profile->experience_years }} lat doświadczenia
+                                    Pet Sitter
                                 </span>
                             @endif
                         </div>
@@ -130,10 +142,25 @@
             @endforeach
         </div>
 
-        {{-- Pagination --}}
-        @if($this->services->hasPages())
-            <div class="mt-8">
-                {{ $this->services->links() }}
+        {{-- Load More Button --}}
+        @if($hasMore)
+            <div class="mt-8 text-center">
+                <button
+                    wire:click="loadMore"
+                    wire:loading.attr="disabled"
+                    class="inline-flex items-center px-6 py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white font-medium rounded-lg transition-colors duration-200"
+                >
+                    <span wire:loading.remove wire:target="loadMore">
+                        Pokaż więcej wyników
+                    </span>
+                    <span wire:loading wire:target="loadMore" class="flex items-center">
+                        <svg class="animate-spin -ml-1 mr-3 h-4 w-4" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Ładowanie...
+                    </span>
+                </button>
             </div>
         @endif
     @else

@@ -52,4 +52,21 @@ return Application::configure(basePath: dirname(__DIR__))
                 'SYNTAX_HIGHLIGHTING_ENABLED' => false,
             ];
         });
+
+        // Suppress phiki/phiki exceptions in production
+        $exceptions->dontReport([
+            \Phiki\Exceptions\FailedToInitializePatternSearchException::class,
+            \Phiki\Exceptions\FailedToSetSearchPositionException::class,
+        ]);
+
+        // Handle phiki errors gracefully
+        $exceptions->renderable(function (\Throwable $e) {
+            if (str_contains(get_class($e), 'Phiki\\') ||
+                str_contains($e->getFile() ?? '', 'phiki/phiki')) {
+                // Return a simple error page without syntax highlighting
+                if (app()->environment('production')) {
+                    return response()->view('errors.500', [], 500);
+                }
+            }
+        });
     })->create();

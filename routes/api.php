@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AddressSearchController;
 use App\Http\Controllers\Api\MapDataController;
 use App\Http\Controllers\ApiJsLogController;
 use Illuminate\Http\Request;
@@ -15,6 +16,10 @@ Route::post('/js-logs', [ApiJsLogController::class, 'store'])
 
 Route::get('/js-logs', [ApiJsLogController::class, 'index'])
     ->middleware(['auth']); // Tylko zalogowani mogą pobierać logi
+
+// Address search API
+Route::get('/search-addresses', [AddressSearchController::class, 'search'])
+    ->middleware(['throttle:120,1']); // Max 120 requests per minute
 
 // Map API routes with performance optimization
 Route::prefix('map')->middleware('map.throttle')->group(function () {

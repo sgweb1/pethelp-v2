@@ -2,187 +2,221 @@
 
 namespace App\Livewire\Search;
 
-use App\Models\Service;
+use App\Models\MapItem;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 class SearchResults extends Component
 {
-    use WithPagination;
-
     public array $filters = [];
-
+    public string $viewMode = 'grid';
+    public int $perPage = 12;
+    public int $currentPage = 1;
     public bool $loading = false;
+    public bool $hasMore = true;
 
-    protected $listeners = ['filters-updated' => 'updateFilters'];
+    protected $listeners = [
+        'filters-updated' => 'updateFilters',
+        'update-results-filters' => 'updateFilters',
+        'update-view-mode' => 'updateViewMode'
+    ];
+
+    public function mount($viewMode = 'grid'): void
+    {
+        // Initialize view mode
+        $this->viewMode = $viewMode;
+
+        // Initialize filters from URL parameters
+        $this->filters = [
+            'content_type' => request('service_type', request('content_type', '')),
+            'search_term' => request('search', ''),
+            'location' => request('location', ''),
+            'category_name' => request('category', ''),
+            'pet_type' => request('pet_type', ''),
+        ];
+    }
 
     public function updateFilters(array $filters): void
     {
         $this->filters = $filters;
-        $this->resetPage();
+        $this->currentPage = 1;
+        $this->hasMore = true;
     }
 
     public function updatingFilters(): void
     {
-        $this->resetPage();
+        $this->currentPage = 1;
+        $this->hasMore = true;
     }
 
-    public function getServicesProperty()
+    public function loadMore(): void
     {
-        if (empty($this->filters)) {
-            return Service::active()
-                ->with(['sitter', 'category', 'sitter.locations', 'sitter.profile'])
-                ->paginate(12);
-        }
+        $this->loading = true;
+        $this->currentPage++;
+        $this->loading = false;
+    }
 
-        $query = Service::active()
-            ->with(['sitter', 'category', 'sitter.locations', 'sitter.profile']);
+    public function updateViewMode(string $mode): void
+    {
+        $this->viewMode = $mode;
+    }
+
+    public function getItemsProperty()
+    {
+        $query = MapItem::published()
+            ->with(['user']);
 
         // Text search
         if (! empty($this->filters['search_term'])) {
-            $searchTerm = '%'.$this->filters['search_term'].'%';
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('title', 'like', $searchTerm)
-                    ->orWhere('description', 'like', $searchTerm)
-                    ->orWhereHas('sitter', function ($sq) use ($searchTerm) {
-                        $sq->where('name', 'like', $searchTerm);
-                    })
-                    ->orWhereHas('sitter.profile', function ($sq) use ($searchTerm) {
-                        $sq->where('first_name', 'like', $searchTerm)
-                            ->orWhere('last_name', 'like', $searchTerm);
-                    })
-                    ->orWhereHas('category', function ($sq) use ($searchTerm) {
-                        $sq->where('name', 'like', $searchTerm);
-                    });
-            });
+            $query->search($this->filters['search_term']);
         }
 
         // Location-based search
         if (! empty($this->filters['location'])) {
-            $query->whereHas('sitter.locations', function ($q) {
+            $query->where(function ($q) {
                 $q->where('city', 'like', "%{$this->filters['location']}%")
-                    ->orWhere('street', 'like', "%{$this->filters['location']}%");
+                    ->orWhere('full_address', 'like', "%{$this->filters['location']}%");
             });
         }
 
-        // Category filter
-        if (! empty($this->filters['category_id'])) {
-            $query->where('category_id', $this->filters['category_id']);
+        // Content type filter (pet_sitter, service, etc.)
+        if (! empty($this->filters['content_type'])) {
+            $query->byContentType($this->filters['content_type']);
         }
 
-        // Pet type filter
+        // Category filter by name
+        if (! empty($this->filters['category_name'])) {
+            $query->where('category_name', 'like', "%{$this->filters['category_name']}%");
+        }
+
+        // Pet type filter (stored in category_name)
         if (! empty($this->filters['pet_type'])) {
-            $query->byPetType($this->filters['pet_type']);
-        }
-
-        // Pet size filter
-        if (! empty($this->filters['pet_size'])) {
-            $query->byPetSize($this->filters['pet_size']);
-        }
-
-        // Service type filter
-        if (! empty($this->filters['service_type'])) {
-            $query->byServiceType($this->filters['service_type']);
+            $query->where('category_name', 'like', "%{$this->filters['pet_type']}%");
         }
 
         // Price range filter
         if (! empty($this->filters['min_price']) || ! empty($this->filters['max_price'])) {
             $minPrice = ! empty($this->filters['min_price']) ? (float) $this->filters['min_price'] : null;
             $maxPrice = ! empty($this->filters['max_price']) ? (float) $this->filters['max_price'] : null;
-            $priceType = $this->filters['price_type'] ?? 'hour';
-            $query->byPriceRange($minPrice, $maxPrice, $priceType);
+            $query->priceRange($minPrice, $maxPrice);
         }
 
         // Rating filter
         if (! empty($this->filters['min_rating'])) {
-            $query->minRating($this->filters['min_rating']);
+            $query->where('rating_avg', '>=', $this->filters['min_rating']);
         }
 
-        // Advanced filters
-        if (! empty($this->filters['max_pets'])) {
-            $query->where('max_pets', '>=', $this->filters['max_pets']);
+        // Featured items
+        if (! empty($this->filters['featured_only'])) {
+            $query->featured();
         }
 
-        // Availability filter
-        if (! empty($this->filters['available_date'])) {
-            $query->whereHas('sitter.availability', function ($q) {
-                $q->where('date', $this->filters['available_date'])
-                    ->where('is_available', true);
-
-                if (! empty($this->filters['start_time'])) {
-                    $q->where('start_time', '<=', $this->filters['start_time']);
-                }
-                if (! empty($this->filters['end_time'])) {
-                    $q->where('end_time', '>=', $this->filters['end_time']);
-                }
-            });
+        // City filter
+        if (! empty($this->filters['city'])) {
+            $query->inCity($this->filters['city']);
         }
 
-        // Verified sitters only
-        if (! empty($this->filters['verified_only'])) {
-            $query->whereHas('sitter.profile', function ($q) {
-                $q->where('is_verified', true);
-            });
-        }
-
-        // Instant booking
-        if (! empty($this->filters['instant_booking'])) {
-            $query->whereHas('sitter.profile', function ($q) {
-                $q->where('instant_booking', true);
-            });
-        }
-
-        // Experience years
-        if (! empty($this->filters['experience_years'])) {
-            $query->whereHas('sitter.profile', function ($q) {
-                $q->where('experience_years', '>=', $this->filters['experience_years']);
-            });
-        }
-
-        // Insurance
-        if (! empty($this->filters['has_insurance'])) {
-            $query->whereHas('sitter.profile', function ($q) {
-                $q->where('has_insurance', true);
-            });
+        // Voivodeship filter
+        if (! empty($this->filters['voivodeship'])) {
+            $query->inVoivodeship($this->filters['voivodeship']);
         }
 
         // Sorting
         $sortBy = $this->filters['sort_by'] ?? 'relevance';
         switch ($sortBy) {
             case 'price_low':
-                $column = ($this->filters['price_type'] ?? 'hour') === 'day' ? 'price_per_day' : 'price_per_hour';
-                $query->orderBy($column, 'asc');
+                $query->orderBy('price_from', 'asc');
                 break;
             case 'price_high':
-                $column = ($this->filters['price_type'] ?? 'hour') === 'day' ? 'price_per_day' : 'price_per_hour';
-                $query->orderBy($column, 'desc');
+                $query->orderBy('price_from', 'desc');
                 break;
             case 'rating':
-                $query->withAvgRating()->orderBy('reviews_avg_rating', 'desc');
+                $query->orderBy('rating_avg', 'desc');
                 break;
             case 'newest':
                 $query->orderBy('created_at', 'desc');
                 break;
-            case 'experience':
-                $query->join('user_profiles', 'user_profiles.user_id', '=', 'services.sitter_id')
-                    ->orderBy('user_profiles.experience_years', 'desc');
+            case 'distance':
+                // Location-based distance sorting would need coordinates
+                if (! empty($this->filters['latitude']) && ! empty($this->filters['longitude'])) {
+                    $query->nearLocation($this->filters['latitude'], $this->filters['longitude']);
+                } else {
+                    $query->orderBy('created_at', 'desc');
+                }
                 break;
-            case 'most_booked':
-                $query->withCount('bookings')->orderBy('bookings_count', 'desc');
+            case 'featured':
+                $query->orderBy('is_featured', 'desc')->orderBy('created_at', 'desc');
                 break;
             default: // relevance
-                $query->orderBy('created_at', 'desc');
+                $query->orderBy('is_featured', 'desc')
+                      ->orderBy('rating_avg', 'desc')
+                      ->orderBy('created_at', 'desc');
                 break;
         }
 
-        return $query->paginate(12);
+        // Get total count for hasMore check
+        $total = $query->count();
+        $offset = ($this->currentPage - 1) * $this->perPage;
+        $this->hasMore = $total > $offset + $this->perPage;
+
+        // Get paginated results
+        return $query->offset($offset)
+                    ->limit($this->perPage * $this->currentPage)
+                    ->get();
     }
 
     #[Computed]
     public function resultsCount(): int
     {
-        return $this->services->total();
+        $query = MapItem::published();
+
+        // Apply same filters as getItemsProperty but just count
+        if (! empty($this->filters['search_term'])) {
+            $query->search($this->filters['search_term']);
+        }
+
+        if (! empty($this->filters['location'])) {
+            $query->where(function ($q) {
+                $q->where('city', 'like', "%{$this->filters['location']}%")
+                    ->orWhere('full_address', 'like', "%{$this->filters['location']}%");
+            });
+        }
+
+        if (! empty($this->filters['content_type'])) {
+            $query->byContentType($this->filters['content_type']);
+        }
+
+        if (! empty($this->filters['category_name'])) {
+            $query->where('category_name', 'like', "%{$this->filters['category_name']}%");
+        }
+
+        if (! empty($this->filters['pet_type'])) {
+            $query->where('category_name', 'like', "%{$this->filters['pet_type']}%");
+        }
+
+        if (! empty($this->filters['min_price']) || ! empty($this->filters['max_price'])) {
+            $minPrice = ! empty($this->filters['min_price']) ? (float) $this->filters['min_price'] : null;
+            $maxPrice = ! empty($this->filters['max_price']) ? (float) $this->filters['max_price'] : null;
+            $query->priceRange($minPrice, $maxPrice);
+        }
+
+        if (! empty($this->filters['min_rating'])) {
+            $query->where('rating_avg', '>=', $this->filters['min_rating']);
+        }
+
+        if (! empty($this->filters['featured_only'])) {
+            $query->featured();
+        }
+
+        if (! empty($this->filters['city'])) {
+            $query->inCity($this->filters['city']);
+        }
+
+        if (! empty($this->filters['voivodeship'])) {
+            $query->inVoivodeship($this->filters['voivodeship']);
+        }
+
+        return $query->count();
     }
 
     public function render()
