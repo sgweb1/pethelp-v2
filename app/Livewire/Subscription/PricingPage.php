@@ -20,6 +20,6 @@ class PricingPage extends Component
             'plans' => $plans,
             'currentSubscription' => $currentSubscription,
             'userInfo' => $userInfo
-        ])->layout('layouts.app');
+        ])->layout('components.dashboard-layout');
     }
 }

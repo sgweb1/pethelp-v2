@@ -1,0 +1,166 @@
+/* Dashboard-specific styles for PetHelp */
+
+/* Sidebar styling */
+.dashboard-sidebar {
+    transition: width 0.3s ease-in-out;
+}
+
+.dashboard-sidebar-collapsed {
+    width: 64px;
+}
+
+.dashboard-sidebar-expanded {
+    width: 256px;
+}
+
+/* Main content area */
+.dashboard-main {
+    transition: margin-left 0.3s ease-in-out;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 1023px) {
+    .dashboard-sidebar {
+        position: fixed;
+        z-index: 50;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .dashboard-sidebar.open {
+        transform: translateX(0);
+    }
+
+    .dashboard-main {
+        margin-left: 0 !important;
+    }
+}
+
+/* Stats cards animations */
+.stats-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.stats-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Calendar grid styling */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background-color: #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.calendar-day {
+    background-color: white;
+    min-height: 80px;
+    padding: 8px;
+    position: relative;
+}
+
+.calendar-day.today {
+    background-color: #dbeafe;
+}
+
+.calendar-day.has-events::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 8px;
+    height: 8px;
+    background-color: #3b82f6;
+    border-radius: 50%;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+    .calendar-grid {
+        background-color: #374151;
+    }
+
+    .calendar-day {
+        background-color: #1f2937;
+    }
+
+    .calendar-day.today {
+        background-color: #1e3a8a;
+    }
+}
+
+/* Progress bar animation */
+.progress-bar {
+    transition: width 0.8s ease-in-out;
+}
+
+/* Quick action cards hover effects */
+.quick-action-card {
+    transition: all 0.2s ease-in-out;
+}
+
+.quick-action-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Notification badges */
+.notification-badge {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Smooth scroll for main content */
+.dashboard-content {
+    scroll-behavior: smooth;
+}
+
+/* Loading states */
+.loading-shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* Responsive grid adjustments */
+@media (max-width: 768px) {
+    .dashboard-grid-responsive {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1023px) {
+    .dashboard-grid-responsive {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .dashboard-grid-responsive {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}

@@ -48,9 +48,8 @@
                                 Edytuj
                             </button>
                             <button
-                                wire:click="deleteLocation({{ $location->id }})"
+                                wire:click="requestDeleteLocation({{ $location->id }})"
                                 class="text-sm text-red-600 hover:text-red-800"
-                                onclick="return confirm('Czy na pewno chcesz usunąć tę lokalizację?')"
                             >
                                 Usuń
                             </button>

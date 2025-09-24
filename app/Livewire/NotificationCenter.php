@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use Livewire\Attributes\On;
 use App\Models\Notification;
 use App\Services\NotificationService;
 use Illuminate\Support\Facades\Auth;
@@ -39,6 +40,25 @@ class NotificationCenter extends Component
         session()->flash('success', 'Wszystkie powiadomienia zostały oznaczone jako przeczytane.');
     }
 
+    public function requestDeleteNotification(int $notificationId): void
+    {
+        $notification = Notification::where('id', $notificationId)
+                                   ->where('user_id', Auth::id())
+                                   ->first();
+
+        if ($notification) {
+            $this->dispatch('show-confirmation',
+                'Usuń powiadomienie',
+                'Czy na pewno chcesz usunąć to powiadomienie? Ta operacja jest nieodwracalna.',
+                'delete-notification-confirmed',
+                [$notificationId],
+                'Usuń',
+                'Anuluj'
+            );
+        }
+    }
+
+    #[On('delete-notification-confirmed')]
     public function deleteNotification(int $notificationId): void
     {
         $notification = Notification::where('id', $notificationId)
@@ -47,7 +67,7 @@ class NotificationCenter extends Component
 
         if ($notification) {
             $notification->delete();
-            session()->flash('success', 'Powiadomienie zostało usunięte.');
+            $this->dispatch('show-toast', 'success', 'Powiadomienie zostało usunięte.');
         }
     }
 

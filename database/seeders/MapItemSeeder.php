@@ -41,7 +41,6 @@ class MapItemSeeder extends Seeder
                 'rating_avg' => 4.8,
                 'rating_count' => 120,
                 'view_count' => 1250,
-                'interaction_count' => 85,
                 'status' => 'published',
             ],
             [
@@ -62,7 +61,6 @@ class MapItemSeeder extends Seeder
                 'rating_avg' => 4.5,
                 'rating_count' => 89,
                 'view_count' => 2340,
-                'interaction_count' => 156,
                 'status' => 'published',
             ],
             [
@@ -85,7 +83,6 @@ class MapItemSeeder extends Seeder
                 'rating_avg' => 4.2,
                 'rating_count' => 67,
                 'view_count' => 890,
-                'interaction_count' => 234,
                 'status' => 'published',
             ],
 
@@ -108,7 +105,7 @@ class MapItemSeeder extends Seeder
                 'rating_avg' => 4.7,
                 'rating_count' => 156,
                 'view_count' => 3240,
-                'interaction_count' => 289,
+                // 'interaction_count' =>289,
                 'status' => 'published',
                 'is_featured' => true,
             ],
@@ -130,7 +127,7 @@ class MapItemSeeder extends Seeder
                 'rating_avg' => 4.6,
                 'rating_count' => 92,
                 'view_count' => 1890,
-                'interaction_count' => 145,
+                // 'interaction_count' =>145,
                 'status' => 'published',
             ],
 
@@ -153,7 +150,7 @@ class MapItemSeeder extends Seeder
                 'rating_avg' => 4.4,
                 'rating_count' => 78,
                 'view_count' => 980,
-                'interaction_count' => 67,
+                // 'interaction_count' =>67,
                 'status' => 'published',
             ],
             [
@@ -174,7 +171,7 @@ class MapItemSeeder extends Seeder
                 'rating_avg' => 4.8,
                 'rating_count' => 203,
                 'view_count' => 4560,
-                'interaction_count' => 345,
+                // 'interaction_count' =>345,
                 'status' => 'published',
                 'is_featured' => true,
             ],
@@ -198,7 +195,7 @@ class MapItemSeeder extends Seeder
                 'rating_avg' => 4.6,
                 'rating_count' => 134,
                 'view_count' => 1670,
-                'interaction_count' => 178,
+                // 'interaction_count' =>178,
                 'status' => 'published',
             ],
 
@@ -221,7 +218,7 @@ class MapItemSeeder extends Seeder
                 'rating_avg' => 4.3,
                 'rating_count' => 89,
                 'view_count' => 1230,
-                'interaction_count' => 123,
+                // 'interaction_count' =>123,
                 'status' => 'published',
             ],
             [
@@ -242,7 +239,7 @@ class MapItemSeeder extends Seeder
                 'rating_avg' => 4.2,
                 'rating_count' => 67,
                 'view_count' => 890,
-                'interaction_count' => 89,
+                // 'interaction_count' =>89,
                 'status' => 'published',
             ],
 
@@ -267,7 +264,7 @@ class MapItemSeeder extends Seeder
                 'rating_avg' => 4.9,
                 'rating_count' => 45,
                 'view_count' => 560,
-                'interaction_count' => 67,
+                // 'interaction_count' =>67,
                 'status' => 'published',
                 'is_featured' => true,
             ],
@@ -291,7 +288,7 @@ class MapItemSeeder extends Seeder
                 'rating_avg' => 4.7,
                 'rating_count' => 89,
                 'view_count' => 1340,
-                'interaction_count' => 198,
+                // 'interaction_count' =>198,
                 'status' => 'published',
             ],
         ];

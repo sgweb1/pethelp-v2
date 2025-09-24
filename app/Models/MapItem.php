@@ -10,6 +10,56 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Model reprezentujący element na mapie w aplikacji PetHelp.
+ *
+ * Zawiera informacje o różnych typach miejsc i usług wyświetlanych na mapie,
+ * takich jak opiekunowie zwierząt, usługi profesjonalne, wydarzenia, adopcje itp.
+ * Model obsługuje zaawansowane filtrowanie geograficzne i optymalizacje wydajności.
+ *
+ * @package App\Models
+ * @author Claude AI Assistant
+ * @since 1.0.0
+ *
+ * @property int $id Unikalny identyfikator elementu mapy
+ * @property int|null $user_id ID powiązanego użytkownika
+ * @property string $mappable_type Typ powiązanego obiektu (klasa modelu)
+ * @property int $mappable_id ID powiązanego obiektu
+ * @property decimal $latitude Szerokość geograficzna
+ * @property decimal $longitude Długość geograficzna
+ * @property string|null $city Miasto
+ * @property string|null $voivodeship Województwo
+ * @property string|null $full_address Pełny adres
+ * @property string $title Tytuł elementu
+ * @property string|null $description_short Krótki opis
+ * @property string|null $primary_image_url URL głównego zdjęcia
+ * @property string $content_type Typ zawartości (pet_sitter, service, event_public, etc.)
+ * @property string|null $category_name Nazwa kategorii
+ * @property string|null $category_icon Ikona kategorii
+ * @property string|null $category_color Kolor kategorii
+ * @property decimal|null $price_from Cena od
+ * @property decimal|null $price_to Cena do
+ * @property string|null $currency Waluta
+ * @property bool $price_negotiable Czy cena do negocjacji
+ * @property string $status Status publikacji
+ * @property bool $is_featured Czy wyróżniony
+ * @property bool $is_urgent Czy pilny
+ * @property int $view_count Liczba wyświetleń
+ * @property decimal|null $rating_avg Średnia ocena
+ * @property int|null $rating_count Liczba ocen
+ *
+ * @property-read \App\Models\User|null $user Powiązany użytkownik
+ * @property-read \Illuminate\Database\Eloquent\Model $mappable Powiązany obiekt
+ * @property-read string|null $price_display Sformatowana cena
+ * @property-read string $content_type_name Nazwa typu zawartości
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder published() Filtruje opublikowane
+ * @method static \Illuminate\Database\Eloquent\Builder inBounds(float $south, float $west, float $north, float $east) Filtruje w obszarze
+ * @method static \Illuminate\Database\Eloquent\Builder nearLocation(float $lat, float $lng, int $radiusKm) Filtruje w promieniu
+ * @method static \Illuminate\Database\Eloquent\Builder byContentType(string|array $types) Filtruje po typie zawartości
+ * @method static \Illuminate\Database\Eloquent\Builder featured() Filtruje wyróżnione
+ * @method static \Illuminate\Database\Eloquent\Builder petSitters() Filtruje opiekunów zwierząt
+ */
 class MapItem extends Model
 {
     use HasFactory;
@@ -27,7 +77,6 @@ class MapItem extends Model
         'description_short',
         'primary_image_url',
         'content_type',
-        'business_priority',
         'category_name',
         'category_icon',
         'category_color',
@@ -38,15 +87,9 @@ class MapItem extends Model
         'status',
         'is_featured',
         'is_urgent',
-        'starts_at',
-        'ends_at',
-        'expires_at',
         'view_count',
-        'interaction_count',
         'rating_avg',
         'rating_count',
-        'zoom_level_min',
-        'search_keywords',
     ];
 
     protected function casts(): array
@@ -150,11 +193,9 @@ class MapItem extends Model
 
     public function scopeActive(Builder $query): Builder
     {
-        return $query->where('status', 'published')
-            ->where(function ($q) {
-                $q->whereNull('expires_at')
-                    ->orWhere('expires_at', '>', now());
-            });
+        return $query->where('status', 'published');
+        // NOTE: expires_at column was removed in migration 2025_09_22_131327
+        // If expiration logic is needed, it should be handled in the mappable models
     }
 
     public function scopeUpcoming(Builder $query): Builder
@@ -272,9 +313,9 @@ class MapItem extends Model
     public function scopeOrderByBusinessPriority(Builder $query): Builder
     {
         return $query->orderBy('business_priority')
-                    ->orderBy('is_urgent', 'desc')
-                    ->orderBy('is_featured', 'desc')
-                    ->orderBy('rating_avg', 'desc');
+            ->orderBy('is_urgent', 'desc')
+            ->orderBy('is_featured', 'desc')
+            ->orderBy('rating_avg', 'desc');
     }
 
     public function scopeUrgentFirst(Builder $query): Builder
@@ -283,8 +324,8 @@ class MapItem extends Model
             WHEN content_type IN ("lost_pet", "found_pet") THEN 0
             ELSE business_priority
         END')
-        ->orderBy('is_urgent', 'desc')
-        ->orderBy('created_at', 'desc');
+            ->orderBy('is_urgent', 'desc')
+            ->orderBy('created_at', 'desc');
     }
 
     // Performance optimized scopes

@@ -1,5 +1,5 @@
-@extends('layouts.app')
+@extends('layouts.dashboard')
 
 @section('content')
-<livewire:chat-app />
+    <x-chat />
 @endsection

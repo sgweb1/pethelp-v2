@@ -31,6 +31,16 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\SetLocale::class,
         ]);
 
+        // Configure CSRF exceptions for Livewire
+        $middleware->validateCsrfTokens(
+            except: [
+                'livewire/*',
+                'livewire/update',
+                'livewire/upload-file',
+                'api/js-logs',
+            ]
+        );
+
         $middleware->alias([
             'map.throttle' => \App\Http\Middleware\MapApiThrottle::class,
             'requires.feature' => \App\Http\Middleware\RequiresFeature::class,
@@ -46,10 +56,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'password_confirmation',
         ]);
 
-        // Disable syntax highlighting to avoid phiki/phiki issues
+        // Disable syntax highlighting to avoid phiki/phiki issues and speed up error display
         $exceptions->context(function () {
             return [
                 'SYNTAX_HIGHLIGHTING_ENABLED' => false,
+                'WHOOPS_EDITOR' => false,
+                'SHOW_EXCEPTION_CODEHIGHLIGHTING' => false,
             ];
         });
 
@@ -59,8 +71,13 @@ return Application::configure(basePath: dirname(__DIR__))
             \Phiki\Exceptions\FailedToSetSearchPositionException::class,
         ]);
 
-        // Handle phiki errors gracefully
+        // Handle phiki errors gracefully and speed up RouteNotFoundException
         $exceptions->renderable(function (\Throwable $e) {
+            // Fast display for RouteNotFoundException
+            if ($e instanceof \Symfony\Component\Routing\Exception\RouteNotFoundException && app()->environment('local')) {
+                return response('<h1>Route Error (Fast Display)</h1><p><strong>Route not found:</strong> ' . $e->getMessage() . '</p><p><strong>File:</strong> ' . $e->getFile() . ':' . $e->getLine() . '</p>', 404);
+            }
+
             if (str_contains(get_class($e), 'Phiki\\') ||
                 str_contains($e->getFile() ?? '', 'phiki/phiki')) {
                 // Return a simple error page without syntax highlighting

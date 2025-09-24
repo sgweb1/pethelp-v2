@@ -96,6 +96,16 @@ class Booking extends Model
         return $query->where('status', 'completed');
     }
 
+    public function scopeCancelled(Builder $query): Builder
+    {
+        return $query->where('status', 'cancelled');
+    }
+
+    public function scopeInProgress(Builder $query): Builder
+    {
+        return $query->where('status', 'in_progress');
+    }
+
     public function scopeForOwner(Builder $query, int $ownerId): Builder
     {
         return $query->where('owner_id', $ownerId);

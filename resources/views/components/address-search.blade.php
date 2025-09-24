@@ -60,8 +60,9 @@
             @keydown.arrow-up.prevent="navigateUp"
             @keydown.enter.prevent="selectCurrentSuggestion"
             id="{{ $id }}"
-            placeholder="{{ $placeholder }}"
+            :placeholder="loading ? 'Szukam...' : '{{ $placeholder }}'"
             class="w-full px-4 py-3.5 pr-20 border border-gray-300 dark:border-gray-600 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white min-h-[48px] hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors cursor-text"
+            :class="{ 'animate-pulse': loading }"
             style="caret-color: auto !important; user-select: text !important;"
             :class="{ 'border-red-500': required && !$el.value }"
             autocomplete="off"
@@ -175,6 +176,7 @@ function addressSearch() {
         wireModelName: '',
         required: false,
         showCurrentLocation: true,
+        searchCache: new Map(), // Cache dla wyników wyszukiwania (TTL 5 minut)
 
         init() {
             // Initialize searchQuery from Livewire
@@ -301,27 +303,70 @@ function addressSearch() {
 
             const query = searchValue || this.searchQuery;
 
+            // 🚀 Sprawdź cache najpierw - jak Airbnb!
+            const cacheKey = query.toLowerCase().trim();
+            const cached = this.searchCache.get(cacheKey);
+            if (cached && (Date.now() - cached.timestamp < 300000)) { // 5 minut TTL
+                console.log('🎯 Cache HIT dla:', cacheKey);
+                this.suggestions = cached.data;
+                this.showSuggestions = true;
+                this.loading = false;
+                return;
+            }
+
             // Store current input reference and focus state
             const input = this.$el?.querySelector('input');
             const wasFocused = input && document.activeElement === input;
             const cursorPos = input && typeof input.selectionStart === 'number' ? input.selectionStart : 0;
 
             try {
-                // Use your app's API endpoint for address search
-                const url = `/api/search-addresses?query=${encodeURIComponent(query)}`;
-                console.log('Searching for:', query, 'URL:', url);
+                // Use hierarchical location search API first
+                const hierarchicalUrl = `/api/locations/search?q=${encodeURIComponent(query)}&limit=8`;
+                console.log('Searching for:', query, 'URL:', hierarchicalUrl);
 
-                const response = await fetch(url);
+                const response = await fetch(hierarchicalUrl);
 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log('API Response:', data);
-                    this.suggestions = data.suggestions || [];
-                    console.log('Suggestions set:', this.suggestions);
+                    console.log('Hierarchical API Response:', data);
+
+                    if (data.success && data.data) {
+                        // Transform hierarchical API response to match component format
+                        this.suggestions = data.data.map(item => ({
+                            display: item.label,
+                            description: this.getLocationTypeDescription(item.type, item.parent_city),
+                            type: item.type,
+                            value: item.label,
+                            coordinates: item.coordinates ? {
+                                lat: item.coordinates[0],
+                                lng: item.coordinates[1]
+                            } : null,
+                            raw_data: item.data
+                        }));
+                        console.log('Hierarchical suggestions set:', this.suggestions);
+
+                        // 💾 Zapisz do cache - jak Airbnb!
+                        this.searchCache.set(cacheKey, {
+                            data: this.suggestions,
+                            timestamp: Date.now()
+                        });
+                        console.log('💾 Cache SAVED dla:', cacheKey);
+                    } else {
+                        throw new Error('Invalid hierarchical API response');
+                    }
                 } else {
-                    console.log('API failed, using fallback');
-                    // Fallback to MapItem search if API endpoint doesn't exist
-                    await this.searchMapItems();
+                    console.log('Hierarchical API failed, trying fallback');
+                    // Fallback to original API
+                    const fallbackUrl = `/api/search-addresses?query=${encodeURIComponent(query)}`;
+                    const fallbackResponse = await fetch(fallbackUrl);
+
+                    if (fallbackResponse.ok) {
+                        const fallbackData = await fallbackResponse.json();
+                        this.suggestions = fallbackData.suggestions || [];
+                    } else {
+                        // Final fallback to MapItem search
+                        await this.searchMapItems();
+                    }
                 }
 
                 this.showSuggestions = true;
@@ -412,12 +457,16 @@ function addressSearch() {
             }
 
             // IMPORTANT: Manually sync with Livewire
-            console.log('wireModelName:', this.wireModelName, 'suggestion.display:', suggestion.display);
+            console.log('🔧 wireModelName:', this.wireModelName, 'suggestion.display:', suggestion.display);
             if (this.wireModelName) {
                 this.$wire.set(this.wireModelName, suggestion.display);
-                console.log('Updated Livewire model:', this.wireModelName, 'to:', suggestion.display);
+                console.log('✅ Updated Livewire model:', this.wireModelName, 'to:', suggestion.display);
+
+                // Force trigger update
+                this.$wire.$commit();
+                console.log('🔄 Forced Livewire commit');
             } else {
-                console.log('ERROR: wireModelName is not set!');
+                console.log('❌ ERROR: wireModelName is not set!');
             }
 
             this.closeSuggestions();
@@ -427,14 +476,34 @@ function addressSearch() {
                 this.suggestions = [];
             }, 100);
 
-            // Dispatch event with additional data
-            this.$dispatch('address-selected', {
+            // Try both approaches for setting the filter
+
+            // Method 1: Direct Livewire call
+            try {
+                console.log('🚀 Trying direct Livewire call...');
+                this.$wire.call('handleAddressSelected', {
+                    address: suggestion.display,
+                    value: suggestion.value,
+                    type: suggestion.type,
+                    coordinates: suggestion.coordinates || null,
+                    description: suggestion.description
+                });
+                console.log('✅ Direct call succeeded');
+            } catch (error) {
+                console.error('❌ Direct call failed:', error);
+            }
+
+            // Method 2: Dispatch event with additional data
+            const eventData = {
                 address: suggestion.display,
                 value: suggestion.value,
                 type: suggestion.type,
                 coordinates: suggestion.coordinates || null,
                 description: suggestion.description
-            });
+            };
+
+            console.log('📍 Dispatching address-selected event:', eventData);
+            this.$dispatch('address-selected', eventData);
 
             console.log('Address selected:', suggestion);
         },
@@ -540,13 +609,42 @@ function addressSearch() {
             }
         },
 
+        getLocationTypeDescription(type, parentCity) {
+            const typeDescriptions = {
+                'city': 'Miasto',
+                'district': parentCity ? `Dzielnica w ${parentCity}` : 'Dzielnica',
+                'village': 'Wieś',
+                'other': 'Lokalizacja'
+            };
+
+            return typeDescriptions[type] || 'Lokalizacja';
+        },
+
         async reverseGeocode(lat, lng) {
             try {
-                // Try using a free geocoding service
-                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+                // First try using our own API
+                const response = await fetch(`/api/locations/reverse?lat=${lat}&lon=${lng}`);
 
                 if (response.ok) {
                     const data = await response.json();
+                    if (data.success && data.data) {
+                        const location = data.data;
+                        // Build a readable address from the structured data
+                        const parts = [];
+
+                        if (location.district) parts.push(location.district);
+                        if (location.city) parts.push(location.city);
+                        if (location.state) parts.push(location.state);
+
+                        return parts.join(', ') || location.display_name;
+                    }
+                }
+
+                // Fallback to external geocoding service
+                const fallbackResponse = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+
+                if (fallbackResponse.ok) {
+                    const data = await fallbackResponse.json();
 
                     if (data.display_name) {
                         // Extract meaningful address parts

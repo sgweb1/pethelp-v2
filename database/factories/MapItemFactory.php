@@ -66,7 +66,6 @@ class MapItemFactory extends Factory
             'rating_avg' => $this->faker->randomFloat(1, 3.5, 5.0),
             'rating_count' => $this->faker->numberBetween(5, 200),
             'view_count' => $this->faker->numberBetween(50, 2000),
-            'interaction_count' => $this->faker->numberBetween(10, 300),
             'status' => 'published',
             'is_featured' => $this->faker->boolean(10), // 10% chance of being featured
         ];

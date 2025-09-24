@@ -27,5 +27,17 @@ class AppServiceProvider extends ServiceProvider
         if (function_exists('mb_internal_encoding')) {
             mb_internal_encoding('UTF-8');
         }
+
+        // Register model observers
+        $this->registerObservers();
+    }
+
+    /**
+     * Register model observers
+     */
+    private function registerObservers(): void
+    {
+        // Trello integration observers
+        \App\Models\Service::observe(\App\Observers\ServiceTrelloObserver::class);
     }
 }

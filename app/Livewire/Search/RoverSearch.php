@@ -2,280 +2,134 @@
 
 namespace App\Livewire\Search;
 
-use App\Models\MapItem;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
-use Livewire\Attributes\Computed;
-use Livewire\Attributes\Debounce;
 use Livewire\Component;
 
 class RoverSearch extends Component
 {
-    // Search state - Rover.com style
+    public string $serviceType = 'pet_sitter';
     public string $location = '';
-    public string $serviceType = 'pet_sitter'; // Default to pet sitters (main business)
-    public string $petType = 'dog'; // dog, cat, other
+    public string $petType = '';
     public int $petCount = 1;
-    public string $frequency = 'onetime'; // onetime, recurring
-    public string $startDate = '';
-    public string $endDate = '';
-    public int $radius = 25; // km - Rover uses larger default radius
-    public string $sortBy = 'rating';
-
-    // Advanced filters
-    public string $petSize = ''; // small, medium, large
-    public string $priceRange = ''; // budget, mid, premium
-    public float $minPrice = 0;
-    public float $maxPrice = 1000;
-    public bool $instantBooking = false;
-    public bool $verifiedOnly = false;
-    public bool $hasReviews = false;
-    public int $minRating = 0;
-    public array $specialServices = []; // emergency, overnight, medication, etc.
-    public string $availability = ''; // weekend, weekday, flexible
-    public string $experienceLevel = ''; // beginner, experienced, expert
-
-    // UI state
-    public bool $showSuggestions = false;
+    public string $petSize = '';
+    public string $priceRange = '';
+    public array $specialServices = [];
+    public float $minRating = 0;
     public bool $showAdvanced = false;
-    public bool $isLoading = false;
-    public bool $useCurrentLocation = false;
-    public ?float $userLat = null;
-    public ?float $userLng = null;
 
-    // Performance optimizations
-    private const CACHE_TTL = 300; // 5 minutes
-    private const SUGGESTION_LIMIT = 8;
-    private const MIN_SEARCH_LENGTH = 2;
-
-    public function mount(): void
-    {
-        $this->loadPopularLocations();
-    }
-
-    #[Computed]
-    public function serviceTypes(): array
+    public function getServiceTypesProperty(): array
     {
         return [
             'pet_sitter' => [
-                'name' => 'Opieka nad pupilami',
+                'name' => 'Pet Sitting',
                 'icon' => '🏠',
                 'services' => [
-                    'boarding' => 'Opieka w domu pet sittera',
-                    'house_sitting' => 'Opieka w domu właściciela',
+                    'home_visit' => 'Opieka w domu',
+                    'overnight' => 'Opieka nocna',
                     'dog_walking' => 'Spacery z psem',
-                    'drop_in_visits' => 'Wizyty w ciągu dnia',
+                    'pet_taxi' => 'Transport zwierząt',
                 ]
             ],
-            'service' => [
-                'name' => 'Usługi profesjonalne',
-                'icon' => '🏥',
+            'grooming' => [
+                'name' => 'Pielęgnacja',
+                'icon' => '✂️',
                 'services' => [
-                    'veterinary' => 'Opieka weterynaryjna',
-                    'grooming' => 'Grooming i fryzjer',
-                    'training' => 'Szkolenia i treningi',
-                    'daycare' => 'Żłobek dla psów',
+                    'basic_grooming' => 'Podstawowa pielęgnacja',
+                    'full_grooming' => 'Pełna pielęgnacja',
+                    'nail_cutting' => 'Obcinanie pazurów',
                 ]
             ],
-            'event_public' => [
-                'name' => 'Wydarzenia społeczne',
-                'icon' => '🗓️',
+            'vet_services' => [
+                'name' => 'Usługi weterynaryjne',
+                'icon' => '🩺',
                 'services' => [
-                    'meetups' => 'Spotkania właścicieli',
-                    'training_groups' => 'Treningi grupowe',
-                    'dog_shows' => 'Wystawy psów',
+                    'consultation' => 'Konsultacja',
+                    'vaccination' => 'Szczepienia',
+                    'checkup' => 'Kontrola zdrowia',
                 ]
             ]
         ];
     }
 
-    #[Computed]
-    public function petTypes(): array
+    public function getPetTypesProperty(): array
     {
         return [
             'dog' => ['name' => 'Psy', 'icon' => '🐕'],
             'cat' => ['name' => 'Koty', 'icon' => '🐱'],
+            'bird' => ['name' => 'Ptaki', 'icon' => '🐦'],
+            'fish' => ['name' => 'Ryby', 'icon' => '🐠'],
+            'rabbit' => ['name' => 'Króliki', 'icon' => '🐰'],
             'other' => ['name' => 'Inne', 'icon' => '🐾']
         ];
     }
 
-    #[Computed]
-    public function locationSuggestions(): Collection
-    {
-        if (strlen($this->location) < self::MIN_SEARCH_LENGTH) {
-            return collect();
-        }
-
-        $cacheKey = 'location_suggestions_' . md5($this->location);
-
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () {
-            return MapItem::select('city', 'full_address as address')
-                ->where('status', 'published')
-                ->where(function ($query) {
-                    $query->where('city', 'like', "%{$this->location}%")
-                          ->orWhere('full_address', 'like', "%{$this->location}%");
-                })
-                ->distinct()
-                ->limit(self::SUGGESTION_LIMIT)
-                ->get()
-                ->map(function ($item) {
-                    return [
-                        'display' => $item->city . ($item->address ? ", {$item->address}" : ''),
-                        'city' => $item->city,
-                        'address' => $item->address,
-                    ];
-                });
-        });
-    }
-
-    #[Debounce(300)]
-    public function updatedLocation(): void
-    {
-        $this->showSuggestions = strlen($this->location) >= self::MIN_SEARCH_LENGTH;
-
-        if ($this->showSuggestions) {
-            $this->isLoading = true;
-            $this->locationSuggestions;
-            $this->isLoading = false;
-        }
-    }
-
-    public function selectSuggestion(string $city, ?string $address = null): void
-    {
-        $this->location = $city . ($address ? ", {$address}" : '');
-        $this->showSuggestions = false;
-        $this->dispatch('location-selected', [
-            'city' => $city,
-            'address' => $address
-        ]);
-    }
-
-    public function getCurrentLocation(): void
-    {
-        $this->useCurrentLocation = true;
-        $this->dispatch('get-current-location');
-    }
-
-    public function setCurrentLocation(float $lat, float $lng, string $address): void
-    {
-        $this->userLat = $lat;
-        $this->userLng = $lng;
-        $this->location = $address;
-        $this->useCurrentLocation = false;
-        $this->showSuggestions = false;
-    }
-
-    public function search()
-    {
-        $this->validate([
-            'location' => 'required|string|min:2|max:255',
-            'radius' => 'integer|min:1|max:100',
-            'serviceType' => 'required|string',
-            'petType' => 'required|string',
-            'petCount' => 'integer|min:1|max:20',
-        ]);
-
-        // Build optimized search parameters - Rover style
-        $searchParams = [
-            'location' => $this->location,
-            'service_type' => $this->serviceType,
-            'pet_type' => $this->petType,
-            'pet_count' => $this->petCount,
-            'frequency' => $this->frequency,
-            'radius' => $this->radius,
-            'sort' => $this->sortBy,
-        ];
-
-        // Add dates if provided
-        if ($this->startDate) {
-            $searchParams['start_date'] = $this->startDate;
-        }
-        if ($this->endDate) {
-            $searchParams['end_date'] = $this->endDate;
-        }
-
-        // Add coordinates if available
-        if ($this->userLat && $this->userLng) {
-            $searchParams['lat'] = $this->userLat;
-            $searchParams['lng'] = $this->userLng;
-        }
-
-        // Redirect to search results with optimized query
-        return redirect()->route('search', $searchParams);
-    }
-
-    public function resetSearch(): void
-    {
-        $this->reset([
-            'location', 'serviceType', 'petType', 'petCount', 'frequency',
-            'startDate', 'endDate', 'radius', 'userLat', 'userLng',
-            'petSize', 'priceRange', 'minPrice', 'maxPrice', 'instantBooking',
-            'verifiedOnly', 'hasReviews', 'minRating', 'specialServices',
-            'availability', 'experienceLevel'
-        ]);
-        $this->showSuggestions = false;
-        $this->showAdvanced = false;
-        $this->serviceType = 'pet_sitter'; // Reset to default core business
-        $this->petType = 'dog';
-        $this->petCount = 1;
-        $this->minPrice = 0;
-        $this->maxPrice = 1000;
-        $this->specialServices = [];
-    }
-
-    #[Computed]
-    public function petSizes(): array
+    public function getPetSizesProperty(): array
     {
         return [
-            'small' => ['name' => 'Mały', 'icon' => '🐕‍🦺'],
-            'medium' => ['name' => 'Średni', 'icon' => '🐕'],
-            'large' => ['name' => 'Duży', 'icon' => '🐕‍🦺']
+            'small' => ['name' => 'Małe', 'icon' => '🐕‍🦺'],
+            'medium' => ['name' => 'Średnie', 'icon' => '🐕'],
+            'large' => ['name' => 'Duże', 'icon' => '🐕‍🦮'],
+            'giant' => ['name' => 'Bardzo duże', 'icon' => '🦮']
         ];
     }
 
-    #[Computed]
-    public function priceRanges(): array
+    public function getPriceRangesProperty(): array
     {
         return [
-            'budget' => ['name' => 'Budżetowe', 'range' => '20-40 zł/godz', 'min' => 20, 'max' => 40],
-            'mid' => ['name' => 'Średnie', 'range' => '40-80 zł/godz', 'min' => 40, 'max' => 80],
-            'premium' => ['name' => 'Premium', 'range' => '80+ zł/godz', 'min' => 80, 'max' => 200]
+            'budget' => ['name' => 'Budżetowe', 'range' => '20-40 zł/godz'],
+            'standard' => ['name' => 'Standardowe', 'range' => '40-60 zł/godz'],
+            'premium' => ['name' => 'Premium', 'range' => '60-80 zł/godz'],
+            'luxury' => ['name' => 'Luksusowe', 'range' => '80+ zł/godz']
         ];
     }
 
-    #[Computed]
-    public function availableSpecialServices(): array
+    public function getAvailableSpecialServicesProperty(): array
     {
         return [
-            'emergency' => 'Opieka w nagłych przypadkach',
-            'overnight' => 'Opieka nocna',
+            'emergency' => 'Opieka awaryjna',
             'medication' => 'Podawanie leków',
-            'senior_care' => 'Opieka nad seniorami',
-            'puppy_care' => 'Opieka nad szczeniakami',
-            'special_needs' => 'Specjalne potrzeby',
-            'grooming' => 'Podstawowy grooming',
-            'training' => 'Podstawowy trening'
+            'special_needs' => 'Zwierzęta o specjalnych potrzebach',
+            'multiple_pets' => 'Wiele zwierząt',
+            'pickup_delivery' => 'Odbiór i dowóz'
         ];
     }
 
     public function toggle(string $property): void
     {
-        if (property_exists($this, $property)) {
-            $this->$property = !$this->$property;
-        }
+        $this->$property = !$this->$property;
     }
 
-    private function loadPopularLocations(): void
+    public function setCurrentLocation(float $lat, float $lng, string $address): void
     {
-        Cache::remember('popular_locations', 3600, function () {
-            return MapItem::select('city')
-                ->selectRaw('COUNT(*) as count')
-                ->where('status', 'published')
-                ->groupBy('city')
-                ->orderByDesc('count')
-                ->limit(10)
-                ->pluck('city');
-        });
+        $this->location = $address;
+    }
+
+    public function search()
+    {
+        // Redirect to search page with filters
+        $params = [
+            'service_type' => $this->serviceType,
+            'location' => $this->location,
+            'pet_type' => $this->petType,
+            'pet_count' => $this->petCount,
+        ];
+
+        if ($this->petSize) {
+            $params['pet_size'] = $this->petSize;
+        }
+
+        if ($this->priceRange) {
+            $params['price_range'] = $this->priceRange;
+        }
+
+        if (!empty($this->specialServices)) {
+            $params['special_services'] = implode(',', $this->specialServices);
+        }
+
+        if ($this->minRating > 0) {
+            $params['min_rating'] = $this->minRating;
+        }
+
+        return redirect()->route('search', $params);
     }
 
     public function render()

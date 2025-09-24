@@ -2,19 +2,17 @@ export function createMapComponent() {
     return {
         map: null,
         vectorLayer: null,
-        clusterLayer: null,
         vectorSource: null,
-        clusterSource: null,
         markerFeatures: [],
+        highlightFeature: null, // Separate feature for highlighting
         ol: null,
         moveTimeout: null,
         updateMarkersTimeout: null,
         markerCache: new Map(),
         currentZoom: 7,
+        lastBounds: null,
 
         // Performance settings
-        CLUSTER_DISTANCE: 40,
-        MIN_ZOOM_FOR_INDIVIDUAL: 12,
         MAX_MARKERS_VISIBLE: 200,
 
         async initMap() {
@@ -194,8 +192,21 @@ export function createMapComponent() {
                         const extent = this.map.getView().calculateExtent();
                         const bounds = this.ol.proj.transformExtent(extent, 'EPSG:3857', 'EPSG:4326');
                         const livewireBounds = [bounds[1], bounds[0], bounds[3], bounds[2]];
+
+                        // 🚀 Use UnifiedSearchController API directly but only on significant moves
+                        // Check if bounds changed significantly to avoid excessive calls
+                        if (this.hasBoundsChangedSignificantly(livewireBounds)) {
+                            this.fetchMapData({
+                                bounds: livewireBounds,
+                                format: 'map',
+                                limit: 200
+                            });
+                            this.lastBounds = livewireBounds;
+                        }
+
+                        // Keep Livewire event for backward compatibility
                         Livewire.dispatch('map-bounds-changed', [livewireBounds]);
-                    }, 500);
+                    }, 1000); // Increased from 500ms to 1000ms
                 });
 
                 this.map.once('postrender', () => {
@@ -203,13 +214,22 @@ export function createMapComponent() {
                     const initialZoom = Math.round(this.map.getView().getZoom());
                     this.updateLayerVisibility(initialZoom);
 
-                    // Request initial data from Livewire
+                    // 🚀 Request initial data from UnifiedSearchController API
                     console.log('🗺️ Map ready, requesting initial data...');
                     setTimeout(() => {
                         const extent = this.map.getView().calculateExtent();
                         const bounds = this.ol.proj.transformExtent(extent, 'EPSG:3857', 'EPSG:4326');
                         const livewireBounds = [bounds[1], bounds[0], bounds[3], bounds[2]];
                         console.log('📍 Sending initial bounds:', livewireBounds);
+
+                        // Use unified API first
+                        this.fetchMapData({
+                            bounds: livewireBounds,
+                            format: 'map',
+                            limit: 200
+                        });
+
+                        // Keep Livewire event for backward compatibility
                         Livewire.dispatch('map-bounds-changed', [livewireBounds]);
                     }, 1000);
                 });
@@ -242,9 +262,23 @@ export function createMapComponent() {
             }
 
             this.setupLivewireListeners();
+            this.setupAlpineEventListeners();
         },
 
         setupLivewireListeners() {
+            // Listen for location updates from Livewire
+            Livewire.on('map-center-updated', (data) => {
+                if (data && data.latitude && data.longitude) {
+                    this.animateToLocation(data.latitude, data.longitude);
+                }
+            });
+
+            // Listen for address selection
+            Livewire.on('location-updated', (locationData) => {
+                if (locationData && locationData.latitude && locationData.longitude) {
+                    this.animateToLocation(locationData.latitude, locationData.longitude);
+                }
+            });
             console.log('Setting up Livewire listeners...');
             Livewire.on('map-data-updated', (data) => {
                 try {
@@ -272,7 +306,114 @@ export function createMapComponent() {
             });
         },
 
+        setupAlpineEventListeners() {
+            // Listen for Alpine.js events from search results for marker highlighting
+            document.addEventListener('highlight-map-marker', (event) => {
+                const markerId = event.detail?.id;
+                this.highlightMarker(markerId);
+            });
+
+            document.addEventListener('focus-map-marker', (event) => {
+                const markerId = event.detail?.id;
+                this.focusMarker(markerId);
+            });
+
+            console.log('Alpine.js event listeners setup for map marker highlighting');
+        },
+
+        highlightMarker(markerId) {
+            if (!this.vectorSource || !this.ol) {
+                return;
+            }
+
+            // Remove previous highlight feature if it exists
+            if (this.highlightFeature) {
+                this.vectorSource.removeFeature(this.highlightFeature);
+                this.highlightFeature = null;
+            }
+
+            // If markerId is provided, create highlight overlay
+            if (markerId) {
+                const targetFeature = this.markerFeatures.find(feature => {
+                    const data = feature.get('data');
+                    return data.id == markerId;
+                });
+
+                if (targetFeature) {
+                    const geometry = targetFeature.getGeometry();
+                    const data = targetFeature.get('data');
+
+                    // Create a new feature for highlighting - don't modify the original
+                    this.highlightFeature = new this.ol.Feature({
+                        geometry: geometry.clone(), // Clone geometry to avoid reference issues
+                        data: data
+                    });
+
+                    // Create highlighted style for the overlay
+                    const highlightedStyle = this.createHighlightedMarkerStyle(this.highlightFeature);
+                    this.highlightFeature.setStyle(highlightedStyle);
+
+                    // Add highlight feature to map
+                    this.vectorSource.addFeature(this.highlightFeature);
+
+                    console.log(`🎯 Highlighted marker ${markerId} at ${data.lat}, ${data.lng}`);
+                }
+            }
+        },
+
+        focusMarker(markerId) {
+            if (!this.map || !this.ol || !markerId) {
+                return;
+            }
+
+            const targetFeature = this.markerFeatures.find(feature => {
+                const data = feature.get('data');
+                return data.id == markerId;
+            });
+
+            if (targetFeature) {
+                const geometry = targetFeature.getGeometry();
+                const coordinates = geometry.getCoordinates();
+
+                // Animate to marker location
+                this.map.getView().animate({
+                    center: coordinates,
+                    zoom: Math.max(this.map.getView().getZoom(), 14),
+                    duration: 500
+                });
+
+                // Highlight the marker
+                this.highlightMarker(markerId);
+                console.log(`🎯 Focused on marker ${markerId}`);
+            }
+        },
+
+        createHighlightedMarkerStyle(feature) {
+            const data = feature.get('data');
+            const color = data.color || data.category_color || '#3B82F6';
+            const isFeatured = data.featured || data.is_featured || false;
+            const isUrgent = data.urgent || data.is_urgent || false;
+
+            console.log(`🎨 Creating highlighted style for marker ${data.id} at ${data.lat}, ${data.lng}`);
+
+            // Important: Style should NEVER change geometry/position, only visual appearance
+            return new this.ol.style.Style({
+                image: new this.ol.style.Circle({
+                    radius: isFeatured ? 12 : 10, // Larger radius for highlight
+                    fill: new this.ol.style.Fill({
+                        color: color
+                    }),
+                    stroke: new this.ol.style.Stroke({
+                        color: '#FFFFFF',
+                        width: 4 // Thicker stroke for highlight
+                    })
+                }),
+                zIndex: 1000 // Higher z-index to show on top
+            });
+        },
+
         updateMarkers(data) {
+            console.log('🗺️ updateMarkers called with data:', data);
 
             if (!this.vectorSource || !this.ol || !Array.isArray(data)) {
                 console.warn('Cannot update markers: missing dependencies or invalid data', {
@@ -285,28 +426,32 @@ export function createMapComponent() {
             }
 
             try {
+                console.log(`🧹 Clearing ${this.markerFeatures.length} existing markers`);
                 this.vectorSource.clear();
                 this.markerFeatures = [];
+                this.highlightFeature = null; // Clear highlight reference
 
                 data.forEach((item, index) => {
+                    // Handle both old format (coordinates object) and new UnifiedSearchController format (lng/lat directly)
+                    let longitude, latitude;
 
-                    // Sprawdź czy item ma wymagane properties
-                    if (!item || !item.coordinates || !item.coordinates.longitude || !item.coordinates.latitude) {
+                    if (item.lng !== undefined && item.lat !== undefined) {
+                        // New UnifiedSearchController format
+                        longitude = parseFloat(item.lng);
+                        latitude = parseFloat(item.lat);
+                    } else if (item.coordinates && item.coordinates.longitude && item.coordinates.latitude) {
+                        // Old format with coordinates object
+                        longitude = parseFloat(item.coordinates.longitude);
+                        latitude = parseFloat(item.coordinates.latitude);
+                    } else {
                         console.warn('Skipping invalid map item - missing coordinates:', {
                             item: item,
                             hasItem: !!item,
-                            hasCoordinates: !!item?.coordinates,
-                            hasLng: !!item?.coordinates?.longitude,
-                            hasLat: !!item?.coordinates?.latitude,
-                            lng: item?.coordinates?.longitude,
-                            lat: item?.coordinates?.latitude
+                            hasNewFormat: !!(item.lng && item.lat),
+                            hasOldFormat: !!(item.coordinates?.longitude && item.coordinates?.latitude)
                         });
                         return;
                     }
-
-                    // Konwertuj coordinates do liczb
-                    const longitude = parseFloat(item.coordinates.longitude);
-                    const latitude = parseFloat(item.coordinates.latitude);
 
                     // Sprawdź czy conversion zakończył się sukcesem
                     if (isNaN(longitude) || isNaN(latitude)) {
@@ -335,9 +480,11 @@ export function createMapComponent() {
 
                     this.markerFeatures.push(feature);
                     this.vectorSource.addFeature(feature);
+
+                    console.log(`📍 Added marker ${item.id} at ${latitude}, ${longitude} - ${item.title}`);
                 });
 
-                // Map updated successfully
+                console.log(`✅ Successfully added ${this.markerFeatures.length} markers to map`);
             } catch (error) {
                 console.error('Error in updateMarkers:', error);
             }
@@ -345,17 +492,21 @@ export function createMapComponent() {
 
         createMarkerStyle(feature) {
             const data = feature.get('data');
-            const color = data.category_color || '#3B82F6';
+
+            // Handle both old and new data formats
+            const color = data.color || data.category_color || '#3B82F6';
+            const isFeatured = data.featured || data.is_featured || false;
+            const isUrgent = data.urgent || data.is_urgent || false;
 
             return new this.ol.style.Style({
                 image: new this.ol.style.Circle({
-                    radius: data.is_featured ? 8 : 6,
+                    radius: isFeatured ? 8 : 6,
                     fill: new this.ol.style.Fill({
                         color: color
                     }),
                     stroke: new this.ol.style.Stroke({
-                        color: data.is_urgent ? '#EF4444' : '#FFFFFF',
-                        width: data.is_urgent ? 3 : 2
+                        color: isUrgent ? '#EF4444' : '#FFFFFF',
+                        width: isUrgent ? 3 : 2
                     })
                 })
             });
@@ -420,6 +571,119 @@ export function createMapComponent() {
                     font: 'bold 12px sans-serif'
                 })
             });
+        },
+
+        /**
+         * 🗺️ Animate map to specified location with smooth transition
+         */
+        animateToLocation(latitude, longitude, zoom = 12) {
+            if (!this.map || !this.ol) {
+                console.warn('⚠️ Map not initialized yet, queuing animation for later');
+
+                // Retry after map initialization
+                setTimeout(() => {
+                    if (this.map && this.ol) {
+                        this.animateToLocation(latitude, longitude, zoom);
+                    }
+                }, 2000);
+                return;
+            }
+
+            const coordinates = this.ol.proj.fromLonLat([longitude, latitude]);
+            const view = this.map.getView();
+
+            console.log(`🎯 Animating map to: ${latitude}, ${longitude} (zoom: ${zoom})`);
+
+            // Smooth animation to the location
+            view.animate(
+                {
+                    center: coordinates,
+                    zoom: zoom,
+                    duration: 1000 // 1 second animation
+                },
+                () => {
+                    console.log('✅ Map animation completed');
+                    // Fetch new data for this location after animation
+                    setTimeout(() => {
+                        this.fetchMapData({
+                            latitude: latitude,
+                            longitude: longitude,
+                            format: 'map',
+                            limit: 200
+                        });
+                    }, 500);
+                }
+            );
+        },
+
+        /**
+         * Check if bounds have changed significantly enough to warrant a new API call
+         */
+        hasBoundsChangedSignificantly(newBounds) {
+            if (!this.lastBounds) {
+                return true; // First time, always fetch
+            }
+
+            // Calculate difference threshold (about 10% of the current view)
+            const threshold = 0.1;
+
+            const [newSouth, newWest, newNorth, newEast] = newBounds;
+            const [oldSouth, oldWest, oldNorth, oldEast] = this.lastBounds;
+
+            const latDiff = Math.abs(newNorth - newSouth);
+            const lngDiff = Math.abs(newEast - newWest);
+
+            const latThreshold = latDiff * threshold;
+            const lngThreshold = lngDiff * threshold;
+
+            // Check if any boundary moved more than threshold
+            return (
+                Math.abs(newNorth - oldNorth) > latThreshold ||
+                Math.abs(newSouth - oldSouth) > latThreshold ||
+                Math.abs(newEast - oldEast) > lngThreshold ||
+                Math.abs(newWest - oldWest) > lngThreshold
+            );
+        },
+
+        /**
+         * 🚀 Fetch map data from UnifiedSearchController API
+         */
+        async fetchMapData(params = {}) {
+            try {
+                const defaultParams = {
+                    format: 'map',
+                    limit: 200,
+                    content_type: 'pet_sitter' // Default to pet_sitter
+                };
+
+                const searchParams = new URLSearchParams({
+                    ...defaultParams,
+                    ...params
+                });
+
+                const response = await fetch(`/api/search?${searchParams.toString()}`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success && data.data && data.data.markers) {
+                    console.log(`🚀 Fetched ${data.data.markers.length} markers from UnifiedSearchController`);
+                    this.updateMarkers(data.data.markers);
+                } else {
+                    console.warn('No marker data received from API', data);
+                }
+
+            } catch (error) {
+                console.error('Failed to fetch map data:', error);
+                // Fallback to Livewire event if API fails
+                const extent = this.map.getView().calculateExtent();
+                const bounds = this.ol.proj.transformExtent(extent, 'EPSG:3857', 'EPSG:4326');
+                const livewireBounds = [bounds[1], bounds[0], bounds[3], bounds[2]];
+                Livewire.dispatch('map-bounds-changed', [livewireBounds]);
+            }
         },
 
         showMapError(message) {

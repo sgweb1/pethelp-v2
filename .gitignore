@@ -47,3 +47,10 @@ Thumbs.db
 *.tmp
 *.temp
 nul
+
+# Project Management - ProjeQtOr files
+PROJECT_EXPORT_PROJEQTOR.md
+PROJEQTOR_INTEGRATION_PLAN.md
+projeqtor_import_*.csv
+*projeqtor*
+*ProjeQtOr*

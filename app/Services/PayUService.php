@@ -12,17 +12,22 @@ use Illuminate\Support\Str;
 
 class PayUService
 {
-    protected string $apiUrl;
-    protected string $merchantId;
-    protected string $secretKey;
-    protected string $oauthClientId;
-    protected string $oauthClientSecret;
+    protected ?string $apiUrl;
+
+    protected ?string $merchantId;
+
+    protected ?string $secretKey;
+
+    protected ?string $oauthClientId;
+
+    protected ?string $oauthClientSecret;
+
     protected string $environment;
 
     public function __construct()
     {
-        $this->environment = config('payu.environment');
-        $this->apiUrl = config('payu.api_url.' . $this->environment);
+        $this->environment = config('payu.environment', 'sandbox');
+        $this->apiUrl = config('payu.api_url.'.$this->environment);
         $this->merchantId = config('payu.merchant_id');
         $this->secretKey = config('payu.secret_key');
         $this->oauthClientId = config('payu.oauth_client_id');
@@ -74,7 +79,6 @@ class PayUService
             }
 
             throw new \Exception('PayU did not return redirect URI');
-
         } catch (\Exception $e) {
             Log::error('PayU payment creation failed', [
                 'user_id' => $user->id,
@@ -101,15 +105,17 @@ class PayUService
             $orderId = $data['order']['orderId'] ?? null;
             $status = $data['order']['status'] ?? null;
 
-            if (!$orderId || !$status) {
+            if (! $orderId || ! $status) {
                 Log::warning('PayU notification missing required data', $data);
+
                 return false;
             }
 
             $payment = Payment::where('payment_data->payu_order_id', $orderId)->first();
 
-            if (!$payment) {
+            if (! $payment) {
                 Log::warning('PayU notification for unknown order', ['order_id' => $orderId]);
+
                 return false;
             }
 
@@ -133,19 +139,19 @@ class PayUService
 
     protected function getOAuthToken(): string
     {
-        $response = Http::asForm()->post($this->apiUrl . 'pl/standard/user/oauth/authorize', [
+        $response = Http::asForm()->post($this->apiUrl.'pl/standard/user/oauth/authorize', [
             'grant_type' => 'client_credentials',
             'client_id' => $this->oauthClientId,
             'client_secret' => $this->oauthClientSecret,
         ]);
 
-        if (!$response->successful()) {
-            throw new \Exception('Failed to get PayU OAuth token: ' . $response->body());
+        if (! $response->successful()) {
+            throw new \Exception('Failed to get PayU OAuth token: '.$response->body());
         }
 
         $data = $response->json();
 
-        if (!isset($data['access_token'])) {
+        if (! isset($data['access_token'])) {
             throw new \Exception('PayU OAuth response missing access token');
         }
 
@@ -155,12 +161,12 @@ class PayUService
     protected function createOrder(array $orderData, string $token): array
     {
         $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => 'Bearer '.$token,
             'Content-Type' => 'application/json',
-        ])->post($this->apiUrl . 'api/v2_1/orders', $orderData);
+        ])->post($this->apiUrl.'api/v2_1/orders', $orderData);
 
-        if (!$response->successful()) {
-            throw new \Exception('PayU order creation failed: ' . $response->body());
+        if (! $response->successful()) {
+            throw new \Exception('PayU order creation failed: '.$response->body());
         }
 
         return $response->json();
@@ -205,7 +211,7 @@ class PayUService
 
     protected function generateOrderId(): string
     {
-        return 'PETHELP_' . time() . '_' . Str::upper(Str::random(8));
+        return 'PETHELP_'.time().'_'.Str::upper(Str::random(8));
     }
 
     protected function updatePaymentStatus(Payment $payment, string $status, array $data): void
@@ -248,14 +254,16 @@ class PayUService
         }
 
         $planId = $payment->payment_data['plan_id'] ?? null;
-        if (!$planId) {
+        if (! $planId) {
             Log::error('Payment missing plan_id', ['payment_id' => $payment->id]);
+
             return;
         }
 
         $plan = SubscriptionPlan::find($planId);
-        if (!$plan) {
+        if (! $plan) {
             Log::error('Plan not found for payment', ['payment_id' => $payment->id, 'plan_id' => $planId]);
+
             return;
         }
 

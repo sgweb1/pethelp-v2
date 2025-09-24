@@ -63,41 +63,50 @@ new class extends Component
 }; ?>
 
 <section>
-    <header>
-        <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Profile Information') }}
-        </h2>
-
-        <p class="mt-1 text-sm text-gray-600">
-            {{ __("Update your account's profile information and email address.") }}
-        </p>
-    </header>
-
-    <form wire:submit="updateProfileInformation" class="mt-6 space-y-6">
+    <form wire:submit="updateProfileInformation" class="space-y-6">
         <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input wire:model="name" id="name" name="name" type="text" class="mt-1 block w-full" required autofocus autocomplete="name" />
-            <x-input-error class="mt-2" :messages="$errors->get('name')" />
+            <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Imię i nazwisko <span class="text-red-500">*</span>
+            </label>
+            <input wire:model="name"
+                   id="name"
+                   name="name"
+                   type="text"
+                   class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-blue-500 focus:ring-blue-500"
+                   required
+                   autofocus
+                   autocomplete="name"
+                   placeholder="Wpisz swoje imię i nazwisko">
+            @error('name') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
         </div>
 
         <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input wire:model="email" id="email" name="email" type="email" class="mt-1 block w-full" required autocomplete="username" />
-            <x-input-error class="mt-2" :messages="$errors->get('email')" />
+            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Adres email <span class="text-red-500">*</span>
+            </label>
+            <input wire:model="email"
+                   id="email"
+                   name="email"
+                   type="email"
+                   class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-blue-500 focus:ring-blue-500"
+                   required
+                   autocomplete="username"
+                   placeholder="twoj@email.com">
+            @error('email') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
 
             @if (auth()->user() instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! auth()->user()->hasVerifiedEmail())
-                <div>
-                    <p class="text-sm mt-2 text-gray-800">
-                        {{ __('Your email address is unverified.') }}
-
-                        <button wire:click.prevent="sendVerification" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            {{ __('Click here to re-send the verification email.') }}
-                        </button>
+                <div class="mt-2 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                    <p class="text-sm text-orange-800">
+                        Twój adres email nie został jeszcze zweryfikowany.
                     </p>
+                    <button wire:click.prevent="sendVerification"
+                            class="mt-2 text-sm text-orange-600 hover:text-orange-800 underline focus:outline-none">
+                        Kliknij tutaj, aby ponownie wysłać email weryfikacyjny.
+                    </button>
 
                     @if (session('status') === 'verification-link-sent')
-                        <p class="mt-2 font-medium text-sm text-green-600">
-                            {{ __('A new verification link has been sent to your email address.') }}
+                        <p class="mt-2 text-sm font-medium text-green-600">
+                            Nowy link weryfikacyjny został wysłany na Twój adres email.
                         </p>
                     @endif
                 </div>
@@ -105,11 +114,18 @@ new class extends Component
         </div>
 
         <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
+            <button type="submit"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                Zapisz zmiany
+            </button>
 
-            <x-action-message class="me-3" on="profile-updated">
-                {{ __('Saved.') }}
-            </x-action-message>
+            <div x-data="{ show: false }"
+                 x-show="show"
+                 x-transition
+                 @profile-updated.window="show = true; setTimeout(() => show = false, 3000)"
+                 class="text-sm text-green-600 font-medium">
+                Zapisano!
+            </div>
         </div>
     </form>
 </section>

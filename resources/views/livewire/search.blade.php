@@ -95,65 +95,102 @@
     </div>
 
     <!-- Main Three Column Container -->
-    <div class="bg-white dark:bg-gray-900 rounded-t-3xl relative z-20 -mt-8 min-h-screen">
+    <div class="bg-white dark:bg-gray-900 rounded-t-3xl relative z-20 -mt-8">
         <!-- Container Inner Content -->
-        <div class="pt-8 pb-8 min-h-screen relative">
+        <div class="pt-8 pb-8 relative">
             <!-- Three Column Layout -->
-            <div class="w-full px-4">
-                <div class="flex gap-6">
+            <div class="w-full px-2 sm:px-4">
+                <div class="flex gap-3 lg:gap-4 max-w-full">
 
                     <!-- Left Column: Hero-Inspired Pet Sitter Search -->
-                    <div class="hidden lg:block w-80 flex-shrink-0">
-                        <div class="w-80 space-y-6 max-h-[calc(100vh-6rem)] z-30">
+                    <div class="hidden lg:block xl:w-80
+                              @if($show_desktop_map) lg:w-56 @else lg:w-72 @endif
+                              flex-shrink-0">
+                        <div class="@if($show_desktop_map) lg:w-56 @else lg:w-72 @endif xl:w-80 space-y-6 z-30">
 
 
 
                             <!-- Pet Type Quick Selector -->
                             <div class="glass-card rounded-2xl border border-white/20 backdrop-blur-md bg-white/95 dark:bg-gray-800/95 shadow-xl p-5">
-                                <h4 class="text-md font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                                    <svg class="w-4 h-4 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                                    </svg>
-                                    Typ zwierzęcia
-                                </h4>
-                                <div x-data="{
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="text-md font-semibold text-gray-900 dark:text-white flex items-center">
+                                        <svg class="w-4 h-4 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                        </svg>
+                                        Typ zwierzęcia
+                                    </h4>
+                                    @if(!empty($filters['pet_type']))
+                                        <button wire:click="selectPetType('')"
+                                                class="text-xs text-red-500 hover:text-red-700 font-medium px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20">
+                                            ✕ Usuń
+                                        </button>
+                                    @endif
+                                </div>
+                                <div wire:key="pet-types-selector-{{ $filters['pet_type'] ?? 'none' }}" x-data="{
                                     showAllPetTypes: false,
-                                    originalPetTypes: [
-                                        { value: 'dog', icon: '🐕', label: 'Psy', gradient: 'from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20', border: 'border-orange-200 dark:border-orange-700', ring: 'ring-orange-400' },
-                                        { value: 'cat', icon: '🐱', label: 'Koty', gradient: 'from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20', border: 'border-purple-200 dark:border-purple-700', ring: 'ring-purple-400' },
-                                        { value: 'bird', icon: '🐦', label: 'Ptaki', gradient: 'from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20', border: 'border-blue-200 dark:border-blue-700', ring: 'ring-blue-400' },
-                                        { value: 'other', icon: '🐾', label: 'Inne', gradient: 'from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20', border: 'border-green-200 dark:border-green-700', ring: 'ring-green-400' },
-                                        { value: 'rabbit', icon: '🐰', label: 'Króliki', gradient: 'from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20', border: 'border-pink-200 dark:border-pink-700', ring: 'ring-pink-400' }
-                                    ],
+                                    originalPetTypes: @js($this->petTypes->map(function($petType) {
+                                        return [
+                                            'value' => $petType->slug,
+                                            'icon' => $petType->icon ?? '🐾',
+                                            'label' => $petType->name,
+                                            'gradient' => match($petType->slug) {
+                                                'dog' => 'from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20',
+                                                'cat' => 'from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20',
+                                                'bird' => 'from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20',
+                                                'rabbit' => 'from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20',
+                                                default => 'from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20'
+                                            },
+                                            'border' => match($petType->slug) {
+                                                'dog' => 'border-orange-200 dark:border-orange-700',
+                                                'cat' => 'border-purple-200 dark:border-purple-700',
+                                                'bird' => 'border-blue-200 dark:border-blue-700',
+                                                'rabbit' => 'border-pink-200 dark:border-pink-700',
+                                                default => 'border-green-200 dark:border-green-700'
+                                            },
+                                            'ring' => match($petType->slug) {
+                                                'dog' => 'ring-orange-400',
+                                                'cat' => 'ring-purple-400',
+                                                'bird' => 'ring-blue-400',
+                                                'rabbit' => 'ring-pink-400',
+                                                default => 'ring-green-400'
+                                            }
+                                        ];
+                                    })),
+                                    selectedPetType: '{{ $filters['pet_type'] ?? '' }}',
                                     get petTypes() {
-                                        const selected = '{{ $petType ?? '' }}';
-                                        if (!selected) return this.originalPetTypes;
+                                        if (!this.selectedPetType) return this.originalPetTypes;
 
-                                        const selectedItem = this.originalPetTypes.find(item => item.value === selected);
-                                        const otherItems = this.originalPetTypes.filter(item => item.value !== selected);
+                                        const selectedItem = this.originalPetTypes.find(item => item.value === this.selectedPetType);
+                                        const otherItems = this.originalPetTypes.filter(item => item.value !== this.selectedPetType);
 
                                         return selectedItem ? [selectedItem, ...otherItems] : this.originalPetTypes;
                                     },
                                     selectPetType(value) {
-                                        $wire.selectPetType(value);
-                                        this.showAllPetTypes = false;
+                                        if (typeof $wire !== 'undefined') {
+                                            $wire.selectPetType(value);
+                                            this.showAllPetTypes = false;
+                                        }
                                     }
-                                }" class="mb-4">
+                                }" x-init="
+                                    // Ensure variables are properly initialized
+                                    showAllPetTypes = showAllPetTypes || false;
+                                " class="mb-4">
                                     <!-- Visible pet types (first 2 or selected + 1) -->
                                     <div class="space-y-2">
                                         <template x-for="(petType, index) in (showAllPetTypes ? petTypes : petTypes.slice(0, 2))" :key="petType.value">
                                             <button
                                                 @click="selectPetType(petType.value)"
-                                                class="w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-md"
-                                                :class="[
-                                                    'bg-gradient-to-r ' + petType.gradient,
-                                                    'border ' + petType.border,
-                                                    '{{ $petType ?? '' }}' === petType.value ? 'ring-2 ' + petType.ring : ''
-                                                ]"
+                                                class="w-full flex items-center gap-3 p-3 border-2 rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-md"
+                                                :class="{
+                                                    'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20': selectedPetType === petType.value,
+                                                    'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500': selectedPetType !== petType.value
+                                                }"
                                             >
                                                 <span class="text-xl" x-text="petType.icon"></span>
-                                                <span class="font-medium text-sm text-gray-700 dark:text-gray-300" x-text="petType.label"></span>
-                                                <span x-show="'{{ $petType ?? '' }}' === petType.value" class="ml-auto text-green-500">✓</span>
+                                                <div class="flex-1 text-left">
+                                                    <div class="text-sm font-medium text-gray-900 dark:text-white" x-text="petType.label"></div>
+                                                </div>
+                                                <span x-show="selectedPetType === petType.value" class="text-green-500">✓</span>
                                             </button>
                                         </template>
 
@@ -172,19 +209,32 @@
 
                                 <!-- Care Type Selection -->
                                 <div class="space-y-3 mb-4">
-                                    <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
-                                        <svg class="w-4 h-4 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 1 1 -18 0 9 9 0 0 1 18 0z"></path>
-                                        </svg>
-                                        Typ opieki
-                                    </h5>
-                                    <div x-data="{
+                                    <div class="flex items-center justify-between">
+                                        <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
+                                            <svg class="w-4 h-4 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 1 1 -18 0 9 9 0 0 1 18 0z"></path>
+                                            </svg>
+                                            Typ opieki
+                                        </h5>
+                                        @if(!empty($filters['category_id']))
+                                            <button wire:click="setCareType('')"
+                                                    class="text-xs text-red-500 hover:text-red-700 font-medium">
+                                                ✕ Usuń
+                                            </button>
+                                        @endif
+                                    </div>
+                                    <div wire:key="care-types-selector" wire:ignore.self x-data="{
                                         showAllCareTypes: false,
                                         selectCareType(id) {
-                                            $wire.setCareType(id);
-                                            this.showAllCareTypes = false;
+                                            if (typeof $wire !== 'undefined') {
+                                                $wire.setCareType(id);
+                                                this.showAllCareTypes = false;
+                                            }
                                         }
-                                    }" class="space-y-2">
+                                    }" x-init="
+                                        // Ensure variables are properly initialized
+                                        showAllCareTypes = showAllCareTypes || false;
+                                    " class="space-y-2">
                                         <!-- Visible care types (first 3) -->
                                         @php
                                             $visibleCareTypes = $this->careTypes->take(3);
@@ -203,7 +253,7 @@
                                                     <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $careType->name }}</div>
                                                     <div class="text-xs text-gray-500 dark:text-gray-400">{{ $careType->description }}</div>
                                                 </div>
-                                                @if($filters['category_id'] ?? '' == $careType->id)
+                                                @if(($filters['category_id'] ?? '') === (string)$careType->id)
                                                     <span class="text-green-500">✓</span>
                                                 @endif
                                             </button>
@@ -223,7 +273,7 @@
                                                         <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $careType->name }}</div>
                                                         <div class="text-xs text-gray-500 dark:text-gray-400">{{ $careType->description }}</div>
                                                     </div>
-                                                    @if($filters['category_id'] ?? '' == $careType->id)
+                                                    @if(($filters['category_id'] ?? '') === (string)$careType->id)
                                                         <span class="text-green-500">✓</span>
                                                     @endif
                                                 </button>
@@ -247,24 +297,37 @@
 
                                 <!-- Location Search -->
                                 <div class="space-y-3">
-                                    <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
-                                        <svg class="w-4 h-4 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1 1 11.314 0z"></path>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                        </svg>
-                                        Lokalizacja
-                                    </h5>
-                                    <x-address-search
-                                        wireModel="filters.location"
-                                        placeholder="Wpisz miasto lub dzielnicę..."
-                                        label=""
-                                        class="w-full"
-                                        :showCurrentLocation="true"
-                                    />
+                                    <div class="flex items-center justify-between">
+                                        <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
+                                            <svg class="w-4 h-4 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1 1 11.314 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            </svg>
+                                            Lokalizacja
+                                        </h5>
+                                        @if(!empty($filters['location']))
+                                            <button wire:click="clearLocation"
+                                                    class="text-xs text-red-500 hover:text-red-700 font-medium">
+                                                ✕ Usuń
+                                            </button>
+                                        @endif
+                                    </div>
+                                    <div
+                                        x-on:address-selected="console.log('🔥 Address selected event received:', $event.detail); $wire.handleAddressSelected($event.detail)"
+                                        wire:key="location-search"
+                                    >
+                                        <x-address-search
+                                            wireModel="filters.location"
+                                            placeholder="Wpisz miasto lub dzielnicę..."
+                                            label=""
+                                            class="w-full"
+                                            :showCurrentLocation="true"
+                                        />
+                                    </div>
                                 </div>
 
                                 <!-- Advanced Filters Section -->
-                                <div class="space-y-4 border-t border-gray-200 dark:border-gray-600 pt-4">
+                                <div class="space-y-4 pt-4">
                                     <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
                                         <svg class="w-4 h-4 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"/>
@@ -374,17 +437,6 @@
                                         </div>
                                     </div>
 
-                                    <!-- Radius Slider -->
-                                    <div class="space-y-2 border-t border-gray-200 dark:border-gray-600 pt-3">
-                                        <label class="text-xs font-medium text-gray-600 dark:text-gray-400">
-                                            📍 Promień: <span class="font-semibold text-purple-600">{{ $radius }} km</span>
-                                        </label>
-                                        <input wire:model.live="radius" type="range" min="1" max="50" class="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500">
-                                        <div class="flex justify-between text-xs text-gray-400">
-                                            <span>1 km</span>
-                                            <span>50 km</span>
-                                        </div>
-                                    </div>
 
                                     <!-- Sorting -->
                                     <div class="space-y-2 border-t border-gray-200 dark:border-gray-600 pt-3">
@@ -526,9 +578,9 @@
                     </div>
 
                     <!-- Center Column: Results List -->
-                    <div class="flex-1 lg:ml-0 min-h-screen"
+                    <div class="flex-1 lg:ml-0 min-w-80 lg:min-w-96"
                          @if(!$show_desktop_map) style="margin-right: 0;" @endif>
-                        <div class="h-full flex flex-col">
+                        <div class="flex flex-col">
                             <!-- Sort and View Options -->
                             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 mb-4">
                                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
@@ -549,6 +601,9 @@
                                             <option value="price_low">Cena: rosnąco</option>
                                             <option value="price_high">Cena: malejąco</option>
                                             <option value="rating">Ocena</option>
+                                            <option value="experience">Doświadczenie</option>
+                                            <option value="most_booked">Popularne</option>
+                                            <option value="newest">Najnowsze</option>
                                         </select>
                                     </div>
 
@@ -611,7 +666,7 @@
 
                             <!-- Mobile Map (when toggled) -->
                             @if(($show_mobile_map ?? false))
-                                <div class="lg:hidden bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden mb-4" style="height: 400px;">
+                                <div class="lg:hidden bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden mb-4 mobile-map-container">
                                     <div class="p-3 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20">
                                         <h3 class="text-md font-semibold text-gray-900 dark:text-white flex items-center">
                                             <svg class="w-4 h-4 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -628,8 +683,8 @@
 
                             <!-- Results List -->
                             <div class="flex-1">
-                                <div class="h-full overflow-auto space-y-4 custom-scrollbar" wire:loading.class="opacity-50 pointer-events-none" wire:target="handleFiltersUpdate">
-                                    <livewire:search.search-results wire:key="search-results" :viewMode="$view_mode" />
+                                <div class="h-full space-y-4" wire:loading.class="opacity-50 pointer-events-none" wire:target="handleFiltersUpdate">
+                                    <livewire:search.search-results wire:key="search-results" :viewMode="$view_mode" :filters="$filters" />
                                 </div>
                             </div>
                         </div>
@@ -637,10 +692,10 @@
 
                     <!-- Right Column: Map (Desktop only) -->
                     @if($show_desktop_map)
-                    <div class="hidden lg:block w-96 flex-shrink-0">
+                    <div class="hidden lg:block lg:w-[26rem] xl:w-[32rem] flex-shrink-0">
                         <div class="sticky top-20">
                             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
-                                 style="height: calc(100vh - 6rem);"
+                                 style="height: 70vh; max-height: 600px;"
                             >
                                 <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20">
                                     <div class="flex items-center justify-between">
@@ -675,8 +730,7 @@
             </div>
         </div>
 
-        <!-- Location Detector Component (hidden but active) -->
-        <livewire:search.location-detector wire:key="location-detector" />
+        <!-- Location Detector Component removed as per user request - web location detection not accurate -->
 
     </div>
 
@@ -1104,14 +1158,4 @@
     </style>
     @endpush
 
-    <script>
-        // Handle URL updates from Livewire components
-        document.addEventListener('livewire:init', () => {
-            Livewire.on('update-browser-url', (url) => {
-                if (history.replaceState) {
-                    history.replaceState(null, null, url);
-                }
-            });
-        });
-    </script>
 </div>

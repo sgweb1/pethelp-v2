@@ -8,6 +8,47 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * Model reprezentujący użytkownika aplikacji PetHelp.
+ *
+ * Reprezentuje zarówno właścicieli zwierząt jak i opiekunów oferujących swoje usługi.
+ * Zawiera podstawowe dane użytkownika, profil, relacje do zwierząt i usług.
+ *
+ * @package App\Models
+ * @author Claude AI Assistant
+ * @since 1.0.0
+ *
+ * @property int $id Unikalny identyfikator użytkownika
+ * @property string $name Pełne imię i nazwisko użytkownika
+ * @property string $email Adres email używany do logowania
+ * @property \Carbon\Carbon|null $email_verified_at Data weryfikacji adresu email
+ * @property string $password Zahashowane hasło użytkownika
+ * @property string|null $remember_token Token do zapamiętania sesji
+ * @property \Carbon\Carbon|null $premium_until Data wygaśnięcia statusu premium
+ * @property \Carbon\Carbon $created_at Data utworzenia konta
+ * @property \Carbon\Carbon $updated_at Data ostatniej aktualizacji
+ *
+ * @property-read \App\Models\UserProfile|null $profile Profil użytkownika z dodatkowymi danymi
+ * @property-read \Illuminate\Database\Eloquent\Collection<\App\Models\Pet> $pets Zwierzęta należące do użytkownika
+ * @property-read \Illuminate\Database\Eloquent\Collection<\App\Models\Service> $services Usługi oferowane przez użytkownika
+ * @property-read \Illuminate\Database\Eloquent\Collection<\App\Models\Location> $locations Lokalizacje użytkownika
+ * @property-read \Illuminate\Database\Eloquent\Collection<\App\Models\Booking> $ownerBookings Rezerwacje złożone przez użytkownika
+ * @property-read \Illuminate\Database\Eloquent\Collection<\App\Models\Booking> $sitterBookings Rezerwacje dla usług użytkownika
+ * @property-read \Illuminate\Database\Eloquent\Collection<\App\Models\Review> $reviewsGiven Opinie wystawione przez użytkownika
+ * @property-read \Illuminate\Database\Eloquent\Collection<\App\Models\Review> $reviewsReceived Opinie otrzymane przez użytkownika
+ * @property-read \Illuminate\Database\Eloquent\Collection<\App\Models\Availability> $availability Dostępności czasowe użytkownika
+ * @property-read \Illuminate\Database\Eloquent\Collection<\App\Models\Notification> $notifications Powiadomienia użytkownika
+ * @property-read \Illuminate\Database\Eloquent\Collection<\App\Models\Conversation> $conversations Rozmowy użytkownika
+ * @property-read \Illuminate\Database\Eloquent\Collection<\App\Models\Message> $sentMessages Wysłane wiadomości
+ * @property-read \Illuminate\Database\Eloquent\Collection<\App\Models\Subscription> $subscriptions Subskrypcje użytkownika
+ * @property-read \App\Models\Subscription|null $activeSubscription Aktywna subskrypcja
+ * @property-read \Illuminate\Database\Eloquent\Collection<\App\Models\Advertisement> $advertisements Ogłoszenia użytkownika
+ * @property-read \Illuminate\Database\Eloquent\Collection<\App\Models\Event> $events Wydarzenia użytkownika
+ * @property-read \Illuminate\Database\Eloquent\Collection<\App\Models\Photo> $photos Zdjęcia użytkownika
+ * @property-read \Illuminate\Database\Eloquent\Collection<\App\Models\ProfessionalService> $professionalServices Profesjonalne usługi
+ *
+ * @method static \App\Models\User create(array $attributes = []) Tworzy nowego użytkownika
+ */
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
@@ -17,6 +58,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'premium_until' => 'datetime',
         ];
     }
 
@@ -24,6 +66,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'premium_until',
     ];
 
     protected $hidden = [
@@ -31,16 +74,38 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    /**
+     * Relacja do profilu użytkownika.
+     *
+     * Każdy użytkownik może mieć jeden rozszerzony profil zawierający
+     * dodatkowe informacje takie jak opis, lokalizacja, zdjęcie itp.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<\App\Models\UserProfile>
+     */
     public function profile(): HasOne
     {
         return $this->hasOne(UserProfile::class);
     }
 
+    /**
+     * Relacja do zwierząt użytkownika.
+     *
+     * Użytkownik może być właścicielem wielu zwierząt.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Pet>
+     */
     public function pets(): HasMany
     {
         return $this->hasMany(Pet::class, 'owner_id');
     }
 
+    /**
+     * Relacja do usług oferowanych przez użytkownika.
+     *
+     * Użytkownik może oferować różne typy usług opieki nad zwierzętami.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Service>
+     */
     public function services(): HasMany
     {
         return $this->hasMany(Service::class, 'sitter_id');
@@ -81,14 +146,34 @@ class User extends Authenticatable
         return $this->hasMany(Notification::class);
     }
 
+    /**
+     * Sprawdza czy użytkownik jest właścicielem zwierząt.
+     *
+     * @return bool True jeśli użytkownik ma rolę owner lub both
+     *
+     * @example
+     * if ($user->isOwner()) {
+     *     // Pokaż funkcje dla właścicieli
+     * }
+     */
     public function isOwner(): bool
     {
-        return $this->profile?->role === 'owner';
+        return in_array($this->profile?->role, ['owner', 'both']);
     }
 
+    /**
+     * Sprawdza czy użytkownik jest opiekunem zwierząt.
+     *
+     * @return bool True jeśli użytkownik ma rolę sitter lub both
+     *
+     * @example
+     * if ($user->isSitter()) {
+     *     // Pokaż funkcje dla opiekunów
+     * }
+     */
     public function isSitter(): bool
     {
-        return $this->profile?->role === 'sitter';
+        return in_array($this->profile?->role, ['sitter', 'both']);
     }
 
     public function isAdmin(): bool
@@ -124,6 +209,21 @@ class User extends Authenticatable
         return $this->hasMany(Advertisement::class);
     }
 
+    public function events(): HasMany
+    {
+        return $this->hasMany(Event::class);
+    }
+
+    public function photos(): HasMany
+    {
+        return $this->hasMany(Photo::class);
+    }
+
+    public function professionalServices(): HasMany
+    {
+        return $this->hasMany(ProfessionalService::class);
+    }
+
     public function getUnreadMessagesCount(): int
     {
         return Message::whereHas('conversation', function($query) {
@@ -155,5 +255,25 @@ class User extends Authenticatable
         }
 
         return $this->advertisements()->count() < $subscription->subscriptionPlan->max_listings;
+    }
+
+    /**
+     * Sprawdza czy użytkownik ma aktywny status premium.
+     *
+     * @return bool True jeśli użytkownik ma aktywny premium
+     *
+     * @example
+     * if ($user->isPremium()) {
+     *     // Pokaż funkcje premium
+     * }
+     */
+    public function isPremium(): bool
+    {
+        return $this->premium_until && $this->premium_until->isFuture();
+    }
+
+    public function getMaxAvailabilitySlots(): int
+    {
+        return $this->isPremium() ? 6 : 3;
     }
 }

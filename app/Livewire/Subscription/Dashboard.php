@@ -30,7 +30,7 @@ class Dashboard extends Component
             'userInfo' => $userInfo,
             'recentPayments' => $recentPayments,
             'availablePlans' => $availablePlans,
-        ])->layout('layouts.app');
+        ])->layout('components.dashboard-layout');
     }
 
     public function cancelSubscription()

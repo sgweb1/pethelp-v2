@@ -15,6 +15,10 @@ $variants = [
     'info' => 'bg-blue-100 text-blue-800',
     'light' => 'bg-gray-50 text-gray-600',
     'dark' => 'bg-gray-800 text-white',
+    'notification' => 'bg-red-500 border-2 border-white dark:border-gray-800',
+    'notification-red' => 'bg-red-500 text-white',
+    'notification-green' => 'bg-green-500 text-white',
+    'purple' => 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
 ];
 
 $sizes = [
@@ -22,11 +26,13 @@ $sizes = [
     'sm' => 'px-2.5 py-0.5 text-xs',
     'md' => 'px-3 py-1 text-sm',
     'lg' => 'px-4 py-1.5 text-base',
+    'dot' => 'h-3 w-3',
+    'icon' => 'h-5 w-5 text-xs flex items-center justify-center',
 ];
 
 $classes = collect([
     'inline-flex items-center font-medium',
-    $pill ? 'rounded-full' : 'rounded',
+    ($pill || in_array($size, ['dot', 'icon'])) ? 'rounded-full' : 'rounded',
     $variants[$variant] ?? $variants['primary'],
     $sizes[$size] ?? $sizes['md'],
 ])->filter()->implode(' ');

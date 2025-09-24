@@ -1,28 +1,36 @@
-@extends('layouts.app')
+<x-dashboard-layout>
+    @section('title', 'Kalendarz dostępności - PetHelp')
 
-@section('content')
-<div class="py-8">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Page Header -->
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900">Zarządzaj swoją dostępnością</h1>
-            <p class="text-gray-600 mt-2">Ustaw godziny, w których jesteś dostępny dla swoich klientów</p>
+    @section('header-title')
+        <div class="flex items-center">
+            <h1 class="text-lg font-semibold text-gray-900 dark:text-white">Kalendarz dostępności</h1>
+            <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">
+                Zarządzaj swoją dostępnością
+            </span>
+        </div>
+    @endsection
+
+    <div class="space-y-6">
+        <!-- Info Box -->
+        <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+            <div class="flex items-start space-x-3">
+                <div class="flex-shrink-0">
+                    <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-sm font-medium text-blue-900 dark:text-blue-100">Jak korzystać z kalendarza</h3>
+                    <ul class="mt-2 text-sm text-blue-800 dark:text-blue-200 space-y-1">
+                        <li>• Kliknij na dzień, aby dodać lub edytować dostępność</li>
+                        <li>• Ustaw godziny pracy i dni cykliczne</li>
+                        <li>• Dodaj notatki dla klientów</li>
+                    </ul>
+                </div>
+            </div>
         </div>
 
         <!-- Calendar Component -->
         <livewire:availability-calendar />
-
-        <!-- Tips Section -->
-        <div class="mt-8 bg-blue-50 rounded-lg p-6">
-            <h3 class="text-lg font-semibold text-blue-900 mb-3">💡 Wskazówki</h3>
-            <ul class="text-blue-800 space-y-2 text-sm">
-                <li>• <strong>Regularna dostępność:</strong> Ustaw cykliczne dni tygodnia, aby automatycznie dodać dostępność na kilka tygodni w przód</li>
-                <li>• <strong>Dni niedostępne:</strong> Odznacz checkbox "Jestem dostępny", aby oznaczyć dzień jako niedostępny</li>
-                <li>• <strong>Szybkie akcje:</strong> Użyj przycisków poniżej kalendarza, aby szybko ustawić dostępność na dzisiaj lub jutro</li>
-                <li>• <strong>Edycja:</strong> Kliknij na dowolny dzień w kalendarzu, aby edytować lub dodać dostępność</li>
-                <li>• <strong>Notatki:</strong> Dodaj dodatkowe informacje, które mogą być przydatne dla klientów</li>
-            </ul>
-        </div>
     </div>
-</div>
-@endsection
+</x-dashboard-layout>

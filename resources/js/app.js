@@ -2,7 +2,7 @@ import './bootstrap';
 import './alpine-components';
 import './error-logger';
 import { createMapComponent } from './map-component';
-import './map-performance';
+// import './map-performance'; // Disabled - conflicts with OpenLayers implementation
 import './mobile-touch';
 import './dark-mode';
 import './accessibility';

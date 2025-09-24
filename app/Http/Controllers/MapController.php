@@ -20,6 +20,11 @@ class MapController extends Controller
             'bounds.3' => 'numeric|between:-180,180', // east longitude
             'content_types' => 'array',
             'content_types.*' => Rule::in(['event', 'adoption', 'sale', 'lost_pet', 'found_pet', 'supplies', 'service']),
+            'content_type' => 'string',
+            'service_type' => 'string',
+            'location' => 'string|max:255',
+            'city' => 'string|max:255',
+            'voivodeship' => 'string|max:255',
             'zoom_level' => 'integer|between:1,20',
             'featured_only' => 'boolean',
             'urgent_only' => 'boolean',
@@ -71,6 +76,49 @@ class MapController extends Controller
         // Text search
         if (isset($validated['search'])) {
             $query->search($validated['search']);
+        }
+
+        // Content type filtering (single value)
+        if (isset($validated['content_type'])) {
+            $query->byContentType($validated['content_type']);
+        }
+
+        // Service type mapping (for backward compatibility)
+        if (isset($validated['service_type'])) {
+            $contentType = $this->mapServiceTypeToContentType($validated['service_type']);
+            if ($contentType) {
+                $query->byContentType($contentType);
+            }
+        }
+
+        // Location filtering (city-based search)
+        if (isset($validated['location'])) {
+            $location = $validated['location'];
+            // Clean location string - remove common words that interfere with search
+            $cleanedLocation = str_replace(['województwo ', ', województwo'], '', $location);
+
+            $query->where(function ($q) use ($location, $cleanedLocation) {
+                $q->where('city', 'like', "%{$location}%")
+                    ->orWhere('full_address', 'like', "%{$location}%")
+                    ->orWhere('voivodeship', 'like', "%{$location}%");
+
+                // If location was cleaned, also search with cleaned version
+                if ($cleanedLocation !== $location) {
+                    $q->orWhere('city', 'like', "%{$cleanedLocation}%")
+                        ->orWhere('full_address', 'like', "%{$cleanedLocation}%")
+                        ->orWhere('voivodeship', 'like', "%{$cleanedLocation}%");
+                }
+            });
+        }
+
+        // City filtering
+        if (isset($validated['city'])) {
+            $query->where('city', 'like', "%{$validated['city']}%");
+        }
+
+        // Voivodeship filtering
+        if (isset($validated['voivodeship'])) {
+            $query->where('voivodeship', 'like', "%{$validated['voivodeship']}%");
         }
 
         // Apply limit and get results
@@ -171,5 +219,17 @@ class MapController extends Controller
                 })
                 ->toArray();
         });
+    }
+
+    private function mapServiceTypeToContentType(string $serviceType): ?string
+    {
+        return match ($serviceType) {
+            'pet_sitter' => 'pet_sitter', // 🔧 FIX: Don't map pet_sitter to service!
+            'vet' => 'service',
+            'supplies' => 'supplies',
+            'event' => 'event',
+            'adoption' => 'adoption',
+            default => null,
+        };
     }
 }

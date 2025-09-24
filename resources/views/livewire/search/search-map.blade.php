@@ -3,7 +3,7 @@
     {{-- Map Container - Always Visible, Full Height --}}
     <div class="flex-1 relative min-h-0 h-full">
         {{-- Map will be rendered here by JavaScript --}}
-        <div id="search-map"
+        <div id="search-map-{{ $this->getId() }}"
              wire:ignore
              class="w-full h-full"
              data-latitude="{{ $latitude ?? 52.2297 }}"
@@ -79,10 +79,23 @@ if (!document.querySelector('link[href*="leaflet"]')) {
     document.head.appendChild(leafletCSS);
 }
 
-if (!window.L) {
-    const leafletJS = document.createElement('script');
-    leafletJS.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-    document.head.appendChild(leafletJS);
+// Load Leaflet library with proper waiting
+async function loadLeafletLibrary() {
+    return new Promise((resolve) => {
+        if (window.L) {
+            resolve();
+            return;
+        }
+
+        const leafletJS = document.createElement('script');
+        leafletJS.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+        leafletJS.onload = () => resolve();
+        leafletJS.onerror = () => {
+            console.error('Failed to load Leaflet library');
+            resolve(); // Resolve anyway to prevent hanging
+        };
+        document.head.appendChild(leafletJS);
+    });
 }
 
 // Include MarkerCluster plugin
@@ -98,40 +111,62 @@ if (!document.querySelector('link[href*="MarkerCluster"]')) {
     document.head.appendChild(clusterDefaultCSS);
 }
 
-if (!window.L || !window.L.markerClusterGroup) {
-    const clusterJS = document.createElement('script');
-    clusterJS.src = 'https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js';
-    document.head.appendChild(clusterJS);
+// Load MarkerCluster plugin with proper waiting
+async function loadMarkerClusterPlugin() {
+    return new Promise((resolve) => {
+        if (window.L && window.L.markerClusterGroup) {
+            resolve();
+            return;
+        }
+
+        const clusterJS = document.createElement('script');
+        clusterJS.src = 'https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js';
+        clusterJS.onload = () => resolve();
+        document.head.appendChild(clusterJS);
+    });
 }
 
 document.addEventListener('livewire:init', () => {
+    const mapId = 'search-map-{{ $this->getId() }}';
     let map;
     let markers = [];
     let markerClusterGroup;
 
-    function initializeMap() {
-        if (typeof L === 'undefined') {
-            console.error('Leaflet library not loaded');
-            return;
-        }
+    async function initializeMap() {
+        try {
+            // Load Leaflet library first
+            await loadLeafletLibrary();
 
-        const mapElement = document.getElementById('search-map');
+            if (typeof L === 'undefined') {
+                console.error('Leaflet library failed to load');
+                return;
+            }
+
+            // Wait for MarkerCluster plugin
+            await loadMarkerClusterPlugin();
+
+            if (!L.markerClusterGroup) {
+                console.error('MarkerCluster plugin failed to load');
+                return;
+            }
+
+        const mapElement = document.getElementById(mapId);
         if (!mapElement || map) return;
 
         // Get coordinates from URL parameters or dataset
         const urlParams = new URLSearchParams(window.location.search);
-        const lat = parseFloat(urlParams.get('lat')) || parseFloat(mapElement.dataset.latitude) || 52.2297;
-        const lng = parseFloat(urlParams.get('lng')) || parseFloat(mapElement.dataset.longitude) || 21.0122;
-        const zoom = parseInt(urlParams.get('zoom')) || parseInt(mapElement.dataset.zoom) || 13;
+        const lat = parseFloat(urlParams.get('lat')) || parseFloat(mapElement.dataset?.latitude) || 52.2297;
+        const lng = parseFloat(urlParams.get('lng')) || parseFloat(mapElement.dataset?.longitude) || 21.0122;
+        const zoom = parseInt(urlParams.get('zoom')) || parseInt(mapElement.dataset?.zoom) || 13;
 
-        map = L.map('search-map').setView([lat, lng], zoom);
+        map = L.map(mapId).setView([lat, lng], zoom);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
         // Add user location marker
-        if (mapElement.dataset.latitude && mapElement.dataset.longitude) {
+        if (mapElement.dataset?.latitude && mapElement.dataset?.longitude) {
             const userIcon = L.divIcon({
                 className: 'user-location-icon',
                 html: '<div class="w-4 h-4 bg-blue-600 rounded-full border-2 border-white shadow-lg"></div>',
@@ -145,7 +180,7 @@ document.addEventListener('livewire:init', () => {
                 .openPopup();
 
             // Add radius circle if radius is set
-            const radius = parseFloat(mapElement.dataset.radius) || 10;
+            const radius = parseFloat(mapElement.dataset?.radius) || 10;
             L.circle([lat, lng], {
                 radius: radius * 1000, // Convert km to meters
                 fillColor: '#3b82f6',
@@ -158,32 +193,40 @@ document.addEventListener('livewire:init', () => {
 
         loadMapItems();
 
-        // Listen for map events
+        // Listen for map events with debouncing
+        let boundsUpdateTimeout;
         map.on('moveend zoomend', function() {
             const bounds = map.getBounds();
             const zoom = map.getZoom();
             const center = map.getCenter();
 
-            // Update bounds for area-based search
-            @this.call('updateMapBounds', [
-                bounds.getSouth(),
-                bounds.getWest(),
-                bounds.getNorth(),
-                bounds.getEast()
-            ]);
+            // Debounce bounds updates to avoid too many API calls
+            clearTimeout(boundsUpdateTimeout);
+            boundsUpdateTimeout = setTimeout(() => {
+                // Check if Livewire component is available
+                if (typeof @this === 'undefined') {
+                    console.warn('Livewire component not available yet');
+                    return;
+                }
 
-            // Update zoom level
-            @this.call('updateZoomLevel', zoom);
+                // Update bounds for area-based search
+                @this.call('updateMapBounds', [
+                    bounds.getSouth(),
+                    bounds.getWest(),
+                    bounds.getNorth(),
+                    bounds.getEast()
+                ]);
 
-            // Update center coordinates
-            @this.call('updateMapCenter', center.lat, center.lng);
+                // Update zoom level
+                @this.call('updateZoomLevel', zoom);
+
+                // Update center coordinates
+                @this.call('updateMapCenter', center.lat, center.lng);
+            }, 500); // Wait 500ms after user stops moving/zooming
         });
-
-        // Listen for dragend to update center position
-        map.on('dragend', function() {
-            const center = map.getCenter();
-            @this.call('updateMapCenter', center.lat, center.lng);
-        });
+        } catch (error) {
+            console.error('Error initializing map:', error);
+        }
     }
 
     function loadMapItems() {
@@ -199,7 +242,7 @@ document.addEventListener('livewire:init', () => {
         markers = [];
 
         // Create cluster group if clustering is enabled
-        const clusterMode = document.getElementById('search-map').dataset.clusterMode === 'true';
+        const clusterMode = document.getElementById(mapId)?.dataset?.clusterMode === 'true';
         if (clusterMode && window.L && window.L.markerClusterGroup) {
             markerClusterGroup = L.markerClusterGroup({
                 chunkedLoading: true,
@@ -318,7 +361,9 @@ document.addEventListener('livewire:init', () => {
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
 
-                    @this.call('setLocation', lat, lng, 'Lokalizacja wykryta automatycznie');
+                    if (typeof @this !== 'undefined') {
+                        @this.call('setLocation', lat, lng, 'Lokalizacja wykryta automatycznie');
+                    }
 
                     if (map) {
                         map.setView([lat, lng], 13);
@@ -336,8 +381,17 @@ document.addEventListener('livewire:init', () => {
 
     // Listen for map center updates
     Livewire.on('map-center-updated', (data) => {
+        console.log('🗺️ Map center update received:', data);
         if (map) {
-            map.setView([data.latitude, data.longitude], 13);
+            console.log('🎯 Animating map to:', data.latitude, data.longitude);
+            // Animate transition to new location
+            map.setView([data.latitude, data.longitude], 13, {
+                animate: true,
+                duration: 1.2, // 1.2 seconds animation
+                easeLinearity: 0.25 // Smooth easing
+            });
+        } else {
+            console.warn('⚠️ Map not initialized yet, cannot center');
         }
     });
 
@@ -398,7 +452,10 @@ document.addEventListener('livewire:init', () => {
         const targetMarker = markers.find(marker => marker.itemId === markerId);
         if (targetMarker && map) {
             const latlng = targetMarker.getLatLng();
-            map.setView(latlng, Math.max(14, map.getZoom()));
+            map.setView(latlng, Math.max(14, map.getZoom()), {
+                animate: true,
+                duration: 0.8
+            });
 
             // Open popup
             setTimeout(() => {
@@ -423,7 +480,9 @@ document.addEventListener('livewire:init', () => {
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
 
-                    @this.call('setLocation', lat, lng, 'Lokalizacja wykryta automatycznie');
+                    if (typeof @this !== 'undefined') {
+                        @this.call('setLocation', lat, lng, 'Lokalizacja wykryta automatycznie');
+                    }
 
                     if (map) {
                         map.setView([lat, lng], 13);
@@ -440,12 +499,17 @@ document.addEventListener('livewire:init', () => {
     };
 
     window.centerOnLocation = function() {
-        const mapElement = document.getElementById('search-map');
-        const lat = parseFloat(mapElement.dataset.latitude);
-        const lng = parseFloat(mapElement.dataset.longitude);
+        const mapElement = document.getElementById(mapId);
+        if (!mapElement || !mapElement.dataset) return;
+
+        const lat = parseFloat(mapElement.dataset?.latitude);
+        const lng = parseFloat(mapElement.dataset?.longitude);
 
         if (map && lat && lng) {
-            map.setView([lat, lng], 14);
+            map.setView([lat, lng], 14, {
+                animate: true,
+                duration: 1.0
+            });
         }
     };
 

@@ -114,6 +114,10 @@
 
         <!-- Alpine.js Store for Mobile Menu is defined in alpine-components.js -->
 
+        <!-- Global notification components -->
+        <livewire:notification-toast />
+        <livewire:confirmation-modal />
+
         @livewireScripts
         @stack('scripts')
     </body>

@@ -1,8 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(del \"C:\\laragon\\www\\pethelp\\database\\migrations\\2025_09_21_083051_create_care_types_table.php\")",
-      "Bash(/c/laragon/bin/mysql/mysql-8.4.3-winx64/bin/mysql.exe -u root -e \"SELECT COUNT(*) as total_items FROM pethelp.map_items WHERE status = ''published'';\")"
+      "Bash(/c/laragon/bin/mysql/mysql-8.4.3-winx64/bin/mysql.exe -u root -D pethelp -e \"DESCRIBE bookings;\")",
+      "Bash(/c/laragon/bin/mysql/mysql-8.4.3-winx64/bin/mysql.exe -u root -D pethelp -e \"\nSELECT \n  b.id,\n  b.status,\n  DATE_FORMAT(b.start_date, ''%d.%m.%Y %H:%i'') as data_od,\n  DATE_FORMAT(b.end_date, ''%d.%m.%Y %H:%i'') as data_do,\n  s.title as usluga,\n  u.name as opiekun,\n  p.name as zwierze,\n  b.total_price as cena,\n  b.special_instructions as uwagi\nFROM bookings b\nJOIN services s ON b.service_id = s.id  \nJOIN users u ON b.sitter_id = u.id\nJOIN pets p ON b.pet_id = p.id\nWHERE b.owner_id = 7\nORDER BY b.start_date DESC;\n\")",
+      "Bash(/c/laragon/bin/mysql/mysql-8.4.3-winx64/bin/mysql.exe -u root -D pethelp -e \"DESCRIBE conversations;\")",
+      "Bash(/c/laragon/bin/mysql/mysql-8.4.3-winx64/bin/mysql.exe -u root -D pethelp -e \"SELECT * FROM bookings WHERE id = 1;\")"
     ],
     "deny": [],
     "ask": []

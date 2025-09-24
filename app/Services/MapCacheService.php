@@ -9,8 +9,11 @@ use Illuminate\Support\Facades\Log;
 class MapCacheService
 {
     const CACHE_PREFIX = 'map_items';
+
     const DEFAULT_TTL = 300; // 5 minutes
+
     const CLUSTER_TTL = 600; // 10 minutes for cluster data
+
     const STATS_TTL = 120; // 2 minutes for statistics
 
     public function getCachedMapItems(array $filters, int $limit = 100): \Illuminate\Support\Collection
@@ -33,20 +36,20 @@ class MapCacheService
 
     public function getCachedStatistics(array $filters): array
     {
-        $cacheKey = self::CACHE_PREFIX . ':stats:' . md5(serialize($filters));
+        $cacheKey = self::CACHE_PREFIX.':stats:'.md5(serialize($filters));
 
         return Cache::remember($cacheKey, self::STATS_TTL, function () use ($filters) {
             return $this->calculateStatistics($filters);
         });
     }
 
-    public function invalidateMapCache(string $pattern = null): void
+    public function invalidateMapCache(?string $pattern = null): void
     {
         if ($pattern) {
             $this->invalidateCachePattern($pattern);
         } else {
             // Clear all map-related cache
-            $this->invalidateCachePattern(self::CACHE_PREFIX . ':*');
+            $this->invalidateCachePattern(self::CACHE_PREFIX.':*');
         }
     }
 
@@ -57,7 +60,9 @@ class MapCacheService
                 'id', 'latitude', 'longitude', 'title', 'description_short',
                 'primary_image_url', 'content_type', 'category_name', 'category_icon',
                 'category_color', 'price_from', 'currency', 'is_featured',
-                'is_urgent', 'rating_avg', 'rating_count', 'view_count'
+                'is_urgent', 'rating_avg', 'rating_count', 'view_count',
+                // ✅ FIX: Add location columns needed for filtering
+                'city', 'voivodeship', 'full_address',
             ])
             ->active();
 
@@ -66,9 +71,9 @@ class MapCacheService
 
         // Optimize ordering for performance
         $query->orderBy('is_featured', 'desc')
-              ->orderBy('is_urgent', 'desc')
-              ->orderByRaw('CASE WHEN rating_avg > 0 THEN rating_avg ELSE 0 END DESC')
-              ->orderBy('view_count', 'desc');
+            ->orderBy('is_urgent', 'desc')
+            ->orderByRaw('CASE WHEN rating_avg > 0 THEN rating_avg ELSE 0 END DESC')
+            ->orderBy('view_count', 'desc');
 
         return $query->limit($limit)->get();
     }
@@ -92,7 +97,7 @@ class MapCacheService
 
             return [
                 'clusters' => [],
-                'markers' => $markers->toArray()
+                'markers' => $markers->toArray(),
             ];
         }
 
@@ -102,7 +107,7 @@ class MapCacheService
 
         return [
             'clusters' => $clusters,
-            'markers' => []
+            'markers' => [],
         ];
     }
 
@@ -119,7 +124,7 @@ class MapCacheService
                     $lat,
                     $lng,
                     $lat + $latStep,
-                    $lng + $lngStep
+                    $lng + $lngStep,
                 ];
 
                 $itemsInCluster = MapItem::query()
@@ -135,7 +140,7 @@ class MapCacheService
                         'count' => $itemsInCluster->count(),
                         'featured_count' => $itemsInCluster->where('is_featured', true)->count(),
                         'urgent_count' => $itemsInCluster->where('is_urgent', true)->count(),
-                        'content_types' => $itemsInCluster->pluck('content_type')->unique()->values()
+                        'content_types' => $itemsInCluster->pluck('content_type')->unique()->values(),
                     ];
                 }
             }
@@ -167,45 +172,69 @@ class MapCacheService
             'featured_count' => $baseStats->featured_count ?? 0,
             'urgent_count' => $baseStats->urgent_count ?? 0,
             'avg_rating' => round($baseStats->avg_rating ?? 0, 2),
-            'by_content_type' => $contentTypeStats
+            'by_content_type' => $contentTypeStats,
         ];
     }
 
     private function applyFilters($query, array $filters): void
     {
+        Log::info('🗺️ MapCacheService applyFilters called', [
+            'filters' => $filters,
+            'has_location' => ! empty($filters['location']),
+            'location_value' => $filters['location'] ?? 'EMPTY',
+        ]);
+
         // Content type filter
-        if (!empty($filters['content_types'])) {
+        if (! empty($filters['content_types'])) {
             $query->whereIn('content_type', $filters['content_types']);
         }
 
         // Geographic bounds filter (most important for performance)
-        if (!empty($filters['bounds']) && count($filters['bounds']) === 4) {
+        if (! empty($filters['bounds']) && count($filters['bounds']) === 4) {
             $query->inBounds(...$filters['bounds']);
-        } elseif (!empty($filters['latitude']) && !empty($filters['longitude'])) {
+        } elseif (! empty($filters['latitude']) && ! empty($filters['longitude'])) {
             $radius = $filters['radius'] ?? 10;
             $query->nearLocation($filters['latitude'], $filters['longitude'], $radius);
         }
 
         // Zoom level visibility
-        if (!empty($filters['zoom_level'])) {
+        if (! empty($filters['zoom_level'])) {
             $query->visibleAtZoom($filters['zoom_level']);
         }
 
         // Text search
-        if (!empty($filters['search_term'])) {
+        if (! empty($filters['search_term'])) {
             $query->search($filters['search_term']);
         }
 
         // Price filters
-        if (!empty($filters['price_min'])) {
+        if (! empty($filters['price_min'])) {
             $query->where('price_from', '>=', $filters['price_min']);
         }
-        if (!empty($filters['price_max'])) {
+        if (! empty($filters['price_max'])) {
             $query->where('price_from', '<=', $filters['price_max']);
         }
 
-        // City filter
-        if (!empty($filters['city'])) {
+        // Location filter (general location search - cities, voivodeships, addresses)
+        if (! empty($filters['location'])) {
+            $location = $filters['location'];
+            $cleanedLocation = str_replace(['województwo ', ', województwo'], '', $location);
+
+            $query->where(function ($q) use ($location, $cleanedLocation) {
+                $q->where('city', 'like', "%{$location}%")
+                    ->orWhere('full_address', 'like', "%{$location}%")
+                    ->orWhere('voivodeship', 'like', "%{$location}%");
+
+                if ($cleanedLocation !== $location) {
+                    $q->orWhere('city', 'like', "%{$cleanedLocation}%")
+                        ->orWhere('full_address', 'like', "%{$cleanedLocation}%")
+                        ->orWhere('voivodeship', 'like', "%{$cleanedLocation}%");
+                }
+            });
+        }
+
+        // City filter (specific city filter)
+        if (! empty($filters['city'])) {
             $query->where('city', 'like', "%{$filters['city']}%");
         }
     }
@@ -215,10 +244,10 @@ class MapCacheService
         $keyData = [
             'filters' => $filters,
             'limit' => $limit,
-            'version' => 'v2' // Increment when cache structure changes
+            'version' => 'v2', // Increment when cache structure changes
         ];
 
-        return self::CACHE_PREFIX . ':items:' . md5(serialize($keyData));
+        return self::CACHE_PREFIX.':items:'.md5(serialize($keyData));
     }
 
     private function generateClusterCacheKey(array $bounds, int $zoomLevel): string
@@ -226,15 +255,15 @@ class MapCacheService
         $keyData = [
             'bounds' => $bounds,
             'zoom' => $zoomLevel,
-            'version' => 'v2'
+            'version' => 'v2',
         ];
 
-        return self::CACHE_PREFIX . ':clusters:' . md5(serialize($keyData));
+        return self::CACHE_PREFIX.':clusters:'.md5(serialize($keyData));
     }
 
     private function getGridSize(int $zoomLevel): float
     {
-        return match(true) {
+        return match (true) {
             $zoomLevel <= 6 => 4,   // Very coarse clustering
             $zoomLevel <= 8 => 8,   // Coarse clustering
             $zoomLevel <= 10 => 16, // Medium clustering
@@ -246,7 +275,7 @@ class MapCacheService
     {
         try {
             // This is a simple implementation - in production you might want to use Redis SCAN
-            $keys = Cache::getStore()->getPrefix() . $pattern;
+            $keys = Cache::getStore()->getPrefix().$pattern;
 
             // For array/file cache, we need a different approach
             if (method_exists(Cache::getStore(), 'flush')) {
@@ -254,7 +283,7 @@ class MapCacheService
                 Cache::flush();
             }
         } catch (\Exception $e) {
-            Log::error("Failed to invalidate cache pattern {$pattern}: " . $e->getMessage());
+            Log::error("Failed to invalidate cache pattern {$pattern}: ".$e->getMessage());
         }
     }
 }

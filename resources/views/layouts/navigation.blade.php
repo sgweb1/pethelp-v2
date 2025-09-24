@@ -12,37 +12,47 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <!-- Menu dla wszystkich -->
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('ui.dashboard') }}
+                        Dashboard
                     </x-nav-link>
-                    <x-nav-link :href="route('search')" :active="request()->routeIs('search')">
-                        {{ __('ui.search') }}
+                    <x-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile*')">
+                        Profil
                     </x-nav-link>
-                    <x-nav-link :href="route('bookings')" :active="request()->routeIs('bookings*')">
-                        {{ __('ui.bookings') }}
+                    <x-nav-link :href="route('search')" :active="request()->routeIs('search*')">
+                        Usługi specjalistyczne
                     </x-nav-link>
-                    <x-nav-link :href="route('notifications')" :active="request()->routeIs('notifications*')" class="relative">
-                        {{ __('ui.notifications') }}
-                        @if(Auth::check() && Auth::user()->notifications()->unread()->count() > 0)
-                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                                {{ Auth::user()->notifications()->unread()->count() }}
-                            </span>
-                        @endif
+                    <x-nav-link :href="route('events.index')" :active="request()->routeIs('events*')">
+                        Wydarzenia
+                    </x-nav-link>
+                    <x-nav-link :href="route('advertisements.index')" :active="request()->routeIs('advertisements*')">
+                        Ogłoszenia
                     </x-nav-link>
                     <x-nav-link :href="route('reviews')" :active="request()->routeIs('reviews*')">
-                        {{ __('ui.reviews') }}
+                        Opinie
                     </x-nav-link>
-                    <x-nav-link :href="route('chat')" :active="request()->routeIs('chat*')" class="relative">
-                        {{ __('ui.chat') }}
-                        @if(Auth::check() && Auth::user()->getUnreadMessagesCount() > 0)
-                            <span class="absolute -top-1 -right-1 bg-green-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                                {{ Auth::user()->getUnreadMessagesCount() }}
-                            </span>
-                        @endif
-                    </x-nav-link>
+
+                    <!-- Separator -->
                     @if(Auth::check() && Auth::user()->isSitter())
+                        <div class="border-l border-gray-300 mx-4 h-6 self-center"></div>
+
+                        <!-- Menu tylko dla pet sitterów -->
+                        <x-nav-link :href="route('sitter-services.index')" :active="request()->routeIs('sitter-services*')">
+                            Oferta
+                        </x-nav-link>
+                        <x-nav-link :href="route('bookings')" :active="request()->routeIs('bookings*')" class="relative">
+                            Zlecenia
+                            @php
+                                $newBookingsCount = Auth::user()->newBookingsCount ?? 0;
+                            @endphp
+                            @if($newBookingsCount > 0)
+                                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                    {{ $newBookingsCount }}
+                                </span>
+                            @endif
+                        </x-nav-link>
                         <x-nav-link :href="route('availability.calendar')" :active="request()->routeIs('availability*')">
-                            {{ __('ui.calendar') }}
+                            Kalendarz
                         </x-nav-link>
                     @endif
                 </div>
@@ -50,6 +60,30 @@
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
+                <!-- Notifications Icon -->
+                <a href="{{ route('notifications') }}" class="relative p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:text-gray-500 transition duration-150 ease-in-out mr-3">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                    @if(Auth::check() && Auth::user()->notifications()->unread()->count() > 0)
+                        <x-ui.badge variant="notification-red" size="icon" class="absolute top-0 right-0 transform translate-x-1 -translate-y-1">
+                            {{ Auth::user()->notifications()->unread()->count() }}
+                        </x-ui.badge>
+                    @endif
+                </a>
+
+                <!-- Messages Icon -->
+                <a href="{{ route('chat') }}" class="relative p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:text-gray-500 transition duration-150 ease-in-out mr-3">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    @if(Auth::check() && Auth::user()->getUnreadMessagesCount() > 0)
+                        <x-ui.badge variant="notification-green" size="icon" class="absolute top-0 right-0 transform translate-x-1 -translate-y-1">
+                            {{ Auth::user()->getUnreadMessagesCount() }}
+                        </x-ui.badge>
+                    @endif
+                </a>
+
                 <!-- Language Switcher -->
                 <livewire:language-switcher />
 
@@ -100,37 +134,47 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
+            <!-- Menu dla wszystkich -->
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('ui.dashboard') }}
+                Dashboard
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('search')" :active="request()->routeIs('search')">
-                {{ __('ui.search') }}
+            <x-responsive-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile*')">
+                Profil
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('bookings')" :active="request()->routeIs('bookings*')">
-                {{ __('ui.bookings') }}
+            <x-responsive-nav-link :href="route('search')" :active="request()->routeIs('search*')">
+                Usługi specjalistyczne
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('notifications')" :active="request()->routeIs('notifications*')" class="relative">
-                {{ __('ui.notifications') }}
-                @if(Auth::check() && Auth::user()->notifications()->unread()->count() > 0)
-                    <span class="ml-2 bg-red-500 text-white text-xs rounded-full px-2 py-1">
-                        {{ Auth::user()->notifications()->unread()->count() }}
-                    </span>
-                @endif
+            <x-responsive-nav-link :href="route('events.index')" :active="request()->routeIs('events*')">
+                Wydarzenia
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('advertisements.index')" :active="request()->routeIs('advertisements*')">
+                Ogłoszenia
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('reviews')" :active="request()->routeIs('reviews*')">
-                {{ __('ui.reviews') }}
+                Opinie
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('chat')" :active="request()->routeIs('chat*')" class="relative">
-                {{ __('ui.chat') }}
-                @if(Auth::check() && Auth::user()->getUnreadMessagesCount() > 0)
-                    <span class="ml-2 bg-green-500 text-white text-xs rounded-full px-2 py-1">
-                        {{ Auth::user()->getUnreadMessagesCount() }}
-                    </span>
-                @endif
-            </x-responsive-nav-link>
+
+            <!-- Separator dla pet sitterów -->
             @if(Auth::check() && Auth::user()->isSitter())
+                <div class="border-t border-gray-200 my-2"></div>
+
+                <!-- Menu tylko dla pet sitterów -->
+                <x-responsive-nav-link :href="route('sitter-services.index')" :active="request()->routeIs('sitter-services*')">
+                    Oferta
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('bookings')" :active="request()->routeIs('bookings*')" class="relative">
+                    Zlecenia
+                    @php
+                        $newBookingsCount = Auth::user()->newBookingsCount ?? 0;
+                    @endphp
+                    @if($newBookingsCount > 0)
+                        <span class="ml-2 bg-red-500 text-white text-xs rounded-full px-2 py-1">
+                            {{ $newBookingsCount }}
+                        </span>
+                    @endif
+                </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('availability.calendar')" :active="request()->routeIs('availability*')">
-                    {{ __('ui.calendar') }}
+                    Kalendarz
                 </x-responsive-nav-link>
             @endif
         </div>

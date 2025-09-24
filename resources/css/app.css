@@ -7,6 +7,52 @@
 /* Import accessibility improvements */
 @import './accessibility.css';
 
+/* Import dashboard-specific styles */
+@import './dashboard.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Globalne ustawienia czcionek - delikatnie mniejsze rozmiary */
+@layer base {
+  html {
+    font-size: 15px; /* Domyślnie 16px, zmieniono na 15px */
+  }
+
+  body {
+    @apply text-sm; /* Domyślnie text-base, zmieniono na text-sm */
+  }
+
+  /* Dostosowanie nagłówków */
+  h1 { @apply text-2xl; } /* Zamiast text-3xl */
+  h2 { @apply text-xl; }  /* Zamiast text-2xl */
+  h3 { @apply text-lg; }  /* Zamiast text-xl */
+  h4 { @apply text-base; } /* Zamiast text-lg */
+  h5 { @apply text-sm; }   /* Zamiast text-base */
+  h6 { @apply text-xs; }   /* Zamiast text-sm */
+}
+
+/* Dostosowania dla komponentów formularzy */
+@layer components {
+  .form-input,
+  .form-select,
+  .form-textarea {
+    @apply text-sm; /* Zamiast domyślnego text-base */
+  }
+
+  /* Przyciski */
+  .btn {
+    @apply text-sm; /* Zamiast text-base */
+  }
+
+  /* Etykiety formularzy */
+  .form-label {
+    @apply text-sm; /* Zamiast text-base */
+  }
+
+  /* Menu nawigacyjne */
+  .nav-link {
+    @apply text-sm; /* Zamiast text-base */
+  }
+}

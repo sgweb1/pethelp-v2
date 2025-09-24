@@ -3,7 +3,8 @@
 
 # Language Rules
 - Zawsze komunikuj się po polsku
-- Kod, komentarze i nazwy zmiennych piszemy po angielsku (zgodnie z konwencjami Laravel)
+- Kod i nazwy zmiennych piszemy po angielsku (zgodnie z konwencjami Laravel)
+- **Komentarze w kodzie piszemy po polsku** - dla lepszego zrozumienia przez zespół
 - Dokumentacja i komunikacja z użytkownikiem zawsze po polsku
 
 # Laravel Boost Guidelines
@@ -121,6 +122,8 @@ protected function isAccessible(User $user, ?string $path = null): bool
 
 ## Comments
 - Prefer PHPDoc blocks over comments. Never use comments within the code itself unless there is something _very_ complex going on.
+- **WAŻNE: Wszystkie komentarze w kodzie piszemy po polsku** - to ułatwia zrozumienie kodu przez cały zespół
+- Dotyczy to zarówno komentarzy inline jak i komentarzy blokowych
 
 ## PHPDoc Blocks
 - Add useful array shape type definitions for arrays when appropriate.
@@ -606,3 +609,199 @@ Monitor `node log-monitor.cjs` został rozszerzony i pokazuje jednocześnie:
 - 🔵 Laravel logs
 - 🟣 JavaScript logs
 </laravel-boost-guidelines>
+
+## Standardy dokumentacji (Documentation Standards)
+
+### Obowiązki dokumentacyjne
+**ZASADA ZŁOTA**: Cokolwiek tworzymy lub modyfikujemy, ZAWSZE dokumentujemy!
+
+### PHP/Laravel - Standardy PHPDoc (PO POLSKU)
+- **Każda klasa** musi mieć dokumentację PHPDoc w języku polskim
+- **Każda metoda publiczna** musi mieć pełną dokumentację PHPDoc
+- **Każda właściwość klasy** musi być opisana
+
+```php
+/**
+ * Komponent Livewire zarządzający kalendarzem dostępności opiekunów.
+ *
+ * Umożliwia opiekunom tworzenie, edytowanie i usuwanie slotów czasowych
+ * dostępności dla różnych typów usług opieki nad zwierzętami.
+ *
+ * @package App\Livewire
+ * @author Claude AI Assistant
+ * @since 1.0.0
+ */
+class AvailabilityCalendar extends Component
+{
+    /**
+     * Identyfikator aktualnie edytowanego slotu dostępności.
+     *
+     * @var int|null
+     */
+    public ?int $editingAvailability = null;
+
+    /**
+     * Tworzy nowy slot dostępności dla opiekuna.
+     *
+     * Waliduje dane wejściowe, sprawdza nakładanie się terminów
+     * i tworzy odpowiednie wpisy w bazie danych. Obsługuje również
+     * tworzenie powtarzających się slotów.
+     *
+     * @return void
+     * @throws ValidationException Gdy dane są niepoprawne
+     * @throws AuthorizationException Gdy użytkownik nie ma uprawnień
+     *
+     * @example
+     * // Tworzenie prostego slotu
+     * $this->date = '2025-09-25';
+     * $this->start_time = '09:00';
+     * $this->end_time = '17:00';
+     * $this->saveAvailability();
+     */
+    public function saveAvailability(): void
+    {
+        // implementacja...
+    }
+}
+```
+
+### JavaScript - Standardy JSDoc (PO POLSKU)
+- **Każda funkcja** musi mieć dokumentację JSDoc w języku polskim
+- **Każda klasa/komponent** musi być opisany
+
+```javascript
+/**
+ * Komponent mapy wyświetlający lokalizacje opiekunów zwierząt.
+ *
+ * Integruje się z API map Google i wyświetla dostępnych opiekunów
+ * w określonym obszarze geograficznym z możliwością filtrowania.
+ *
+ * @class MapComponent
+ * @version 1.2.0
+ */
+class MapComponent {
+    /**
+     * Ładuje i wyświetla dostępnych opiekunów na mapie.
+     *
+     * Pobiera dane z API, filtruje według kryteriów użytkownika
+     * i tworzy markery na mapie z popup-ami informacyjnymi.
+     *
+     * @param {Object} filters - Kryteria filtrowania opiekunów
+     * @param {string[]} filters.services - Typy usług do wyświetlenia
+     * @param {number} filters.radius - Promień wyszukiwania w km
+     * @param {string} filters.petType - Typ zwierzęcia
+     * @returns {Promise<void>} Promise rozwiązane po załadowaniu danych
+     *
+     * @example
+     * await mapComponent.loadSitters({
+     *   services: ['walking', 'overnight'],
+     *   radius: 10,
+     *   petType: 'dog'
+     * });
+     */
+    async loadSitters(filters) {
+        // implementacja...
+    }
+}
+```
+
+### Blade/Widoki - Standardy komentarzy (PO POLSKU)
+- **Każdy komponent** musi mieć komentarz opisujący jego przeznaczenie
+- **Złożone sekcje** muszą być opisane
+
+```blade
+{{--
+    Komponent alertu z opcjami dostosowywania
+
+    Wyświetla powiadomienia różnych typów (success, error, warning, info)
+    z opcjonalnym auto-znikaniem i możliwością dodania przycisków akcji.
+
+    @param string $type - Typ alertu (success|error|warning|info)
+    @param bool $dismissible - Czy alert można zamknąć
+    @param int|null $timeout - Czas auto-znikania w sekundach
+    @param mixed $actions - Slot na przyciski akcji
+--}}
+<div class="alert {{ $classes }}">
+    {{-- Ikona alertu --}}
+    @if($icon)
+        <div class="alert-icon">
+            <span>{{ $config['icon'] }}</span>
+        </div>
+    @endif
+
+    {{-- Treść alertu --}}
+    <div class="alert-content">
+        {{-- Tytuł alertu --}}
+        @if($title)
+            <h4 class="alert-title">{{ $title }}</h4>
+        @endif
+
+        {{-- Główna treść --}}
+        <div class="alert-body">{{ $slot }}</div>
+
+        {{-- Opcjonalne akcje --}}
+        @if($actions)
+            <div class="alert-actions">
+                {{ $actions }}
+            </div>
+        @endif
+    </div>
+</div>
+```
+
+### Livewire Components - Rozszerzona dokumentacja
+- **Properties** - opis każdej właściwości publicznej
+- **Events** - lista emitowanych i nasłuchiwanych eventów
+- **Methods** - szczegółowy opis metod publicznych
+- **Usage Examples** - przykłady użycia
+
+```php
+/**
+ * Komponent modalu potwierdzenia dla krytycznych akcji.
+ *
+ * Zapewnia spójny interfejs do potwierdzania akcji takich jak
+ * usuwanie rekordów, anulowanie rezerwacji itp.
+ *
+ * @package App\Livewire
+ *
+ * EVENTS EMITTED:
+ * - 'show-confirmation' - Wyświetla modal potwierdzenia
+ *
+ * EVENTS LISTENED:
+ * - 'show-confirmation' - Nasłuchuje żądań pokazania modalu
+ *
+ * USAGE EXAMPLE:
+ * <livewire:confirmation-modal />
+ *
+ * // Wywołanie z innego komponentu:
+ * $this->dispatch('show-confirmation',
+ *     'Usuń rezerwację',
+ *     'Czy na pewno chcesz usunąć tę rezerwację?',
+ *     'delete-booking-confirmed',
+ *     [$bookingId]
+ * );
+ */
+class ConfirmationModal extends Component
+{
+    /**
+     * Czy modal jest aktualnie widoczny.
+     *
+     * @var bool
+     */
+    public bool $show = false;
+
+    /**
+     * Tytuł modalu potwierdzenia.
+     *
+     * @var string
+     */
+    public string $title = '';
+}
+```
+
+### WAŻNE ZASADY:
+1. **Nigdy nie pomijamy dokumentacji** - każda nowa klasa/metoda/funkcja musi być udokumentowana
+2. **Używamy polskiego języka** w dokumentacji - dla lepszego zrozumienia przez zespół
+3. **Dołączamy przykłady** - rzeczywiste przypadki użycia
+4. **Opisujemy parametry i wartości zwracane** - kompletne informacje
+5. **Dokumentujemy wyjątki** - jakie błędy mogą wystąpić

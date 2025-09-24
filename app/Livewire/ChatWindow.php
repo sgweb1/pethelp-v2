@@ -49,13 +49,14 @@ class ChatWindow extends Component
         $booking = $bookingId ? Booking::find($bookingId) : null;
 
         if ($user && $user->id !== Auth::id()) {
-            // Only start if we don't already have this conversation
-            $existingConversation = $this->conversation;
-            $newConversation = Conversation::findOrCreateBetween(Auth::user(), $user, $booking);
+            // Find or create conversation
+            $conversation = Conversation::findOrCreateBetween(Auth::user(), $user, $booking);
 
-            if (!$existingConversation || $existingConversation->id !== $newConversation->id) {
-                $this->startConversationWith($user, $booking);
-            }
+            // Always load the conversation (even if it already existed)
+            $this->loadConversation($conversation->id);
+
+            // Notify ConversationList to update selection
+            $this->dispatch('conversationCreatedAndSelected', $conversation->id);
         }
     }
 

@@ -1,66 +1,71 @@
-<div class="max-w-7xl mx-auto p-6">
-    <!-- Header -->
-    <div class="bg-white/95 backdrop-blur-md rounded-xl shadow-lg p-6 mb-8">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-900">Zarządzanie rezerwacjami</h1>
-
-            <!-- View Toggle -->
-            <div class="flex bg-gray-100 rounded-lg p-1">
-                <button wire:click="changeView('owner')"
-                        class="px-4 py-2 rounded-md text-sm font-medium transition-colors {{ $view === 'owner' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-600 hover:text-gray-900' }}">
-                    Moje rezerwacje
-                </button>
-                <button wire:click="changeView('sitter')"
-                        class="px-4 py-2 rounded-md text-sm font-medium transition-colors {{ $view === 'sitter' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-600 hover:text-gray-900' }}">
-                    Jako opiekun
-                </button>
-            </div>
-        </div>
-
-        <!-- Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="bg-yellow-50 rounded-lg p-4">
-                <div class="text-2xl font-bold text-yellow-600">{{ $this->booking_stats['pending'] }}</div>
-                <div class="text-sm text-yellow-800">Oczekujące</div>
-            </div>
-            <div class="bg-blue-50 rounded-lg p-4">
-                <div class="text-2xl font-bold text-blue-600">{{ $this->booking_stats['confirmed'] }}</div>
-                <div class="text-sm text-blue-800">Potwierdzone</div>
-            </div>
-            <div class="bg-green-50 rounded-lg p-4">
-                <div class="text-2xl font-bold text-green-600">{{ $this->booking_stats['completed'] }}</div>
-                <div class="text-sm text-green-800">Zakończone</div>
-            </div>
-            <div class="bg-gray-50 rounded-lg p-4">
-                <div class="text-2xl font-bold text-gray-600">{{ $this->booking_stats['total'] }}</div>
-                <div class="text-sm text-gray-800">Wszystkie</div>
-            </div>
-        </div>
-    </div>
+<div>
 
     <!-- Filters -->
     <div class="bg-white/95 backdrop-blur-md rounded-xl shadow-lg p-6 mb-8">
-        <div class="flex flex-wrap gap-2">
-            <button wire:click="filterByStatus('')"
-                    class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {{ $statusFilter === '' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
-                Wszystkie
-            </button>
-            <button wire:click="filterByStatus('pending')"
-                    class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {{ $statusFilter === 'pending' ? 'bg-yellow-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
-                Oczekujące
-            </button>
-            <button wire:click="filterByStatus('confirmed')"
-                    class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {{ $statusFilter === 'confirmed' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
-                Potwierdzone
-            </button>
-            <button wire:click="filterByStatus('completed')"
-                    class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {{ $statusFilter === 'completed' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
-                Zakończone
-            </button>
-            <button wire:click="filterByStatus('cancelled')"
-                    class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {{ $statusFilter === 'cancelled' ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
-                Anulowane
-            </button>
+        <!-- Responsive layout: switch on top for mobile, inline for desktop -->
+        <div class="flex flex-col xl:flex-row xl:items-center xl:justify-center gap-4">
+            <!-- View Toggle - na górze w mobile -->
+            <div class="flex justify-center xl:hidden">
+                <div class="flex bg-gray-100 rounded-lg p-1">
+                    <button wire:click="changeView('owner')"
+                            class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors {{ $view === 'owner' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-600 hover:text-gray-900' }}">
+                        Moje rezerwacje
+                    </button>
+                    <button wire:click="changeView('sitter')"
+                            class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors {{ $view === 'sitter' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-600 hover:text-gray-900' }}">
+                        Jako opiekun
+                    </button>
+                </div>
+            </div>
+
+            <!-- Desktop: filtry z switch w środku -->
+            <div class="flex flex-wrap justify-center items-center gap-2">
+                <!-- Pierwsze filtry -->
+                <button wire:click="filterByStatus('')"
+                        class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 {{ $statusFilter === '' ? 'bg-indigo-600 text-white' : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100' }}">
+                    Wszystkie
+                    <span class="text-xs bg-white/20 px-1.5 py-0.5 rounded-full">{{ $this->booking_stats['total'] }}</span>
+                </button>
+                <button wire:click="filterByStatus('pending')"
+                        class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 {{ $statusFilter === 'pending' ? 'bg-yellow-600 text-white' : 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100' }}">
+                    Oczekujące
+                    <span class="text-xs bg-white/20 px-1.5 py-0.5 rounded-full">{{ $this->booking_stats['pending'] }}</span>
+                </button>
+                <button wire:click="filterByStatus('confirmed')"
+                        class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 {{ $statusFilter === 'confirmed' ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-700 hover:bg-blue-100' }}">
+                    Potwierdzone
+                    <span class="text-xs bg-white/20 px-1.5 py-0.5 rounded-full">{{ $this->booking_stats['confirmed'] }}</span>
+                </button>
+
+                <!-- View Toggle - w środku dla desktop -->
+                <div class="hidden xl:flex bg-gray-100 rounded-lg p-1 mx-2">
+                    <button wire:click="changeView('owner')"
+                            class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors {{ $view === 'owner' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-600 hover:text-gray-900' }}">
+                        Moje rezerwacje
+                    </button>
+                    <button wire:click="changeView('sitter')"
+                            class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors {{ $view === 'sitter' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-600 hover:text-gray-900' }}">
+                        Jako opiekun
+                    </button>
+                </div>
+
+                <!-- Pozostałe filtry -->
+                <button wire:click="filterByStatus('in_progress')"
+                        class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 {{ $statusFilter === 'in_progress' ? 'bg-purple-600 text-white' : 'bg-purple-50 text-purple-700 hover:bg-purple-100' }}">
+                    W trakcie
+                    <span class="text-xs bg-white/20 px-1.5 py-0.5 rounded-full">{{ $this->booking_stats['in_progress'] }}</span>
+                </button>
+                <button wire:click="filterByStatus('completed')"
+                        class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 {{ $statusFilter === 'completed' ? 'bg-green-600 text-white' : 'bg-green-50 text-green-700 hover:bg-green-100' }}">
+                    Zakończone
+                    <span class="text-xs bg-white/20 px-1.5 py-0.5 rounded-full">{{ $this->booking_stats['completed'] }}</span>
+                </button>
+                <button wire:click="filterByStatus('cancelled')"
+                        class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 {{ $statusFilter === 'cancelled' ? 'bg-red-600 text-white' : 'bg-red-50 text-red-700 hover:bg-red-100' }}">
+                    Anulowane
+                    <span class="text-xs bg-white/20 px-1.5 py-0.5 rounded-full">{{ $this->booking_stats['cancelled'] }}</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -68,6 +73,12 @@
     @if (session()->has('success'))
         <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
             {{ session('success') }}
+        </div>
+    @endif
+
+    @if (session()->has('error'))
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+            {{ session('error') }}
         </div>
     @endif
 
@@ -144,7 +155,7 @@
                     @endif
 
                     @if($booking->canBeCancelled())
-                        <button wire:click="cancelBooking({{ $booking->id }})"
+                        <button wire:click="openCancelModal({{ $booking->id }})"
                                 class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm">
                             Anuluj
                         </button>
@@ -158,10 +169,10 @@
                     @endif
 
                     @if($booking->canBeReviewedBy(Auth::user()))
-                        <a href="{{ route('review.create', $booking) }}"
-                           class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm">
+                        <button wire:click="openReviewModal({{ $booking->id }})"
+                                class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm">
                             Napisz recenzję
-                        </a>
+                        </button>
                     @endif
 
                     <!-- Chat Button -->
@@ -301,6 +312,25 @@
                                     <span>Cena całkowita:</span>
                                     <span>{{ number_format($selectedBooking->total_price, 2) }} zł</span>
                                 </div>
+
+                                @if($selectedBooking->status === 'cancelled')
+                                    <div class="border-t pt-2 mt-2">
+                                        <div class="flex justify-between">
+                                            <span class="text-red-600">Data anulowania:</span>
+                                            <span class="font-medium text-red-600">
+                                                {{ $selectedBooking->cancelled_at ? $selectedBooking->cancelled_at->format('d.m.Y H:i') : 'Nieznana' }}
+                                            </span>
+                                        </div>
+                                        @if($selectedBooking->cancellation_reason)
+                                            <div class="mt-2">
+                                                <span class="text-red-600">Powód anulowania:</span>
+                                                <div class="bg-red-50 p-2 rounded mt-1 text-red-800 text-sm">
+                                                    {{ $selectedBooking->cancellation_reason }}
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
                             </div>
                         </div>
 
@@ -312,6 +342,107 @@
                                 </div>
                             </div>
                         @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Cancel Modal -->
+    @if($showCancelModal)
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" wire:click="closeCancelModal">
+            <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4" wire:click.stop>
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold text-gray-900">Anuluj rezerwację</h2>
+                        <button wire:click="closeCancelModal" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="mb-6">
+                        <p class="text-gray-600 mb-4">Czy na pewno chcesz anulować tę rezerwację?</p>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Powód anulowania (opcjonalnie):</label>
+                            <textarea wire:model="cancelReason"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    rows="3"
+                                    placeholder="Wprowadź powód anulowania..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3 justify-end">
+                        <button wire:click="closeCancelModal"
+                                class="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium">
+                            Anuluj
+                        </button>
+                        <button wire:click="confirmCancelBooking"
+                                class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium">
+                            Potwierdź anulowanie
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Review Modal -->
+    @if($showReviewModal)
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" wire:click="closeReviewModal">
+            <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full mx-4 max-h-screen overflow-y-auto" wire:click.stop>
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold text-gray-900">Napisz recenzję</h2>
+                        <button wire:click="closeReviewModal" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="space-y-4">
+                        <!-- Rating -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Ocena:</label>
+                            <div class="flex gap-1">
+                                @for($i = 1; $i <= 5; $i++)
+                                    <button wire:click="$set('reviewRating', {{ $i }})"
+                                            class="text-2xl {{ $reviewRating >= $i ? 'text-yellow-400' : 'text-gray-300' }} hover:text-yellow-400">
+                                        ⭐
+                                    </button>
+                                @endfor
+                                <span class="ml-2 text-sm text-gray-600">({{ $reviewRating }}/5)</span>
+                            </div>
+                            @error('reviewRating')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Comment -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Komentarz:</label>
+                            <textarea wire:model="reviewComment"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    rows="4"
+                                    placeholder="Opisz swoje doświadczenia z tą usługą..."></textarea>
+                            @error('reviewComment')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3 justify-end mt-6">
+                        <button wire:click="closeReviewModal"
+                                class="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium">
+                            Anuluj
+                        </button>
+                        <button wire:click="submitReview"
+                                class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium">
+                            Dodaj recenzję
+                        </button>
                     </div>
                 </div>
             </div>

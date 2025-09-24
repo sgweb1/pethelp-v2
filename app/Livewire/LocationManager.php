@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use Livewire\Attributes\On;
 use App\Models\Location;
 use Illuminate\Support\Facades\Auth;
 
@@ -105,6 +106,23 @@ class LocationManager extends Component
         $this->dispatch('location-saved');
     }
 
+    public function requestDeleteLocation($locationId)
+    {
+        $location = Location::where('user_id', Auth::id())->find($locationId);
+
+        if ($location) {
+            $this->dispatch('show-confirmation',
+                'Usuń lokalizację',
+                'Czy na pewno chcesz usunąć lokalizację "' . $location->name . '"? Ta operacja jest nieodwracalna.',
+                'delete-location-confirmed',
+                [$locationId],
+                'Usuń',
+                'Anuluj'
+            );
+        }
+    }
+
+    #[On('delete-location-confirmed')]
     public function deleteLocation($locationId)
     {
         $location = Location::where('user_id', Auth::id())->find($locationId);
@@ -112,7 +130,7 @@ class LocationManager extends Component
         if ($location) {
             $location->delete();
             $this->loadLocations();
-            $this->dispatch('location-deleted');
+            $this->dispatch('show-toast', 'success', 'Lokalizacja została usunięta.');
         }
     }
 

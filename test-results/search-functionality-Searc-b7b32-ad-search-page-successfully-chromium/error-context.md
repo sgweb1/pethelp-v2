@@ -1,0 +1,386 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - link "Przejdź do głównej treści" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - navigation "Główna nawigacja" [ref=e6]:
+        - generic [ref=e7]:
+          - generic [ref=e8]: 🐾
+          - generic [ref=e9]: PetHelp
+        - menubar [ref=e10]:
+          - menuitem "Strona główna" [ref=e11] [cursor=pointer]
+          - menuitem "Jak to działa" [ref=e12] [cursor=pointer]
+          - menuitem "Zostań opiekunem" [ref=e13] [cursor=pointer]
+          - menuitem "Kontakt" [ref=e14] [cursor=pointer]
+        - generic [ref=e15]:
+          - button "Przełącz motyw" [ref=e17] [cursor=pointer]:
+            - img [ref=e18] [cursor=pointer]
+          - link "Zaloguj" [ref=e20] [cursor=pointer]:
+            - /url: http://pethelp.test/login
+          - link "Zarejestruj" [ref=e21] [cursor=pointer]:
+            - /url: http://pethelp.test/register
+    - main [ref=e22]:
+      - generic [ref=e23]:
+        - generic [ref=e24]:
+          - img [ref=e26]
+          - generic [ref=e28]:
+            - navigation [ref=e29]:
+              - link "Strona główna" [ref=e30] [cursor=pointer]:
+                - /url: /
+              - generic [ref=e31]: •
+              - generic [ref=e32]: Wyszukiwanie opiekunów
+            - generic [ref=e33]:
+              - heading "Znajdź co potrzebujesz" [level=1] [ref=e34]:
+                - text: Znajdź
+                - generic [ref=e35]: co potrzebujesz
+              - paragraph [ref=e36]: Wybierz kategorię i znajdź najlepsze opcje w Twojej okolicy
+            - generic [ref=e37]:
+              - generic [ref=e38] [cursor=pointer]:
+                - generic [ref=e39] [cursor=pointer]: 🐕‍🦺
+                - heading "Pet Sitters" [level=3] [ref=e40] [cursor=pointer]
+                - paragraph [ref=e41] [cursor=pointer]: Opiekunowie zwierząt
+                - generic [ref=e42] [cursor=pointer]: 1 dostępnych
+              - generic [ref=e43] [cursor=pointer]:
+                - generic [ref=e44] [cursor=pointer]: 🔧
+                - heading "Usługi" [level=3] [ref=e45] [cursor=pointer]
+                - paragraph [ref=e46] [cursor=pointer]: Profesjonalne usługi
+                - generic [ref=e47] [cursor=pointer]: 2 dostępnych
+              - generic [ref=e48] [cursor=pointer]:
+                - generic [ref=e49] [cursor=pointer]: 🎉
+                - heading "Wydarzenia" [level=3] [ref=e50] [cursor=pointer]
+                - paragraph [ref=e51] [cursor=pointer]: Spotkania i eventy
+                - generic [ref=e52] [cursor=pointer]: 0 dostępnych
+              - generic [ref=e53] [cursor=pointer]:
+                - generic [ref=e54] [cursor=pointer]: 📢
+                - heading "Ogłoszenia" [level=3] [ref=e55] [cursor=pointer]
+                - paragraph [ref=e56] [cursor=pointer]: Sprzedaż i adopcja
+                - generic [ref=e57] [cursor=pointer]: 0 dostępnych
+        - generic [ref=e61]:
+          - generic [ref=e63]:
+            - generic [ref=e64]:
+              - heading "Typ zwierzęcia" [level=4] [ref=e66]:
+                - img [ref=e67]
+                - text: Typ zwierzęcia
+              - generic [ref=e70]:
+                - button "🐕 Psy" [ref=e71] [cursor=pointer]:
+                  - generic [ref=e72] [cursor=pointer]: 🐕
+                  - generic [ref=e73] [cursor=pointer]: Psy
+                - button "🐱 Koty" [ref=e74] [cursor=pointer]:
+                  - generic [ref=e75] [cursor=pointer]: 🐱
+                  - generic [ref=e76] [cursor=pointer]: Koty
+                - button "Więcej" [ref=e77] [cursor=pointer]:
+                  - generic [ref=e78] [cursor=pointer]: Więcej
+                  - img [ref=e79] [cursor=pointer]
+              - heading "Typ opieki" [level=5] [ref=e83]:
+                - img [ref=e84]
+                - text: Typ opieki
+              - generic [ref=e86]:
+                - heading "Lokalizacja" [level=5] [ref=e88]:
+                  - img [ref=e89]
+                  - text: Lokalizacja
+                - generic [ref=e93]:
+                  - textbox "Wpisz miasto lub dzielnicę..." [ref=e94]
+                  - button "Użyj mojej lokalizacji" [ref=e95] [cursor=pointer]:
+                    - img [ref=e96] [cursor=pointer]
+              - generic [ref=e99]:
+                - heading "Dodatkowe filtry" [level=5] [ref=e100]:
+                  - img [ref=e101]
+                  - text: Dodatkowe filtry
+                - generic [ref=e103]:
+                  - generic [ref=e104]: Rozmiar zwierzęcia
+                  - combobox [ref=e105]:
+                    - option "Wszystkie rozmiary" [selected]
+                    - option "🐭 Małe (do 10kg)"
+                    - option "🐕 Średnie (10-25kg)"
+                    - option "🐺 Duże (25kg+)"
+                - generic [ref=e106]:
+                  - generic [ref=e107]: Cena (zł)
+                  - generic [ref=e108]:
+                    - spinbutton [ref=e109]
+                    - spinbutton [ref=e110]
+                  - generic [ref=e111]:
+                    - generic [ref=e112]:
+                      - radio "za godz." [checked] [ref=e113]
+                      - generic [ref=e114]: za godz.
+                    - generic [ref=e115]:
+                      - radio "za dzień" [ref=e116]
+                      - generic [ref=e117]: za dzień
+                - generic [ref=e118]:
+                  - generic [ref=e119]: Minimalna ocena
+                  - combobox [ref=e120]:
+                    - option "Wszystkie oceny" [selected]
+                    - option "⭐⭐⭐ 3+"
+                    - option "⭐⭐⭐⭐ 4+"
+                    - option "⭐⭐⭐⭐⭐ 4.5+"
+                - generic [ref=e121]:
+                  - generic [ref=e122]: Maks. liczba zwierząt
+                  - combobox [ref=e123]:
+                    - option "Bez ograniczeń" [selected]
+                    - option "1 zwierzę"
+                    - option "2 zwierzęta"
+                    - option "3 zwierzęta"
+                    - option "5+ zwierząt"
+                - generic [ref=e124]:
+                  - generic [ref=e125]: Doświadczenie
+                  - combobox [ref=e126]:
+                    - option "Dowolne" [selected]
+                    - option "1+ rok"
+                    - option "2+ lata"
+                    - option "5+ lat"
+                    - option "10+ lat"
+                - generic [ref=e127]:
+                  - generic [ref=e128]:
+                    - checkbox "✅ Tylko zweryfikowani" [ref=e129]
+                    - generic [ref=e130]: ✅ Tylko zweryfikowani
+                  - generic [ref=e131]:
+                    - checkbox "🛡️ Z ubezpieczeniem" [ref=e132]
+                    - generic [ref=e133]: 🛡️ Z ubezpieczeniem
+                  - generic [ref=e134]:
+                    - checkbox "⚡ Natychmiastowa rezerwacja" [ref=e135]
+                    - generic [ref=e136]: ⚡ Natychmiastowa rezerwacja
+                - generic [ref=e137]:
+                  - generic [ref=e138]:
+                    - generic [ref=e139]: Data dostępności
+                    - textbox [ref=e140]
+                  - generic [ref=e141]:
+                    - generic [ref=e142]:
+                      - generic [ref=e143]: Od godz.
+                      - textbox [ref=e144]
+                    - generic [ref=e145]:
+                      - generic [ref=e146]: Do godz.
+                      - textbox [ref=e147]
+                - generic [ref=e148]:
+                  - generic [ref=e149]:
+                    - generic [ref=e150]:
+                      - text: "📍 Promień:"
+                      - generic [ref=e151]: 10 km
+                    - button "✕ Usuń" [ref=e152] [cursor=pointer]
+                  - generic [ref=e153]:
+                    - generic [ref=e154]:
+                      - button "Wszystko" [ref=e155] [cursor=pointer]
+                      - button "5km" [ref=e156] [cursor=pointer]
+                      - button "10km" [ref=e157] [cursor=pointer]
+                      - button "25km" [ref=e158] [cursor=pointer]
+                    - slider [ref=e159] [cursor=pointer]: "10"
+                    - generic [ref=e160]:
+                      - generic [ref=e161]: 1 km
+                      - generic [ref=e162]: 50 km
+                - generic [ref=e163]:
+                  - generic [ref=e164]: Sortowanie
+                  - combobox [ref=e165]:
+                    - option "🎯 Trafność" [selected]
+                    - option "📍 Odległość"
+                    - 'option "💰 Cena: najtańsze"'
+                    - 'option "💸 Cena: najdroższe"'
+                    - option "⭐ Najwyżej oceniane"
+                    - option "🏆 Doświadczenie"
+                    - option "🔥 Popularne"
+                    - option "✨ Najnowsze"
+            - generic [ref=e166]:
+              - generic [ref=e167]:
+                - heading "Zapisane wyszukiwania" [level=3] [ref=e168]:
+                  - img [ref=e169]
+                  - text: Zapisane wyszukiwania
+                - generic [ref=e172]:
+                  - img [ref=e173]
+                  - paragraph [ref=e175]: Zaloguj się, aby zapisywać wyszukiwania
+                  - link "Zaloguj się" [ref=e176] [cursor=pointer]:
+                    - /url: /login
+              - generic [ref=e177]:
+                - generic [ref=e178]:
+                  - img [ref=e180]
+                  - generic [ref=e183]:
+                    - generic [ref=e184]: Zostań opiekunem
+                    - generic [ref=e185]: 40-80 zł/godz
+                - link "Dołącz jako opiekun" [ref=e186] [cursor=pointer]:
+                  - /url: /register?type=sitter
+                  - img [ref=e187] [cursor=pointer]
+                  - text: Dołącz jako opiekun
+            - generic [ref=e189]:
+              - img [ref=e191]
+              - generic [ref=e193]:
+                - generic [ref=e195]: 🏆 Najlepsi opiekunowie
+                - heading "Znajdź idealnego pet sittera" [level=2] [ref=e196]:
+                  - text: Znajdź
+                  - generic [ref=e197]: idealnego
+                  - text: pet sittera
+                - generic [ref=e198]:
+                  - generic [ref=e199]:
+                    - generic [ref=e200]: 🔒
+                    - text: Zweryfikowani
+                  - generic [ref=e201]:
+                    - generic [ref=e202]: 🛡️
+                    - text: Ubezpieczeni
+                  - generic [ref=e203]:
+                    - generic [ref=e204]: ⭐
+                    - text: Oceniani 4.9+
+                  - generic [ref=e205]:
+                    - generic [ref=e206]: 💬
+                    - text: Chat 24/7
+                - generic [ref=e207]:
+                  - generic [ref=e208]: 1,250+
+                  - generic [ref=e209]: Dostępnych opiekunów
+          - generic [ref=e211]:
+            - generic [ref=e213]:
+              - generic [ref=e214]:
+                - generic [ref=e215]:
+                  - img [ref=e216]
+                  - generic [ref=e218]: "Sortuj:"
+                - combobox [ref=e219]:
+                  - option "Trafność" [selected]
+                  - option "Odległość"
+                  - 'option "Cena: rosnąco"'
+                  - 'option "Cena: malejąco"'
+                  - option "Ocena"
+              - generic [ref=e220]:
+                - generic [ref=e221]:
+                  - text: Znaleziono
+                  - generic [ref=e222]: "1"
+                  - text: usługę
+                - generic [ref=e223]:
+                  - button "Widok siatki" [ref=e224] [cursor=pointer]:
+                    - img [ref=e225] [cursor=pointer]
+                  - button "Widok listy" [ref=e227] [cursor=pointer]:
+                    - img [ref=e228] [cursor=pointer]
+            - generic [ref=e232]:
+              - generic [ref=e235] [cursor=pointer]:
+                - generic [ref=e237] [cursor=pointer]:
+                  - heading "Opieka nad kotami - doświadczony opiekun" [level=3] [ref=e238] [cursor=pointer]
+                  - paragraph [ref=e239] [cursor=pointer]: Opieka nad kotami
+                - generic [ref=e240] [cursor=pointer]:
+                  - generic [ref=e242] [cursor=pointer]: U
+                  - generic [ref=e243] [cursor=pointer]:
+                    - paragraph [ref=e244] [cursor=pointer]: Użytkownik
+                    - generic [ref=e245] [cursor=pointer]:
+                      - img [ref=e246] [cursor=pointer]
+                      - generic [ref=e249] [cursor=pointer]: Olsztyn
+                - paragraph [ref=e250] [cursor=pointer]: Profesjonalna opieka nad kotami w Olsztynie
+                - generic [ref=e252] [cursor=pointer]:
+                  - generic [ref=e253] [cursor=pointer]: "Cena od:"
+                  - generic [ref=e254] [cursor=pointer]: 30.00 PLN
+                - generic [ref=e256] [cursor=pointer]:
+                  - generic [ref=e257] [cursor=pointer]:
+                    - img [ref=e258] [cursor=pointer]
+                    - img [ref=e260] [cursor=pointer]
+                    - img [ref=e262] [cursor=pointer]
+                    - img [ref=e264] [cursor=pointer]
+                    - img [ref=e266] [cursor=pointer]
+                  - generic [ref=e268] [cursor=pointer]: "4.5"
+                - generic [ref=e269] [cursor=pointer]:
+                  - generic [ref=e270] [cursor=pointer]:
+                    - img [ref=e271] [cursor=pointer]
+                    - text: Polecane
+                  - generic [ref=e273] [cursor=pointer]: Pet Sitter
+                - generic [ref=e274] [cursor=pointer]:
+                  - button "Zobacz szczegóły" [ref=e275] [cursor=pointer]
+                  - button [ref=e276] [cursor=pointer]:
+                    - img [ref=e277] [cursor=pointer]
+              - button "Pokaż więcej wyników" [ref=e280] [cursor=pointer]:
+                - generic [ref=e281] [cursor=pointer]: Pokaż więcej wyników
+          - generic [ref=e284]:
+            - generic [ref=e286]:
+              - heading "Mapa wyników" [level=3] [ref=e287]:
+                - img [ref=e288]
+                - text: Mapa wyników
+              - button "Ukryj mapę" [ref=e290] [cursor=pointer]:
+                - img [ref=e291] [cursor=pointer]
+                - generic [ref=e293] [cursor=pointer]: Ukryj mapę
+            - generic [ref=e296]:
+              - generic [ref=e297]:
+                - generic:
+                  - generic:
+                    - img
+                  - generic:
+                    - button [ref=e299] [cursor=pointer]
+                    - button "★" [ref=e301] [cursor=pointer]:
+                      - generic [ref=e302] [cursor=pointer]: ★
+                  - generic [ref=e303]:
+                    - generic [ref=e305]: Twoja lokalizacja
+                    - button "Close popup" [ref=e307] [cursor=pointer]:
+                      - generic [ref=e308] [cursor=pointer]: ×
+                - generic:
+                  - generic [ref=e309]:
+                    - button "Zoom in" [ref=e310] [cursor=pointer]:
+                      - generic [ref=e311] [cursor=pointer]: +
+                    - button "Zoom out" [ref=e312] [cursor=pointer]:
+                      - generic [ref=e313] [cursor=pointer]: −
+                  - generic [ref=e314]:
+                    - link "Leaflet" [ref=e315] [cursor=pointer]:
+                      - /url: https://leafletjs.com
+                      - img [ref=e316] [cursor=pointer]
+                      - text: Leaflet
+                    - generic [ref=e320]: "|"
+                    - text: © OpenStreetMap contributors
+              - generic [ref=e321]:
+                - generic [ref=e322]:
+                  - button "Powiększ" [ref=e323] [cursor=pointer]:
+                    - img [ref=e324] [cursor=pointer]
+                  - button "Pomniejsz" [ref=e326] [cursor=pointer]:
+                    - img [ref=e327] [cursor=pointer]
+                - button "Wykryj moją lokalizację" [ref=e328]:
+                  - img [ref=e329]
+                - button "Wycentruj na aktualnej lokalizacji" [ref=e332]:
+                  - img [ref=e333]
+    - contentinfo [ref=e335]:
+      - generic [ref=e336]:
+        - generic [ref=e337]:
+          - generic [ref=e338]:
+            - generic [ref=e339]:
+              - generic [ref=e340]: 🐾
+              - generic [ref=e341]: PetHelp
+            - paragraph [ref=e342]: Łączymy właścicieli zwierząt z najlepszymi opiekunami i usługami w Twojej okolicy. Zaufana platforma dla miłośników zwierząt.
+            - generic [ref=e343]:
+              - link [ref=e344] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e345] [cursor=pointer]
+              - link [ref=e347] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e348] [cursor=pointer]
+              - link [ref=e350] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e351] [cursor=pointer]
+          - generic [ref=e353]:
+            - heading "Szybkie linki" [level=3] [ref=e354]
+            - list [ref=e355]:
+              - listitem [ref=e356]:
+                - link "Strona główna" [ref=e357] [cursor=pointer]:
+                  - /url: /
+              - listitem [ref=e358]:
+                - link "Szukaj opiekunów" [ref=e359] [cursor=pointer]:
+                  - /url: /search
+              - listitem [ref=e360]:
+                - link "Zostań opiekunem" [ref=e361] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e362]:
+                - link "O nas" [ref=e363] [cursor=pointer]:
+                  - /url: "#"
+          - generic [ref=e364]:
+            - heading "Wsparcie" [level=3] [ref=e365]
+            - list [ref=e366]:
+              - listitem [ref=e367]:
+                - link "Centrum pomocy" [ref=e368] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e369]:
+                - link "Kontakt" [ref=e370] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e371]:
+                - link "Regulamin" [ref=e372] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e373]:
+                - link "Polityka prywatności" [ref=e374] [cursor=pointer]:
+                  - /url: "#"
+        - generic [ref=e375]:
+          - paragraph [ref=e376]: © 2025 PetHelp. Wszystkie prawa zastrzeżone.
+          - generic [ref=e377]:
+            - generic [ref=e378]: "Dostępne na:"
+            - generic [ref=e379]:
+              - link [ref=e380] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e381] [cursor=pointer]
+              - link [ref=e383] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e384] [cursor=pointer]
+```

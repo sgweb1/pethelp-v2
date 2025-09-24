@@ -20,5 +20,23 @@
     },
     "dependencies": {
         "tail": "^2.2.6"
-    }
+    },
+    "version": "1.0.0",
+    "description": "**Stack:** Laravel 12 + MySQL + Livewire 3 + Tailwind CSS + Alpine.js",
+    "main": "postcss.config.js",
+    "directories": {
+        "doc": "docs",
+        "test": "tests"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/sgweb1/pethelp-v2.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/sgweb1/pethelp-v2/issues"
+    },
+    "homepage": "https://github.com/sgweb1/pethelp-v2#readme"
 }

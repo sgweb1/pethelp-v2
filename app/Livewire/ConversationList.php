@@ -31,19 +31,40 @@ class ConversationList extends Component
     #[On('startConversationWith')]
     public function handleStartConversation($userId, $bookingId = null)
     {
+        // Debugowanie - logujemy otrzymane parametry
+        logger()->info('ConversationList: Otrzymano startConversationWith', [
+            'userId' => $userId,
+            'bookingId' => $bookingId,
+            'currentUserId' => Auth::id()
+        ]);
+
         $user = User::find($userId);
         $booking = $bookingId ? Booking::find($bookingId) : null;
 
         if ($user && $user->id !== Auth::id()) {
-            // Find or create conversation
+            // Znajdź lub utwórz konwersację
             $conversation = Conversation::findOrCreateBetween(Auth::user(), $user, $booking);
 
-            // Only select if not already selected to avoid loops
-            if ($this->selectedConversationId !== $conversation->id) {
-                $this->selectedConversationId = $conversation->id;
-                $this->dispatch('conversationSelected', $conversation->id);
-            }
+            logger()->info('ConversationList: Utworzono/znaleziono konwersację', [
+                'conversationId' => $conversation->id
+            ]);
+
+            // Zawsze wybieramy konwersację (nawet jeśli już istnieje)
+            $this->selectedConversationId = $conversation->id;
+            $this->dispatch('conversationSelected', $conversation->id);
+        } else {
+            logger()->warning('ConversationList: Nie udało się rozpocząć konwersacji', [
+                'userFound' => $user ? true : false,
+                'isSameUser' => $user ? ($user->id === Auth::id()) : false
+            ]);
         }
+    }
+
+    #[On('conversationCreatedAndSelected')]
+    public function handleConversationCreatedAndSelected($conversationId)
+    {
+        // Update our selection to match what ChatWindow loaded
+        $this->selectedConversationId = $conversationId;
     }
 
     public function getConversationsProperty()

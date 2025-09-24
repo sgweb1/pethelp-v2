@@ -1,8 +1,8 @@
-<div class="h-full flex flex-col bg-white">
+<div class="h-full flex flex-col bg-white dark:bg-gray-800">
     <!-- Header -->
-    <div class="p-4 border-b border-gray-200">
+    <div class="p-4 border-b border-gray-200 dark:border-gray-700">
         <div class="flex items-center justify-between">
-            <h2 class="text-lg font-semibold text-gray-900">Konwersacje</h2>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Konwersacje</h2>
             <button wire:click="newConversation"
                     class="bg-indigo-600 text-white p-2 rounded-lg hover:bg-indigo-700 transition-colors"
                     title="Nowa konwersacja">
@@ -23,7 +23,7 @@
             @endphp
 
             <div wire:click="selectConversation({{ $conversation->id }})"
-                 class="p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors {{ $selectedConversationId == $conversation->id ? 'bg-indigo-50 border-indigo-200' : '' }}">
+                 class="p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors {{ $selectedConversationId == $conversation->id ? 'bg-indigo-50 dark:bg-indigo-900 border-indigo-200 dark:border-indigo-700 border-l-4 border-l-indigo-500' : '' }}">
 
                 <div class="flex items-start space-x-3">
                     <!-- Avatar -->
@@ -34,7 +34,7 @@
                     <!-- Content -->
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center justify-between">
-                            <h3 class="font-medium text-gray-900 truncate">{{ $otherUser->name }}</h3>
+                            <h3 class="font-medium text-gray-900 dark:text-white truncate">{{ $otherUser->name }}</h3>
                             <div class="flex items-center space-x-2">
                                 @if($unreadCount > 0)
                                     <span class="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">

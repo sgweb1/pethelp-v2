@@ -2,48 +2,71 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
-use Livewire\Attributes\Computed;
 use App\Models\MapItem;
 use App\Models\ServiceCategory;
+use App\Models\PetType;
 use Illuminate\Support\Facades\Cache;
+use Livewire\Attributes\Computed;
+use Livewire\Component;
 
 class Search extends Component
 {
     // UI state
     public bool $show_map = false;
+
     public bool $show_mobile_map = false;
+
     public bool $show_desktop_map = true;
+
     public string $sort_by = 'relevance';
+
     public string $contentType = '';
+
     public string $petType = '';
+
     public string $view_mode = 'grid'; // grid or list
 
     public array $filters = [];
 
     // Advanced filter properties
     public string $pet_size = '';
+
     public string $min_price = '';
+
     public string $max_price = '';
+
     public string $price_type = 'hour';
+
     public string $min_rating = '';
+
     public string $available_date = '';
+
     public string $start_time = '';
+
     public string $end_time = '';
+
     public string $max_pets = '';
+
     public bool $verified_only = false;
+
     public bool $instant_booking = false;
+
     public bool $flexible_cancellation = false;
+
     public string $experience_years = '';
+
     public bool $has_insurance = false;
-    public int $radius = 10;
 
     // Search state management
     protected $listeners = [
         'filters-updated' => 'handleFiltersUpdate',
         'location-detected' => 'handleLocationDetected',
+        'address-selected' => 'handleAddressSelected',
         'search-saved' => 'handleSearchSaved',
         'map-bounds-changed' => 'handleMapBoundsChanged',
+        'map-area-changed' => 'handleMapAreaChanged',
+        'map-zoom-changed' => 'handleMapZoomChanged',
+        'map-center-changed' => 'handleMapCenterChanged',
         'result-hovered' => 'handleResultHovered',
         'result-clicked' => 'handleResultClicked',
         'header-search-updated' => 'handleHeaderSearchUpdate',
@@ -53,12 +76,27 @@ class Search extends Component
     public function mount(): void
     {
         // Initialize with URL parameters - service_type takes precedence over content_type
-        $this->contentType = request('service_type', request('content_type', ''));
+        // Default to 'pet_sitter' if no service type is specified
+        $this->contentType = request('service_type', request('content_type', 'pet_sitter'));
         $this->petType = request('pet_type', '');
+
+        \Log::info('🔧 Search::mount() - URL params', [
+            'pet_type_url' => request('pet_type'),
+            'petType_prop' => $this->petType,
+            'contentType' => $this->contentType,
+            'all_params' => request()->all()
+        ]);
 
         // Initialize UI state from URL parameters
         $this->view_mode = request('view', 'grid');
         $this->show_desktop_map = request('map', 'true') === 'true';
+        $this->sort_by = request('sort', 'relevance');
+
+        // Always read pet_type from URL to handle direct URL access
+        $urlPetType = request('pet_type', '');
+        if ($urlPetType && $urlPetType !== $this->petType) {
+            $this->petType = $urlPetType;
+        }
 
         $this->filters = [
             'search_term' => request('search', ''),
@@ -66,7 +104,10 @@ class Search extends Component
             'category_id' => request('category', ''),
             'pet_type' => $this->petType,
             'content_type' => $this->contentType,
+            'sort_by' => $this->sort_by,
         ];
+
+        \Log::info('🔧 Search::mount() - Filters set', ['filters' => $this->filters]);
 
         // Initialize advanced filters from URL params
         $this->pet_size = request('pet_size', '');
@@ -83,13 +124,99 @@ class Search extends Component
         $this->flexible_cancellation = (bool) request('flexible_cancellation', false);
         $this->experience_years = request('experience_years', '');
         $this->has_insurance = (bool) request('has_insurance', false);
-        $this->radius = (int) request('radius', 10);
     }
 
     public function updatedContentType($value): void
     {
         $this->filters['content_type'] = $value;
         $this->dispatch('filters-updated', $this->filters);
+        $this->updateUrlWithFilters();
+    }
+
+    // Advanced filter property updates - instant URL updates for better UX
+    public function updatedPetSize($value): void
+    {
+        $this->updateUrlWithFilters();
+    }
+
+    public function updatedPriceType($value): void
+    {
+        $this->updateUrlWithFilters();
+    }
+
+    public function updatedMinRating($value): void
+    {
+        $this->updateUrlWithFilters();
+    }
+
+    public function updatedMaxPets($value): void
+    {
+        $this->updateUrlWithFilters();
+    }
+
+    public function updatedExperienceYears($value): void
+    {
+        $this->updateUrlWithFilters();
+    }
+
+    public function updatedVerifiedOnly($value): void
+    {
+        $this->updateUrlWithFilters();
+    }
+
+    public function updatedInstantBooking($value): void
+    {
+        $this->updateUrlWithFilters();
+    }
+
+    public function updatedHasInsurance($value): void
+    {
+        $this->updateUrlWithFilters();
+    }
+
+    public function updatedAvailableDate($value): void
+    {
+        $this->updateUrlWithFilters();
+    }
+
+    public function updatedStartTime($value): void
+    {
+        $this->updateUrlWithFilters();
+    }
+
+    public function updatedEndTime($value): void
+    {
+        $this->updateUrlWithFilters();
+    }
+
+    public function updatedSortBy($value): void
+    {
+        $this->filters['sort_by'] = $value;
+
+        // Clear search cache when sorting changes
+        app(\App\Services\SearchCacheService::class)->invalidateSearchCache();
+
+        $this->updateUrlWithFilters();
+    }
+
+    // Debounced updates for numeric inputs (will auto-trigger after debounce)
+    public function updatedMinPrice($value): void
+    {
+        if (! empty($value)) {
+            $this->updateUrlWithFilters();
+        }
+    }
+
+    public function updatedMaxPrice($value): void
+    {
+        if (! empty($value)) {
+            $this->updateUrlWithFilters();
+        }
+    }
+
+    public function updatedRadius($value): void
+    {
+        $this->updateUrlWithFilters();
     }
 
     public function updatedFilters($value, $key): void
@@ -99,6 +226,9 @@ class Search extends Component
         $this->dispatch('search-filters-changed', $this->filters);
         $this->dispatch('update-map-filters', $this->filters);
         $this->dispatch('update-results-filters', $this->filters);
+
+        // Update URL with new filter parameters
+        $this->updateUrlWithFilters();
     }
 
     public function selectCategory(string $categoryType): void
@@ -123,22 +253,26 @@ class Search extends Component
         $this->petType = $petType;
         $this->filters['pet_type'] = $petType;
 
-        // Propagate to child components
-        $this->dispatch('filters-updated', $this->filters);
-        $this->dispatch('search-filters-changed', $this->filters);
-        $this->dispatch('update-map-filters', $this->filters);
-        $this->dispatch('update-results-filters', $this->filters);
+        \Log::info('🎯 selectPetType called', [
+            'petType_param' => $petType,
+            'this_petType' => $this->petType,
+            'filters_pet_type' => $this->filters['pet_type'],
+            'currentPetType' => $this->currentPetType
+        ]);
+
+        $this->updateUrlWithFilters();
     }
 
     public function setCareType(string $categoryId): void
     {
         $this->filters['category_id'] = $categoryId;
+        $this->updateUrlWithFilters();
+    }
 
-        // Propagate to child components
-        $this->dispatch('filters-updated', $this->filters);
-        $this->dispatch('search-filters-changed', $this->filters);
-        $this->dispatch('update-map-filters', $this->filters);
-        $this->dispatch('update-results-filters', $this->filters);
+    public function clearLocation(): void
+    {
+        $this->filters['location'] = '';
+        $this->updateUrlWithFilters();
     }
 
     public function handleFiltersUpdate(array $filters): void
@@ -149,6 +283,9 @@ class Search extends Component
         $this->dispatch('search-filters-changed', $this->filters);
         $this->dispatch('update-map-filters', $this->filters);
         $this->dispatch('update-results-filters', $this->filters);
+
+        // Update URL with new filter parameters
+        $this->updateUrlWithFilters();
     }
 
     public function handleLocationDetected(array $locationData): void
@@ -164,10 +301,104 @@ class Search extends Component
         $this->dispatch('location-updated', $locationData);
     }
 
+    public function handleAddressSelected(...$params): void
+    {
+        \Log::info('🎯 handleAddressSelected called', ['params' => $params, 'param_count' => count($params)]);
+
+        $locationData = [];
+
+        // Handle different parameter formats from Alpine.js event dispatching
+        if (count($params) === 1 && is_array($params[0])) {
+            // Format 1: Single object parameter (most common)
+            $addressData = $params[0];
+            $locationData = [
+                'address' => $addressData['address'] ?? $addressData['value'] ?? '',
+                'latitude' => $addressData['coordinates']['lat'] ?? null,
+                'longitude' => $addressData['coordinates']['lng'] ?? null,
+            ];
+        } elseif (count($params) >= 4) {
+            // Format 2: Multiple parameters (address, value, type, coordinates, description)
+            $locationData = [
+                'address' => $params[0] ?? '',
+                'latitude' => $params[3]['lat'] ?? null,
+                'longitude' => $params[3]['lng'] ?? null,
+            ];
+        } elseif (count($params) === 1 && is_string($params[0])) {
+            // Format 3: Simple string parameter
+            $locationData = [
+                'address' => $params[0],
+                'latitude' => null,
+                'longitude' => null,
+            ];
+        } else {
+            \Log::warning('🚨 Unexpected handleAddressSelected parameters', ['params' => $params]);
+            return;
+        }
+
+        \Log::info('📍 Parsed location data:', ['data' => $locationData]);
+
+        // Only update if we have a valid address
+        if (empty($locationData['address'])) {
+            \Log::warning('🚨 Empty address in handleAddressSelected', ['locationData' => $locationData]);
+            return;
+        }
+
+        // Update filters with location data directly
+        $this->filters['location'] = $locationData['address'];
+
+        // Add coordinates if available
+        if ($locationData['latitude'] && $locationData['longitude']) {
+            $this->filters['latitude'] = $locationData['latitude'];
+            $this->filters['longitude'] = $locationData['longitude'];
+        }
+
+        \Log::info('📍 Updated filters:', ['filters' => $this->filters]);
+
+        // Propagate filters to all child components (like handleFiltersUpdate does)
+        $this->dispatch('search-filters-changed', $this->filters);
+        $this->dispatch('update-map-filters', $this->filters);
+        $this->dispatch('update-results-filters', $this->filters);
+        $this->dispatch('filters-updated', $this->filters);
+        $this->dispatch('location-updated', $locationData);
+
+        // Update URL with new location
+        $this->updateUrlWithFilters();
+    }
+
     public function handleMapBoundsChanged(array $bounds): void
     {
         // Update results when map bounds change (for viewport-based filtering)
         $this->dispatch('map-viewport-changed', $bounds);
+    }
+
+    public function handleMapAreaChanged(array $data): void
+    {
+        // Mapa zmieniła obszar widoku - odśwież wyniki
+        $this->filters['map_bounds'] = $data['bounds'];
+        $this->filters['zoom_level'] = $data['zoom'];
+
+        // Propagate to search results
+        $this->dispatch('update-results-filters', $this->filters);
+    }
+
+    public function handleMapZoomChanged(array $data): void
+    {
+        // Mapa zmieniła poziom zoomu - odśwież wyniki jeśli potrzeba
+        $this->filters['zoom_level'] = $data['zoom'];
+        $this->filters['cluster_mode'] = $data['cluster_mode'];
+
+        // Propagate to search results for potential re-clustering
+        $this->dispatch('update-results-filters', $this->filters);
+    }
+
+    public function handleMapCenterChanged(array $data): void
+    {
+        // Mapa zmieniła centrum - aktualizuj lokalizację w filtrach
+        $this->filters['latitude'] = $data['latitude'];
+        $this->filters['longitude'] = $data['longitude'];
+
+        // Propagate to search results
+        $this->dispatch('update-results-filters', $this->filters);
     }
 
     public function handleResultHovered(?int $resultId): void
@@ -281,7 +512,16 @@ class Search extends Component
         }
 
         if (! empty($this->filters['pet_type'])) {
-            $query->where('category_name', 'like', "%{$this->filters['pet_type']}%");
+            $petTypeMapping = [
+                'cat' => 'kot',
+                'dog' => 'psy', // Używamy liczby mnogiej jak w bazie
+                'bird' => 'ptak',
+                'rabbit' => 'królik',
+                'other' => 'inne',
+            ];
+
+            $searchTerm = $petTypeMapping[$this->filters['pet_type']] ?? $this->filters['pet_type'];
+            $query->where('category_name', 'like', "%{$searchTerm}%");
             $hasActiveFilters = true;
         }
 
@@ -315,15 +555,60 @@ class Search extends Component
         $currentParams['map'] = $this->show_desktop_map ? 'true' : 'false';
 
         // Remove empty parameters to keep URL clean
-        $currentParams = array_filter($currentParams, function($value) {
+        $currentParams = array_filter($currentParams, function ($value) {
             return $value !== '' && $value !== null;
         });
 
         // Build new URL
-        $newUrl = request()->url() . '?' . http_build_query($currentParams);
+        $newUrl = request()->url().'?'.http_build_query($currentParams);
 
         // Update browser URL without page reload
         $this->dispatch('update-browser-url', $newUrl);
+    }
+
+    private function buildSearchParams(): array
+    {
+        return array_filter([
+            'service_type' => $this->filters['content_type'] ?? $this->contentType,
+            'pet_type' => $this->filters['pet_type'] ?? $this->petType,
+            'search' => $this->filters['search_term'] ?? '',
+            'location' => $this->filters['location'] ?? '',
+            'category' => $this->filters['category_id'] ?? '',
+            'pet_size' => $this->pet_size,
+            'min_price' => $this->min_price,
+            'max_price' => $this->max_price,
+            'price_type' => $this->price_type,
+            'min_rating' => $this->min_rating,
+            'available_date' => $this->available_date,
+            'start_time' => $this->start_time,
+            'end_time' => $this->end_time,
+            'max_pets' => $this->max_pets,
+            'experience_years' => $this->experience_years,
+            'view' => $this->view_mode,
+            'map' => $this->show_desktop_map ? 'true' : 'false',
+            'sort' => $this->sort_by,
+            'verified_only' => $this->verified_only ? '1' : null,
+            'instant_booking' => $this->instant_booking ? '1' : null,
+            'has_insurance' => $this->has_insurance ? '1' : null,
+            'flexible_cancellation' => $this->flexible_cancellation ? '1' : null,
+        ], function ($value) {
+            return $value !== '' && $value !== null && $value !== '0';
+        });
+    }
+
+    private function updateUrlWithFilters(): void
+    {
+        $params = $this->buildSearchParams();
+        \Log::info('🚀 updateUrlWithFilters', ['params' => $params, 'filters' => $this->filters]);
+
+        // Instead of redirect, update URL without component remount
+        $url = route('search', $params);
+        $this->js("window.history.replaceState({}, '', '$url')");
+
+        // Dispatch events to update child components
+        $this->dispatch('search-filters-changed', $this->filters);
+        $this->dispatch('update-map-filters', $this->filters);
+        $this->dispatch('update-results-filters', $this->filters);
     }
 
     public function getCategoryCount(string $contentType): int
@@ -340,7 +625,7 @@ class Search extends Component
     #[Computed]
     public function careTypes()
     {
-        $careTypes = Cache::remember('service_categories_active', 300, function() {
+        $careTypes = Cache::remember('service_categories_active', 300, function () {
             return ServiceCategory::active()->ordered()->get();
         });
 
@@ -350,11 +635,27 @@ class Search extends Component
             $selected = $careTypes->where('id', $selectedId)->first();
             if ($selected) {
                 $others = $careTypes->where('id', '!=', $selectedId);
+
                 return collect([$selected])->merge($others);
             }
         }
 
         return $careTypes;
+    }
+
+    #[Computed]
+    public function petTypes()
+    {
+        return Cache::remember('pet_types_active', 300, function () {
+            return PetType::active()->ordered()->get();
+        });
+    }
+
+    #[Computed]
+    public function currentPetType()
+    {
+        // Always return current pet_type from URL or property
+        return request('pet_type', $this->petType ?: '');
     }
 
     public function isMobile(): bool

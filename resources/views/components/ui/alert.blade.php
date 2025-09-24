@@ -2,7 +2,9 @@
     'type' => 'info',
     'dismissible' => false,
     'icon' => true,
-    'title' => null
+    'title' => null,
+    'timeout' => null, // auto-dismiss after X seconds
+    'actions' => false // show custom action buttons
 ])
 
 @php
@@ -43,16 +45,23 @@ $types = [
 
 $config = $types[$type] ?? $types['info'];
 $classes = collect([
-    'border rounded-lg p-4',
+    'border rounded-lg p-4 transition-all duration-300',
     $config['class'],
-    $dismissible ? 'relative' : '',
+    $dismissible || $timeout ? 'relative' : '',
 ])->filter()->implode(' ');
 @endphp
 
 <div
     {{ $attributes->merge(['class' => $classes]) }}
-    @if($dismissible)
-        x-data="{ show: true }"
+    @if($dismissible || $timeout)
+        x-data="{
+            show: true,
+            init() {
+                @if($timeout)
+                    setTimeout(() => { this.show = false }, {{ $timeout * 1000 }});
+                @endif
+            }
+        }"
         x-show="show"
         x-transition:enter="transition ease-out duration-300"
         x-transition:enter-start="opacity-0 transform scale-95"
@@ -65,16 +74,22 @@ $classes = collect([
     <div class="flex items-start">
         @if($icon)
             <div class="flex-shrink-0 mr-3">
-                <span class="text-lg">{{ $config['icon'] }}</span>
+                <span class="text-base">{{ $config['icon'] }}</span>
             </div>
         @endif
 
         <div class="flex-1">
             @if($title)
-                <h4 class="font-semibold mb-1">{{ $title }}</h4>
+                <h4 class="font-semibold mb-1 text-sm">{{ $title }}</h4>
             @endif
 
             <div>{{ $slot }}</div>
+
+            @if($actions)
+                <div class="mt-3 flex space-x-2">
+                    {{ $actions }}
+                </div>
+            @endif
         </div>
 
         @if($dismissible)
