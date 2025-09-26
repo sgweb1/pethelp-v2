@@ -5,6 +5,10 @@ use function Livewire\Volt\{state, computed};
 // State variables
 state(['isOnline' => true, 'isAvailableToday' => true]);
 
+// Export state variables for template
+$isOnline = state('isOnline');
+$isAvailableToday = state('isAvailableToday');
+
 // Computed properties
 $stats = computed(function() {
     $user = auth()->user();
@@ -121,6 +125,20 @@ $toggleAvailability = function() {
                     <span class="text-lg mr-2">📅</span>
                     <span class="text-white">{{ $isAvailableToday ? 'Dostępny dziś' : 'Niedostępny dziś' }}</span>
                 </button>
+
+                {{-- Vacation Mode Indicator --}}
+                @if(auth()->user()->isOnVacation())
+                    @php $vacation = auth()->user()->getCurrentVacation(); @endphp
+                    <div class="inline-flex items-center bg-orange-500/20 backdrop-blur-md rounded-full px-4 py-2 border border-orange-300/30">
+                        <span class="text-lg mr-2">🏖️</span>
+                        <div class="text-white">
+                            <div class="font-medium">Tryb urlopowy</div>
+                            @if($vacation && $vacation->vacation_end_date)
+                                <div class="text-xs text-orange-200">Do {{ $vacation->vacation_end_date->format('d.m.Y') }}</div>
+                            @endif
+                        </div>
+                    </div>
+                @endif
             </div>
 
             <div class="flex items-center space-x-2">
@@ -423,6 +441,9 @@ $toggleAvailability = function() {
                 </div>
             @endif
         </div>
+
+        <!-- Subscription Plans Teaser -->
+        <livewire:dashboard.subscription-plans-teaser />
 
         <!-- Flash Messages -->
         @if(session()->has('message'))

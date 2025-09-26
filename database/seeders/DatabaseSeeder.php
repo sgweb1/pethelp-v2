@@ -13,7 +13,9 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             ServiceCategorySeeder::class,
+            SubscriptionPlanSeeder::class,
             TestDataSeeder::class,
+            ExtendedTestDataSeeder::class,
             EventTypeSeeder::class,
             MapItemSeeder::class,
             EventSeeder::class,

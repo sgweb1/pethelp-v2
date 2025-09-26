@@ -119,6 +119,7 @@
                                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Opis</th>
                                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Kwota</th>
                                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Faktura</th>
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
@@ -140,6 +141,35 @@
                                                            'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200') }}">
                                                         {{ ucfirst($payment->status) }}
                                                     </span>
+                                                </td>
+                                                <td class="px-4 py-4 whitespace-nowrap text-sm">
+                                                    @if($payment->status === 'completed' && $payment->amount > 0 && !$payment->booking_id)
+                                                        @php
+                                                            $invoiceId = $payment->gateway_response['infakt_invoice_id'] ?? null;
+                                                            $invoiceNumber = $payment->gateway_response['infakt_invoice_number'] ?? null;
+                                                        @endphp
+
+                                                        @if($invoiceId)
+                                                            <div class="flex space-x-2">
+                                                                <a href="{{ route('subscription.invoices.download', $payment) }}"
+                                                                   class="inline-flex items-center px-2 py-1 border border-transparent text-xs leading-4 font-medium rounded text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-800 hover:bg-blue-200 dark:hover:bg-blue-700 transition-colors duration-200"
+                                                                   target="_blank">
+                                                                    📄 {{ $invoiceNumber ? "#{$invoiceNumber}" : 'Pobierz PDF' }}
+                                                                </a>
+                                                            </div>
+                                                        @else
+                                                            <button wire:click="regenerateInvoice({{ $payment->id }})"
+                                                                    class="inline-flex items-center px-2 py-1 border border-transparent text-xs leading-4 font-medium rounded text-orange-700 dark:text-orange-300 bg-orange-100 dark:bg-orange-800 hover:bg-orange-200 dark:hover:bg-orange-700 transition-colors duration-200">
+                                                                🔄 Generuj fakturę
+                                                            </button>
+                                                        @endif
+                                                    @elseif($payment->amount == 0)
+                                                        <span class="text-gray-500 text-xs">Plan darmowy</span>
+                                                    @elseif($payment->status !== 'completed')
+                                                        <span class="text-gray-500 text-xs">-</span>
+                                                    @else
+                                                        <span class="text-gray-500 text-xs">Brak faktury</span>
+                                                    @endif
                                                 </td>
                                             </tr>
                                         @endforeach

@@ -276,4 +276,57 @@ class User extends Authenticatable
     {
         return $this->isPremium() ? 6 : 3;
     }
+
+    /**
+     * Pobiera aktualny plan subskrypcji użytkownika.
+     *
+     * @return \App\Models\SubscriptionPlan|null Aktualny plan subskrypcji lub null jeśli brak
+     *
+     * @example
+     * $currentPlan = $user->currentSubscriptionPlan();
+     * if ($currentPlan && $currentPlan->isPro()) {
+     *     // Użytkownik ma plan Pro
+     * }
+     */
+    public function currentSubscriptionPlan(): ?SubscriptionPlan
+    {
+        $subscription = $this->activeSubscription;
+
+        if ($subscription) {
+            return $subscription->subscriptionPlan;
+        }
+
+        // Jeśli nie ma aktywnej subskrypcji, zwróć plan Basic (darmowy)
+        return SubscriptionPlan::where('slug', 'basic')->first();
+    }
+
+    /**
+     * Sprawdza czy użytkownik jest obecnie w trybie urlopowym.
+     *
+     * @return bool True jeśli użytkownik ma aktywny urlop
+     */
+    public function isOnVacation(): bool
+    {
+        return $this->availability()
+            ->where('is_available', false)
+            ->whereNotNull('vacation_end_date')
+            ->where('available_date', '<=', now()->toDateString())
+            ->where('vacation_end_date', '>=', now()->toDateString())
+            ->exists();
+    }
+
+    /**
+     * Pobiera szczegóły aktualnego urlopu użytkownika.
+     *
+     * @return \App\Models\Availability|null Szczegóły urlopu lub null jeśli nie ma urlopu
+     */
+    public function getCurrentVacation(): ?Availability
+    {
+        return $this->availability()
+            ->where('is_available', false)
+            ->whereNotNull('vacation_end_date')
+            ->where('available_date', '<=', now()->toDateString())
+            ->where('vacation_end_date', '>=', now()->toDateString())
+            ->first();
+    }
 }

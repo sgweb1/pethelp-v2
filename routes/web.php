@@ -133,37 +133,12 @@ Route::get('/test-auth', function () {
     ]);
 });
 
-// Quick login for testing
-Route::get('/quick-login', function () {
-    $user = \App\Models\User::where('email', 'maria.nowak@example.com')->first();
-    if ($user) {
-        \Auth::login($user);
-        return redirect('/pet-sitter/services/create')
-            ->with('success', 'Zalogowano jako ' . $user->email);
-    }
-    return 'User not found';
-});
-
-// Quick login as sitter for testing
-Route::get('/quick-login-sitter', function () {
-    $user = \App\Models\User::where('email', 'anna.kowalska@example.com')->first();
-    if ($user) {
-        \Auth::login($user);
-        return redirect('/dashboard')
-            ->with('success', 'Zalogowano jako sitter: ' . $user->email);
-    }
-    return 'Sitter not found';
-});
-
-// Quick login as owner (non-sitter) for testing
-Route::get('/quick-login-owner', function () {
-    $user = \App\Models\User::where('email', 'jan.kowalski@example.com')->first();
-    if ($user) {
-        \Auth::login($user);
-        return redirect('/dashboard')
-            ->with('success', 'Zalogowano jako właściciel: ' . $user->email);
-    }
-    return 'Owner not found';
+// Quick login routes - tylko w środowisku lokalnym
+Route::middleware('local-only')->group(function () {
+    Route::get('/quick-login', [App\Http\Controllers\QuickLoginController::class, 'loginAsUser']);
+    Route::get('/quick-login-owner', [App\Http\Controllers\QuickLoginController::class, 'loginAsOwner']);
+    Route::get('/quick-login-sitter', [App\Http\Controllers\QuickLoginController::class, 'loginAsSitter']);
+    Route::get('/quick-login/{userId}', [App\Http\Controllers\QuickLoginController::class, 'loginAs'])->where('userId', '[0-9]+');
 });
 
 // Test create route
@@ -373,12 +348,158 @@ Route::prefix('subscription')->name('subscription.')->group(function () {
 
     Route::middleware('auth')->group(function () {
         Route::get('/dashboard', \App\Livewire\Subscription\Dashboard::class)->name('dashboard');
+        Route::get('/checkout/{plan}', \App\Livewire\Subscription\CheckoutForm::class)->name('checkout');
         Route::post('/subscribe/{plan}', [PaymentController::class, 'createSubscriptionPayment'])->name('subscribe');
+        Route::get('/payment/form', function () {
+            $formData = session('payu_form_data');
+            $redirectUrl = session('payu_redirect_url');
+
+            if (!$formData || !$redirectUrl) {
+                return redirect()->route('subscription.plans')
+                    ->with('error', 'Sesja płatności wygasła. Spróbuj ponownie.');
+            }
+
+            // Log session data for debugging
+            \Log::info('Payment form accessed', [
+                'form_data_keys' => array_keys($formData),
+                'redirect_url' => $redirectUrl,
+                'session_id' => session()->getId()
+            ]);
+
+            return view('subscription.payment-form-standalone', compact('formData', 'redirectUrl'));
+        })->name('payment.form');
         Route::get('/payment/success', [PaymentController::class, 'paymentSuccess'])->name('payment.success');
         Route::get('/payment/cancel', [PaymentController::class, 'paymentCancel'])->name('payment.cancel');
         Route::get('/payments/{payment}/status', [PaymentController::class, 'paymentStatus'])->name('payment.status');
+
+        // Faktury
+        Route::prefix('invoices')->name('invoices.')->group(function () {
+            Route::get('/{payment}/download', [\App\Http\Controllers\InvoiceController::class, 'downloadInvoicePdf'])->name('download');
+            Route::post('/{payment}/regenerate', [\App\Http\Controllers\InvoiceController::class, 'regenerateInvoice'])->name('regenerate');
+            Route::get('/{payment}/status', [\App\Http\Controllers\InvoiceController::class, 'checkInvoiceStatus'])->name('status');
+        });
     });
 });
 
 // PayU webhook (no auth required)
 Route::post('/payu/notify', [PaymentController::class, 'payuNotification'])->name('payu.notify');
+
+// PayU test route (tylko dev)
+Route::get('/payu/test', function () {
+    if (config('app.env') !== 'local') {
+        abort(404);
+    }
+
+    // Wybierz serwis w zależności od konfiguracji API
+    $service = config('payu.api_type') === 'classic'
+        ? app(\App\Services\PayUClassicService::class)
+        : app(\App\Services\PayUService::class);
+
+    $result = $service->testConnection();
+
+    return response()->json($result, $result['success'] ? 200 : 400);
+})->name('payu.test');
+
+// InFakt test route (tylko dev)
+Route::get('/infakt/test', function () {
+    if (config('app.env') !== 'local') {
+        abort(404);
+    }
+
+    try {
+        $service = app(\App\Services\InFaktService::class);
+        $result = $service->testConnection();
+
+        return response()->json($result, $result['success'] ? 200 : 400);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'config' => [
+                'environment' => config('infakt.environment'),
+                'api_key_set' => config('infakt.api_key') !== 'your_api_key_here'
+            ]
+        ], 500);
+    }
+})->name('infakt.test');
+
+// InFakt test bez Company ID (nowa wersja API)
+Route::get('/infakt/test-no-company', function () {
+    if (config('app.env') !== 'local') {
+        abort(404);
+    }
+
+    $apiKey = config('infakt.api_key');
+    if (!$apiKey || $apiKey === 'your_api_key_here') {
+        return response()->json([
+            'success' => false,
+            'error' => 'API Key nie jest skonfigurowany'
+        ], 400);
+    }
+
+    $environment = config('infakt.environment', 'sandbox');
+
+    // Sprawdźmy różne URL-e dla API InFakt
+    $possibleUrls = [
+        'https://api.infakt.pl/v3',
+        'https://api.sandbox.infakt.pl/v3',
+        'https://sandbox.infakt.pl/v3/api',
+        'https://infakt.pl/api/v3'
+    ];
+
+    $baseUrl = $environment === 'production'
+        ? 'https://api.infakt.pl/v3'
+        : 'https://api.infakt.pl/v3'; // Może używają tego samego URL?
+
+    try {
+        // Test 1: Sprawdź profile użytkownika
+        $response = \Illuminate\Support\Facades\Http::withHeaders([
+            'X-inFakt-ApiKey' => $apiKey,
+            'Accept' => 'application/json'
+        ])->get($baseUrl . '/profile.json');
+
+        if ($response->successful()) {
+            $profile = $response->json();
+            return response()->json([
+                'success' => true,
+                'message' => 'Połączenie działa! Company ID nie jest potrzebny',
+                'environment' => $environment,
+                'api_endpoint' => $baseUrl,
+                'profile' => [
+                    'email' => $profile['email'] ?? 'N/A',
+                    'name' => $profile['name'] ?? 'N/A',
+                    'company_name' => $profile['company_name'] ?? 'N/A'
+                ]
+            ]);
+        }
+
+        // Test 2: Sprawdź czy można pobrać listę faktur
+        $response2 = \Illuminate\Support\Facades\Http::withHeaders([
+            'X-inFakt-ApiKey' => $apiKey,
+            'Accept' => 'application/json'
+        ])->get($baseUrl . '/invoices.json?limit=1');
+
+        if ($response2->successful()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'API działa bez Company ID!',
+                'environment' => $environment,
+                'api_endpoint' => $baseUrl,
+                'invoices_endpoint_works' => true
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'error' => 'API Error: ' . $response->status() . ' - ' . $response->body(),
+            'status_code' => $response->status()
+        ], 400);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => 'Connection error: ' . $e->getMessage()
+        ], 500);
+    }
+})->name('infakt.test-no-company');

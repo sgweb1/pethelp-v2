@@ -6,6 +6,32 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Validate;
 
 new #[Layout('layouts.app')] class extends Component {
+
+    /**
+     * Breadcrumbs dla dodawania pupila.
+     *
+     * @return array
+     */
+    public function getBreadcrumbsProperty(): array
+    {
+        return [
+            [
+                'title' => 'Panel',
+                'icon' => '🏠',
+                'url' => route('dashboard')
+            ],
+            [
+                'title' => 'Moje pupile',
+                'icon' => '🐾',
+                'url' => route('pets.index')
+            ],
+            [
+                'title' => 'Dodaj pupila',
+                'icon' => '➕'
+            ]
+        ];
+    }
+
     #[Validate('required|string|min:2|max:50')]
     public string $name = '';
 
@@ -98,6 +124,11 @@ new #[Layout('layouts.app')] class extends Component {
         return $this->redirect(route('dashboard'), navigate: true);
     }
 }; ?>
+
+@php
+    // Przekaż breadcrumbs do layoutu
+    $breadcrumbs = $this->breadcrumbs;
+@endphp
 
 <div class="desktop-window">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

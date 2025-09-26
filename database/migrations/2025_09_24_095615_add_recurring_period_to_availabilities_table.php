@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('availabilities', function (Blueprint $table) {
+        Schema::table('availability', function (Blueprint $table) {
             $table->boolean('is_recurring')->default(false)->after('notes');
             $table->json('recurring_days')->nullable()->after('is_recurring');
             $table->date('recurring_end_date')->nullable()->after('recurring_days');
@@ -24,7 +24,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('availabilities', function (Blueprint $table) {
+        Schema::table('availability', function (Blueprint $table) {
             $table->dropColumn(['is_recurring', 'recurring_days', 'recurring_end_date', 'recurring_weeks']);
         });
     }

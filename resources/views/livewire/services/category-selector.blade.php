@@ -1,21 +1,5 @@
 @section('title', 'Wybierz rodzaj usługi - PetHelp')
 
-@section('header-title')
-    <div class="flex items-center justify-between w-full">
-        <div class="flex items-center">
-            <h1 class="text-lg font-semibold text-gray-900 dark:text-white">Dodaj usługę</h1>
-            <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">Wybierz kategorię</span>
-        </div>
-
-        <a href="{{ route('sitter-services.index') }}"
-           class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center text-sm">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-            Powrót do listy
-        </a>
-    </div>
-@endsection
 
 <div class="space-y-6">
     <!-- Flash Messages -->

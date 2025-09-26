@@ -8,6 +8,36 @@ use Livewire\Attributes\Validate;
 use function Livewire\Volt\{computed};
 
 new #[Layout('layouts.app')] class extends Component {
+
+    /**
+     * Breadcrumbs dla strony tworzenia usługi.
+     *
+     * @return array
+     */
+    public function getBreadcrumbsProperty(): array
+    {
+        return [
+            [
+                'title' => 'Panel',
+                'icon' => '🏠',
+                'url' => route('dashboard')
+            ],
+            [
+                'title' => 'Pet Sitter',
+                'icon' => '🐕',
+                'url' => route('dashboard')
+            ],
+            [
+                'title' => 'Usługi',
+                'icon' => '🐾',
+                'url' => route('sitter-services.index')
+            ],
+            [
+                'title' => 'Dodaj usługę',
+                'icon' => '➕'
+            ]
+        ];
+    }
     #[Validate('required|string|min:5|max:255')]
     public string $title = '';
 
@@ -173,6 +203,11 @@ new #[Layout('layouts.app')] class extends Component {
         ];
     }
 }; ?>
+
+@php
+    // Przekaż breadcrumbs do layoutu
+    $breadcrumbs = $this->breadcrumbs;
+@endphp
 
 <div class="max-w-4xl mx-auto py-8 px-4">
     <!-- Header -->

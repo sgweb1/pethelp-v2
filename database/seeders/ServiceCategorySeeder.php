@@ -69,7 +69,10 @@ class ServiceCategorySeeder extends Seeder
         ];
 
         foreach ($categories as $category) {
-            ServiceCategory::create($category);
+            ServiceCategory::firstOrCreate(
+                ['slug' => $category['slug']], // Znajdź po slug
+                $category // Utwórz z tymi danymi
+            );
         }
     }
 }

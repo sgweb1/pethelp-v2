@@ -38,6 +38,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 'livewire/update',
                 'livewire/upload-file',
                 'api/js-logs',
+                'payu/notify', // PayU webhook endpoint
             ]
         );
 
@@ -46,6 +47,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'requires.feature' => \App\Http\Middleware\RequiresFeature::class,
             'requires.subscription' => \App\Http\Middleware\RequiresActiveSubscription::class,
             'check.listing.limits' => \App\Http\Middleware\CheckListingLimits::class,
+            'local-only' => \App\Http\Middleware\LocalOnlyMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

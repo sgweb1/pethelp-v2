@@ -44,8 +44,30 @@ class CategorySelector extends Component
 
     public function render()
     {
+        $breadcrumbs = [
+            [
+                'title' => 'Panel',
+                'icon' => '🏠',
+                'url' => route('dashboard')
+            ],
+            [
+                'title' => 'Pet Sitter',
+                'icon' => '🐕',
+                'url' => route('dashboard') // lub odpowiednia strona pet sitter jeśli istnieje
+            ],
+            [
+                'title' => 'Usługi',
+                'icon' => '🐾',
+                'url' => route('sitter-services.index')
+            ],
+            [
+                'title' => 'Wybierz kategorię',
+                'icon' => '➕'
+            ]
+        ];
+
         return view('livewire.services.category-selector', [
             'categories' => $this->getCategories()
-        ])->layout('components.dashboard-layout');
+        ])->layout('components.dashboard-layout', compact('breadcrumbs'));
     }
 }

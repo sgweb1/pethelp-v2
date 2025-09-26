@@ -173,10 +173,23 @@ class GalleryIndex extends Component
 
     public function render()
     {
+        $breadcrumbs = [
+            [
+                'title' => 'Panel',
+                'icon' => '🏠',
+                'url' => route('dashboard')
+            ],
+            [
+                'title' => 'Galeria zdjęć',
+                'icon' => '📸'
+            ]
+        ];
+
         return view('livewire.dashboard.gallery.gallery-index')
             ->layout('components.dashboard-layout', [
                 'title' => 'Galeria Zdjęć',
-                'activeSection' => 'gallery'
+                'activeSection' => 'gallery',
+                'breadcrumbs' => $breadcrumbs
             ]);
     }
 }

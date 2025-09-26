@@ -67,6 +67,23 @@ class ServicesList extends Component
 
     public function render()
     {
-        return view('livewire.services.services-list')->layout('components.dashboard-layout');
+        $breadcrumbs = [
+            [
+                'title' => 'Panel',
+                'icon' => '🏠',
+                'url' => route('dashboard')
+            ],
+            [
+                'title' => 'Pet Sitter',
+                'icon' => '🐕',
+                'url' => route('dashboard')
+            ],
+            [
+                'title' => 'Moje usługi',
+                'icon' => '🐾'
+            ]
+        ];
+
+        return view('livewire.services.services-list')->layout('components.dashboard-layout', compact('breadcrumbs'));
     }
 }

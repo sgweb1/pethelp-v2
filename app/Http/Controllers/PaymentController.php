@@ -13,9 +13,15 @@ use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
 {
-    public function __construct(
-        protected PayUService $payuService
-    ) {}
+    protected $payuService;
+
+    public function __construct()
+    {
+        // Wybierz serwis w zależności od konfiguracji API
+        $this->payuService = config('payu.api_type') === 'classic'
+            ? app(\App\Services\PayUClassicService::class)
+            : app(\App\Services\PayURestService::class); // Używamy REST API
+    }
 
     public function createSubscriptionPayment(Request $request, SubscriptionPlan $plan): JsonResponse|RedirectResponse
     {
@@ -96,7 +102,22 @@ class PaymentController extends Controller
         $orderId = $request->query('orderId');
 
         if ($orderId) {
-            $payment = Payment::where('payment_data->payu_order_id', $orderId)->first();
+            $payment = Payment::where('gateway_response->payu_order_id', $orderId)->first();
+
+            // W trybie lokalnym/testowym automatycznie aktywuj subskrypcję
+            if ($payment && config('app.env') === 'local' && $payment->status === 'pending') {
+                Log::info('Local environment: Auto-completing payment for testing', ['payment_id' => $payment->id]);
+
+                // Symuluj webhook completion
+                $this->payuService->handleNotification([
+                    'order' => [
+                        'orderId' => $orderId,
+                        'status' => 'COMPLETED'
+                    ]
+                ]);
+
+                $payment->refresh();
+            }
 
             if ($payment && $payment->status === 'completed') {
                 return redirect()->route('subscription.dashboard')
@@ -116,19 +137,21 @@ class PaymentController extends Controller
 
     public function paymentStatus(Request $request, Payment $payment): JsonResponse
     {
-        if ($payment->user_id !== Auth::id()) {
+        $gatewayResponse = $payment->gateway_response ?? [];
+
+        // Check if current user owns this payment (for subscriptions)
+        if (isset($gatewayResponse['user_id']) && $gatewayResponse['user_id'] !== Auth::id()) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         return response()->json([
             'status' => $payment->status,
-            'external_status' => $payment->external_status,
+            'external_status' => $gatewayResponse['external_status'] ?? null,
             'amount' => $payment->amount,
-            'currency' => $payment->currency,
             'created_at' => $payment->created_at,
-            'paid_at' => $payment->paid_at,
-            'failed_at' => $payment->failed_at,
-            'failure_reason' => $payment->failure_reason,
+            'processed_at' => $payment->processed_at,
+            'failed_at' => $gatewayResponse['failed_at'] ?? null,
+            'failure_reason' => $gatewayResponse['failure_reason'] ?? null,
         ]);
     }
 

@@ -9,8 +9,8 @@ use Illuminate\Support\Str;
 
 class TrelloService
 {
-    private string $apiKey;
-    private string $token;
+    private ?string $apiKey;
+    private ?string $token;
     private string $baseUrl = 'https://api.trello.com/1';
     private array $lists;
 

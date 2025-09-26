@@ -6,9 +6,30 @@
                 <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
                     Wybierz plan idealny dla Ciebie
                 </h1>
-                <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mb-8">
                     Rozpocznij z planem bezpłatnym lub wybierz premium, aby odblokować wszystkie funkcje platformy PetHelp
                 </p>
+
+                <!-- Billing Period Toggle -->
+                <div class="flex items-center justify-center space-x-4 bg-gray-100 dark:bg-gray-700 p-2 rounded-lg max-w-xs mx-auto">
+                    <button
+                        wire:click="setBillingPeriod('monthly')"
+                        class="px-4 py-2 text-sm font-medium rounded-md transition-colors {{ $billingPeriod === 'monthly' ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white' }}"
+                    >
+                        Miesięcznie
+                    </button>
+                    <button
+                        wire:click="setBillingPeriod('yearly')"
+                        class="px-4 py-2 text-sm font-medium rounded-md transition-colors {{ $billingPeriod === 'yearly' ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white' }}"
+                    >
+                        <div class="flex flex-col items-center">
+                            <span>Rocznie</span>
+                            <span class="px-2 py-0.5 bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 text-xs rounded-full">
+                                Oszczędź do 30%
+                            </span>
+                        </div>
+                    </button>
+                </div>
             </div>
 
             @auth
@@ -37,6 +58,7 @@
                         :plan="$plan"
                         :is-popular="$plan->is_popular"
                         :current-plan="$currentSubscription && $currentSubscription->subscriptionPlan->id === $plan->id"
+                        :available-plans="$plans"
                     />
                 @endforeach
             </div>

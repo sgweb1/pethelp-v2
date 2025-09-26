@@ -142,6 +142,28 @@ class EditService extends Component
 
     public function render()
     {
-        return view('livewire.services.edit-service')->layout('components.dashboard-layout');
+        $breadcrumbs = [
+            [
+                'title' => 'Panel',
+                'icon' => '🏠',
+                'url' => route('dashboard')
+            ],
+            [
+                'title' => 'Pet Sitter',
+                'icon' => '🐕',
+                'url' => route('dashboard')
+            ],
+            [
+                'title' => 'Moje usługi',
+                'icon' => '🐾',
+                'url' => route('sitter-services.index')
+            ],
+            [
+                'title' => 'Edytuj: ' . $this->service->title,
+                'icon' => '✏️'
+            ]
+        ];
+
+        return view('livewire.services.edit-service')->layout('components.dashboard-layout', compact('breadcrumbs'));
     }
 }

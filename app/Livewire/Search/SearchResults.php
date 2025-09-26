@@ -149,6 +149,14 @@ class SearchResults extends Component
             'first_city' => $results->first()->city ?? 'NO_ITEMS',
         ]);
 
+        // Load user relationship with availability for vacation check
+        $results->load(['user.availability' => function ($query) {
+            $query->where('is_available', false)
+                  ->whereNotNull('vacation_end_date')
+                  ->where('date', '<=', now()->toDateString())
+                  ->where('vacation_end_date', '>=', now()->toDateString());
+        }]);
+
         // Update hasMore flag based on results count
         $this->hasMore = $results->count() >= $limit;
 

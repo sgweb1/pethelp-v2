@@ -10,21 +10,29 @@ class Payment extends Model
 {
     protected $fillable = [
         'booking_id',
+        'user_id',
+        'subscription_plan_id',
         'status',
         'amount',
+        'original_amount',
+        'proration_credit',
         'commission',
         'payment_method',
         'external_id',
         'gateway_response',
-        'processed_at'
+        'processed_at',
+        'metadata'
     ];
 
     protected function casts(): array
     {
         return [
             'amount' => 'decimal:2',
+            'original_amount' => 'decimal:2',
+            'proration_credit' => 'decimal:2',
             'commission' => 'decimal:2',
             'gateway_response' => 'array',
+            'metadata' => 'array',
             'processed_at' => 'datetime'
         ];
     }
@@ -32,6 +40,16 @@ class Payment extends Model
     public function booking(): BelongsTo
     {
         return $this->belongsTo(Booking::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function subscriptionPlan(): BelongsTo
+    {
+        return $this->belongsTo(SubscriptionPlan::class);
     }
 
     public function scopePending(Builder $query): void
@@ -95,5 +113,35 @@ class Payment extends Model
     public function getSitterAmountAttribute(): float
     {
         return $this->amount - $this->commission;
+    }
+
+    public function isSubscriptionPayment(): bool
+    {
+        return !is_null($this->subscription_plan_id);
+    }
+
+    public function isBookingPayment(): bool
+    {
+        return !is_null($this->booking_id);
+    }
+
+    public function getProrationSavingsAttribute(): float
+    {
+        return $this->proration_credit ?? 0;
+    }
+
+    public function getFinalAmountAttribute(): float
+    {
+        return $this->amount;
+    }
+
+    public function getTypeAttribute(): string
+    {
+        if ($this->isSubscriptionPayment()) {
+            return 'subscription';
+        } elseif ($this->isBookingPayment()) {
+            return 'booking';
+        }
+        return 'other';
     }
 }

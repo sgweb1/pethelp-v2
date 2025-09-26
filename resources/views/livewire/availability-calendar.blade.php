@@ -68,17 +68,18 @@
 
         <!-- Calendar Days -->
         @foreach($this->current_month_days as $day)
-            @php
-                $dateKey = $day->format('Y-m-d');
-                $dayAvailabilities = $this->availability_for_month->filter(function($availability) use ($dateKey) {
-                    return $availability->date->format('Y-m-d') === $dateKey;
-                });
-                $isPast = $day->isPast();
-                $isToday = $day->isToday();
-                $hasAvailability = $dayAvailabilities->isNotEmpty();
-                $allAvailable = $dayAvailabilities->where('is_available', true)->isNotEmpty();
-                $hasUnavailable = $dayAvailabilities->where('is_available', false)->isNotEmpty();
-            @endphp
+            @if($day)
+                @php
+                    $dateKey = $day->format('Y-m-d');
+                    $dayAvailabilities = $this->availability_for_month->filter(function($availability) use ($dateKey) {
+                        return $availability->available_date && $availability->available_date->format('Y-m-d') === $dateKey;
+                    });
+                    $isPast = $day->isPast();
+                    $isToday = $day->isToday();
+                    $hasAvailability = $dayAvailabilities->isNotEmpty();
+                    $allAvailable = $dayAvailabilities->where('is_available', true)->isNotEmpty();
+                    $hasUnavailable = $dayAvailabilities->where('is_available', false)->isNotEmpty();
+                @endphp
 
             <div class="relative">
                 <button
@@ -102,14 +103,14 @@
                                     @if($availability->is_available)
                                         <div class="text-green-600 font-medium">
                                             {{ $availability->time_slot_label }}
-                                            @if($availability->service_type)
+                                            @if($availability->service_type ?? false)
                                                 <div class="text-xs text-green-500 mt-0.5">{{ $availability->service_type_label }}</div>
                                             @endif
                                         </div>
                                     @else
                                         <div class="text-red-500 font-medium">
                                             ✕ {{ $availability->time_slot_label }}
-                                            @if($availability->service_type)
+                                            @if($availability->service_type ?? false)
                                                 <div class="text-xs text-red-400 mt-0.5">{{ $availability->service_type_label }}</div>
                                             @endif
                                         </div>
@@ -123,12 +124,13 @@
                     </div>
                 </button>
             </div>
+            @endif
         @endforeach
     </div>
 
     <!-- Quick Actions & Info -->
     <div class="border-t pt-3 space-y-3">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
             <button
                 wire:click="selectDate('{{ now()->format('Y-m-d') }}')"
                 class="p-3 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition-colors text-left"
@@ -143,6 +145,13 @@
                 <div class="font-medium text-sm">Ustaw jutrzejszą dostępność</div>
                 <div class="text-xs text-green-600">{{ now()->addDay()->format('d.m.Y') }}</div>
             </button>
+            <button
+                wire:click="openVacationModal"
+                class="p-3 bg-orange-50 text-orange-700 rounded-lg hover:bg-orange-100 transition-colors text-left"
+            >
+                <div class="font-medium text-sm">🏖️ Tryb urlopowy</div>
+                <div class="text-xs text-orange-600">Ustaw długotrwałą niedostępność</div>
+            </button>
         </div>
 
         <div class="p-3 bg-blue-50 rounded-lg">
@@ -156,12 +165,158 @@
         </div>
     </div>
 
+    <!-- Vacation Mode Modal -->
+    @if($showVacationModal)
+        <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl shadow-xl max-w-lg w-full">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">
+                            🏖️ Tryb urlopowy
+                        </h3>
+                        <button
+                            wire:click="closeVacationModal"
+                            class="text-gray-400 hover:text-gray-600 transition-colors"
+                        >
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <form wire:submit.prevent="saveVacation" class="space-y-4">
+                        <!-- Date Range -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Data rozpoczęcia urlopu
+                                </label>
+                                <input
+                                    type="date"
+                                    wire:model="vacationFromDate"
+                                    min="{{ now()->format('Y-m-d') }}"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                    required
+                                >
+                                @error('vacationFromDate') <p class="text-red-600 text-xs mt-1">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Data zakończenia urlopu
+                                </label>
+                                <input
+                                    type="date"
+                                    wire:model="vacationToDate"
+                                    min="{{ now()->format('Y-m-d') }}"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                    required
+                                >
+                                @error('vacationToDate') <p class="text-red-600 text-xs mt-1">{{ $message }}</p> @enderror
+                            </div>
+                        </div>
+
+                        <!-- Time Settings -->
+                        <div>
+                            <div class="flex items-center space-x-3 mb-3">
+                                <input
+                                    type="checkbox"
+                                    wire:model.live="vacationAllDay"
+                                    id="vacationAllDay"
+                                    class="rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+                                >
+                                <label for="vacationAllDay" class="text-sm font-medium text-gray-700">
+                                    Cały dzień (24h)
+                                </label>
+                            </div>
+
+                            @if(!$vacationAllDay)
+                                <div class="grid grid-cols-2 gap-4 pl-6">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            Od godziny
+                                        </label>
+                                        <input
+                                            type="time"
+                                            wire:model="vacationStartTime"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                        >
+                                        @error('vacationStartTime') <p class="text-red-600 text-xs mt-1">{{ $message }}</p> @enderror
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            Do godziny
+                                        </label>
+                                        <input
+                                            type="time"
+                                            wire:model="vacationEndTime"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                        >
+                                        @error('vacationEndTime') <p class="text-red-600 text-xs mt-1">{{ $message }}</p> @enderror
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+
+                        <!-- Notes -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Notatki (opcjonalne)
+                            </label>
+                            <textarea
+                                wire:model="vacationNotes"
+                                rows="3"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                placeholder="Np. urlop świąteczny, wyjazd służbowy..."
+                            ></textarea>
+                            @error('vacationNotes') <p class="text-red-600 text-xs mt-1">{{ $message }}</p> @enderror
+                        </div>
+
+                        <!-- Info Box -->
+                        <div class="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                            <div class="flex items-start space-x-2">
+                                <svg class="w-5 h-5 text-orange-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div class="text-sm text-orange-700">
+                                    <p class="font-medium mb-1">Tryb urlopowy:</p>
+                                    <ul class="text-xs space-y-1">
+                                        <li>• Nadpisuje wszystkie istniejące terminy w wybranym okresie</li>
+                                        <li>• W wynikach wyszukiwania pojawi się komunikat o niedostępności</li>
+                                        <li>• Można anulować w dowolnym momencie</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex justify-end space-x-3 pt-4 border-t">
+                            <button
+                                type="button"
+                                wire:click="closeVacationModal"
+                                class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                            >
+                                Anuluj
+                            </button>
+                            <button
+                                type="submit"
+                                class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+                            >
+                                🏖️ Aktywuj tryb urlopowy
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- Modal for managing availability -->
     @if($showModal)
         <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
-                <div class="p-6 max-h-[90vh] overflow-y-auto">
-                    <div class="flex items-center justify-between mb-4">
+            <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+                <!-- Header (fixed) -->
+                <div class="p-6 pb-4 border-b border-gray-200 flex-shrink-0">
+                    <div class="flex items-center justify-between">
                         <h3 class="text-lg font-semibold text-gray-900">
                             Dostępność - {{ \Carbon\Carbon::parse($date)->format('d.m.Y') }}
                         </h3>
@@ -174,6 +329,11 @@
                             </svg>
                         </button>
                     </div>
+                </div>
+
+                <!-- Scrollable Content -->
+                <div class="flex-1 overflow-y-auto pr-4">
+                    <div class="pl-6 pr-2 py-6">
 
                     <!-- Existing Slots -->
                     @if(!empty($availability_slots))
@@ -190,13 +350,17 @@
                                                 <span class="text-xs text-gray-600">
                                                     {{ \Carbon\Carbon::parse($slot['start_time'])->format('H:i') }}-{{ \Carbon\Carbon::parse($slot['end_time'])->format('H:i') }}
                                                 </span>
-                                                @if($slot['service_type'])
+                                                @if(isset($slot['service_type']) && $slot['service_type'])
                                                     <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
                                                         {{ $slot['service_type_label'] }}
                                                     </span>
                                                 @endif
                                                 @if(!$slot['is_available'])
-                                                    <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded">Niedostępny</span>
+                                                    @if($slot['time_slot'] === 'vacation')
+                                                        <span class="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded">🏖️ Urlop</span>
+                                                    @else
+                                                        <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded">Niedostępny</span>
+                                                    @endif
                                                 @endif
                                             </div>
                                             @if($slot['available_services'] && count($slot['available_services']) > 0)
@@ -230,7 +394,7 @@
                                                 Edytuj
                                             </button>
                                             <button
-                                                wire:click="confirmDeleteSlot({{ $slot['id'] }}, '{{ $slot['date'] }}', '{{ $slot['start_time'] }}-{{ $slot['end_time'] }}')"
+                                                wire:click="confirmDeleteSlot({{ $slot['id'] }}, '{{ $slot['available_date'] }}', '{{ $slot['start_time'] }}-{{ $slot['end_time'] }}')"
                                                 class="text-red-600 hover:text-red-700 text-xs"
                                             >
                                                 Usuń
@@ -430,15 +594,40 @@
                                                 <div>
                                                     <label class="block text-sm font-medium text-gray-700 mb-1">
                                                         Powtarzaj przez (tygodni)
+                                                        @php
+                                                            $maxWeeks = $this->getRecurringMaxWeeks();
+                                                            $subscription = auth()->user()->currentSubscriptionPlan();
+                                                        @endphp
+                                                        @if($maxWeeks < 52)
+                                                            <span class="text-xs text-gray-500 ml-1">
+                                                                (max {{ $maxWeeks }} tyg. - {{ $subscription->name ?? 'Basic' }})
+                                                            </span>
+                                                        @endif
                                                     </label>
                                                     <select wire:model="recurring_weeks" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
                                                         <option value="1">1 tydzień</option>
                                                         <option value="2">2 tygodnie</option>
-                                                        <option value="4">4 tygodnie (miesiąc)</option>
-                                                        <option value="8">8 tygodni (2 miesiące)</option>
-                                                        <option value="12">12 tygodni (3 miesiące)</option>
-                                                        <option value="24">24 tygodnie (6 miesięcy)</option>
-                                                        <option value="52">52 tygodnie (rok)</option>
+                                                        <option value="4" {{ $maxWeeks >= 4 ? '' : 'disabled' }}>4 tygodnie (miesiąc)</option>
+                                                        @if($maxWeeks >= 8)
+                                                            <option value="8">8 tygodni (2 miesiące)</option>
+                                                        @else
+                                                            <option value="8" disabled>8 tygodni (2 miesiące) - wymagany Premium</option>
+                                                        @endif
+                                                        @if($maxWeeks >= 12)
+                                                            <option value="12">12 tygodni (3 miesiące)</option>
+                                                        @else
+                                                            <option value="12" disabled>12 tygodni (3 miesiące) - wymagany Premium</option>
+                                                        @endif
+                                                        @if($maxWeeks >= 24)
+                                                            <option value="24">24 tygodnie (6 miesięcy)</option>
+                                                        @else
+                                                            <option value="24" disabled>24 tygodnie (6 miesięcy) - wymagany Pro</option>
+                                                        @endif
+                                                        @if($maxWeeks >= 52)
+                                                            <option value="52">52 tygodnie (rok)</option>
+                                                        @else
+                                                            <option value="52" disabled>52 tygodnie (rok) - wymagany Pro</option>
+                                                        @endif
                                                     </select>
                                                     @error('recurring_weeks') <p class="text-red-600 text-xs mt-1">{{ $message }}</p> @enderror
                                                 </div>
@@ -446,19 +635,40 @@
                                                 <div>
                                                     <label class="block text-sm font-medium text-gray-700 mb-1">
                                                         Data końcowa (opcjonalne)
+                                                        @php
+                                                            $maxDate = now()->addWeeks($maxWeeks)->format('Y-m-d');
+                                                        @endphp
+                                                        @if($maxWeeks < 52)
+                                                            <span class="text-xs text-gray-500 ml-1">
+                                                                (max do {{ now()->addWeeks($maxWeeks)->format('d.m.Y') }})
+                                                            </span>
+                                                        @endif
                                                     </label>
                                                     <input
                                                         type="date"
                                                         wire:model="recurring_end_date"
                                                         min="{{ $date }}"
+                                                        max="{{ $maxDate }}"
                                                         class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                                                     >
                                                     @error('recurring_end_date') <p class="text-red-600 text-xs mt-1">{{ $message }}</p> @enderror
                                                 </div>
                                             </div>
 
-                                            <div class="text-xs text-gray-500 bg-blue-50 p-2 rounded">
-                                                💡 Jeśli podasz datę końcową, ma ona priorytet nad liczbą tygodni.
+                                            <div class="space-y-2">
+                                                <div class="text-xs text-gray-500 bg-blue-50 p-2 rounded">
+                                                    💡 Jeśli podasz datę końcową, ma ona priorytet nad liczbą tygodni.
+                                                </div>
+                                                @if($maxWeeks < 52)
+                                                    <div class="text-xs text-orange-700 bg-orange-50 p-2 rounded border border-orange-200">
+                                                        ⚡ Plan {{ $subscription->name ?? 'Basic' }}: maksymalnie {{ $maxWeeks }} tygodni powtarzania.
+                                                        @if($maxWeeks < 8)
+                                                            Przejdź na Premium dla 8 tygodni lub Pro dla roku!
+                                                        @elseif($maxWeeks < 52)
+                                                            Przejdź na Pro dla roku powtarzania!
+                                                        @endif
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
                                     @endif
@@ -509,9 +719,10 @@
                             </div>
                         </form>
                     </div>
-                </div>
-            </div>
-        </div>
+                    </div> <!-- End scrollable content -->
+                </div> <!-- End flex-1 overflow-y-auto -->
+            </div> <!-- End bg-white rounded-xl -->
+        </div> <!-- End fixed inset-0 -->
     @endif
 
     <!-- JavaScript for notifications -->

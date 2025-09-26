@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Carbon\Carbon;
 
 /**
  * Model reprezentujący dostępność czasową opiekuna.
@@ -51,10 +52,12 @@ class Availability extends Model
 {
     use HasFactory;
 
+    protected $table = 'availability';
+
     protected function casts(): array
     {
         return [
-            'date' => 'date',
+            'available_date' => 'date',
             'start_time' => 'datetime:H:i',
             'end_time' => 'datetime:H:i',
             'is_available' => 'boolean',
@@ -62,6 +65,7 @@ class Availability extends Model
             'available_services' => 'array',
             'recurring_days' => 'array',
             'recurring_end_date' => 'date',
+            'vacation_end_date' => 'date',
         ];
     }
 
@@ -71,7 +75,7 @@ class Availability extends Model
         'service_type',
         'time_slot',
         'available_services',
-        'date',
+        'available_date',
         'start_time',
         'end_time',
         'is_available',
@@ -80,7 +84,19 @@ class Availability extends Model
         'recurring_end_date',
         'recurring_weeks',
         'notes',
+        'vacation_end_date',
     ];
+
+    // Map 'date' to 'available_date' column
+    public function getDateAttribute()
+    {
+        return $this->available_date ? Carbon::parse($this->available_date) : null;
+    }
+
+    public function setDateAttribute($value)
+    {
+        $this->attributes['available_date'] = $value;
+    }
 
     /**
      * Relacja do użytkownika/opiekuna.
@@ -109,7 +125,7 @@ class Availability extends Model
 
     public function scopeForDate($query, $date)
     {
-        return $query->where('date', $date);
+        return $query->where('available_date', $date);
     }
 
     public function scopeForSitter($query, $sitterId)
@@ -140,6 +156,7 @@ class Availability extends Model
             'evening' => 'Wieczorem',
             'overnight' => 'Nocleg',
             'all_day' => 'Cały dzień',
+            'vacation' => 'Urlop',
             default => 'Nieokreślony'
         };
     }

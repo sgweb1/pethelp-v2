@@ -2,6 +2,19 @@
     $user = auth()->user();
     $unreadNotifications = $user->notifications()->unread()->count();
     $unreadMessages = $user->getUnreadMessagesCount();
+
+    // Informacje o subskrypcji
+    $subscription = $user->activeSubscription;
+    $planName = $subscription ? $subscription->subscriptionPlan->name : 'Darmowy';
+
+    // Kolory labela planu
+    $planColors = [
+        'Darmowy' => 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-200',
+        'Starter' => 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200',
+        'Pro' => 'bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-200',
+        'Business' => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200'
+    ];
+    $planColor = $planColors[$planName] ?? $planColors['Darmowy'];
 @endphp
 
 <header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
@@ -19,10 +32,12 @@
             </button>
         </div>
 
-        <!-- Page title or breadcrumb -->
+        <!-- Breadcrumbs or Page title -->
         <div class="flex-1 min-w-0 px-4 lg:px-0">
             <div class="flex items-center">
-                @if(View::hasSection('header-title'))
+                @if(isset($breadcrumbs) && !empty($breadcrumbs))
+                    <x-breadcrumbs :items="$breadcrumbs" class="text-gray-700 dark:text-gray-300" />
+                @elseif(View::hasSection('header-title'))
                     @yield('header-title')
                 @else
                     <h1 class="text-lg font-semibold text-gray-900 dark:text-white truncate">
@@ -136,6 +151,22 @@
                     <div class="px-4 py-3">
                         <p class="text-sm text-gray-900 dark:text-white">{{ $user->name }}</p>
                         <p class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">{{ $user->email }}</p>
+
+                        <!-- Informacja o planie -->
+                        <div class="mt-2">
+                            <div class="flex items-center justify-between mb-2">
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Plan:</p>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $planColor }}">
+                                    {{ $planName }}
+                                </span>
+                            </div>
+                            @if($planName !== 'Business')
+                                <a href="{{ route('subscription.plans') }}"
+                                   class="inline-flex items-center justify-center w-full px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-primary-700 dark:text-primary-300 bg-primary-100 dark:bg-primary-800 hover:bg-primary-200 dark:hover:bg-primary-700 transition-colors duration-200">
+                                    Rozszerz plan
+                                </a>
+                            @endif
+                        </div>
                     </div>
                     <div class="py-1">
                         <a href="{{ route('profile.edit') }}"
@@ -148,6 +179,15 @@
                             <span class="mr-3">📊</span>
                             Dashboard
                         </a>
+
+                        <!-- Opcje zarządzania subskrypcją -->
+                        @if($subscription)
+                            <a href="{{ route('subscription.dashboard') }}"
+                               class="group flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white">
+                                <span class="mr-3">💳</span>
+                                Płatności
+                            </a>
+                        @endif
                     </div>
                     <div class="py-1">
                         <form method="POST" action="{{ route('logout') }}">

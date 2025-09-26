@@ -6,12 +6,21 @@ use App\Http\Controllers\Api\MapDataController;
 use App\Http\Controllers\Api\TrelloWebhookController;
 use App\Http\Controllers\Api\UnifiedSearchController;
 use App\Http\Controllers\ApiJsLogController;
+use App\Http\Controllers\PaymentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
+// PayU webhook endpoint (no CSRF required)
+Route::post('/payu/notify', [PaymentController::class, 'payuNotification'])
+    ->name('api.payu.notify');
+
+// InFakt webhook endpoint (no CSRF required)
+Route::post('/infakt/webhook', [\App\Http\Controllers\InvoiceController::class, 'inFaktWebhook'])
+    ->name('api.infakt.webhook');
 
 // JavaScript error logging routes
 Route::post('/js-logs', [ApiJsLogController::class, 'store'])

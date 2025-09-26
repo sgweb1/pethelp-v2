@@ -44,4 +44,7 @@
             </x-primary-button>
         </div>
     </form>
+
+    {{-- Dynamiczne przyciski szybkiego logowania --}}
+    <livewire:quick-login-buttons />
 </x-guest-layout>

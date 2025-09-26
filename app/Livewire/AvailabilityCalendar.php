@@ -21,6 +21,17 @@ class AvailabilityCalendar extends Component
     public $showModal = false;
     public $editingAvailability = null;
 
+    // Vacation mode
+    public $showVacationModal = false;
+    public $vacationFromDate = '';
+    public $vacationToDate = '';
+    public $vacationNotes = '';
+    public $vacationFromTime = '00:00';
+    public $vacationToTime = '23:59';
+    public $vacationAllDay = true;
+    public $vacationStartTime = '00:00';
+    public $vacationEndTime = '23:59';
+
     // Form fields
     public $date = '';
     public $start_time = '09:00';
@@ -32,6 +43,7 @@ class AvailabilityCalendar extends Component
     public $recurring_end_date = null;
     public $recurring_weeks = 1;
     public $time_slot = 'custom';
+    public $recurring_max_weeks = 4; // Basic: 4 weeks, Premium: 8 weeks, Pro: 52 weeks
     /**
      * Tablica ID wybranych usług dostępnych w slocie.
      *
@@ -121,7 +133,7 @@ class AvailabilityCalendar extends Component
 
         // Sprawdź czy nie ma już slotu z tym samym czasem rozpoczęcia
         $query = Availability::where('sitter_id', Auth::id())
-            ->where('date', $this->date)
+            ->where('available_date', $this->date)
             ->where('start_time', $this->start_time);
 
         // Jeśli edytujemy, wykluczmy obecny slot z sprawdzenia
@@ -154,17 +166,13 @@ class AvailabilityCalendar extends Component
 
         $data = [
             'sitter_id' => Auth::id(),
-            'date' => $this->date,
+            'available_date' => $this->date,
             'start_time' => $this->start_time,
             'end_time' => $this->end_time,
             'is_available' => $this->is_available,
             'time_slot' => $this->time_slot,
             'available_services' => $this->selected_services,
             'notes' => $this->notes,
-            'is_recurring' => $this->is_recurring,
-            'recurring_days' => $this->recurring_days,
-            'recurring_end_date' => $this->recurring_end_date,
-            'recurring_weeks' => $this->recurring_weeks,
         ];
 
         if ($this->editingAvailability) {
@@ -189,12 +197,20 @@ class AvailabilityCalendar extends Component
     public function createRecurringAvailability()
     {
         $startDate = Carbon::parse($this->date);
+        $maxWeeks = $this->getRecurringMaxWeeks();
 
         // Determine end date - priority: recurring_end_date > recurring_weeks
         if ($this->recurring_end_date) {
             $endDate = Carbon::parse($this->recurring_end_date);
+
+            // Validate that end date doesn't exceed subscription limits
+            $maxEndDate = $startDate->copy()->addWeeks($maxWeeks);
+            if ($endDate->gt($maxEndDate)) {
+                session()->flash('error', 'Data końcowa przekracza limity Twojego planu subskrypcji.');
+                return;
+            }
         } else {
-            $weeks = $this->recurring_weeks ?: 1;
+            $weeks = min($this->recurring_weeks ?: 1, $maxWeeks);
             $endDate = $startDate->copy()->addWeeks($weeks);
         }
 
@@ -203,11 +219,11 @@ class AvailabilityCalendar extends Component
             if (in_array($current->dayOfWeek, $this->recurring_days)) {
                 Availability::create([
                     'sitter_id' => Auth::id(),
-                    'date' => $current->format('Y-m-d'),
+                    'available_date' => $current->format('Y-m-d'),
                     'start_time' => $this->start_time,
                     'end_time' => $this->end_time,
                     'is_available' => $this->is_available,
-                            'time_slot' => $this->time_slot,
+                    'time_slot' => $this->time_slot,
                     'available_services' => $this->selected_services,
                     'notes' => $this->notes,
                 ]);
@@ -400,9 +416,9 @@ class AvailabilityCalendar extends Component
     public function getAvailabilityForMonthProperty()
     {
         return Availability::where('sitter_id', Auth::id())
-            ->whereYear('date', $this->currentYear)
-            ->whereMonth('date', $this->currentMonth)
-            ->orderBy('date')
+            ->whereYear('available_date', $this->currentYear)
+            ->whereMonth('available_date', $this->currentMonth)
+            ->orderBy('available_date')
             ->orderBy('time_slot')
             ->orderBy('start_time')
             ->get();
@@ -472,7 +488,7 @@ class AvailabilityCalendar extends Component
     private function checkTimeOverlap(): bool
     {
         $existingSlots = Availability::where('sitter_id', Auth::id())
-            ->where('date', $this->date)
+            ->where('available_date', $this->date)
             ->when($this->editingAvailability, function($query) {
                 $query->where('id', '!=', $this->editingAvailability);
             })
@@ -527,7 +543,7 @@ class AvailabilityCalendar extends Component
     private function refreshAvailabilitySlots()
     {
         $this->availability_slots = Availability::where('sitter_id', Auth::id())
-            ->where('date', $this->date)
+            ->where('available_date', $this->date)
             ->with('service')
             ->orderBy('time_slot')
             ->orderBy('start_time')
@@ -536,6 +552,11 @@ class AvailabilityCalendar extends Component
                 $slotArray = $slot->toArray();
                 $slotArray['service_type_label'] = $slot->service_type_label;
                 $slotArray['time_slot_label'] = $slot->time_slot_label;
+
+                // Upewnij się, że service_type zawsze istnieje
+                if (!isset($slotArray['service_type'])) {
+                    $slotArray['service_type'] = null;
+                }
 
                 // Convert service data to display format with custom type labels
                 if ($slot->available_services) {
@@ -585,8 +606,172 @@ class AvailabilityCalendar extends Component
             ->toArray();
     }
 
+    // Vacation mode methods
+    public function openVacationModal()
+    {
+        $this->showVacationModal = true;
+        $this->vacationFromDate = now()->format('Y-m-d');
+        $this->vacationToDate = now()->addWeek()->format('Y-m-d');
+        $this->vacationFromTime = '00:00';
+        $this->vacationToTime = '23:59';
+        $this->vacationAllDay = true;
+        $this->vacationStartTime = '00:00';
+        $this->vacationEndTime = '23:59';
+        $this->vacationNotes = '';
+    }
+
+    public function closeVacationModal()
+    {
+        $this->showVacationModal = false;
+        $this->vacationFromDate = '';
+        $this->vacationToDate = '';
+        $this->vacationFromTime = '00:00';
+        $this->vacationToTime = '23:59';
+        $this->vacationAllDay = true;
+        $this->vacationStartTime = '00:00';
+        $this->vacationEndTime = '23:59';
+        $this->vacationNotes = '';
+    }
+
+    public function saveVacation()
+    {
+        $validationRules = [
+            'vacationFromDate' => 'required|date|after_or_equal:today',
+            'vacationToDate' => 'required|date|after_or_equal:vacationFromDate',
+            'vacationNotes' => 'nullable|string|max:500'
+        ];
+
+        $validationMessages = [
+            'vacationFromDate.required' => 'Data rozpoczęcia urlopu jest wymagana.',
+            'vacationFromDate.after_or_equal' => 'Urlop nie może rozpoczynać się w przeszłości.',
+            'vacationToDate.required' => 'Data zakończenia urlopu jest wymagana.',
+            'vacationToDate.after_or_equal' => 'Data zakończenia musi być równa lub późniejsza niż rozpoczęcia.',
+            'vacationNotes.max' => 'Notatka może mieć maksymalnie 500 znaków.'
+        ];
+
+        // Dodaj walidację czasu tylko jeśli nie jest "cały dzień"
+        if (!$this->vacationAllDay) {
+            $validationRules['vacationStartTime'] = 'required';
+            $validationRules['vacationEndTime'] = 'required';
+            $validationMessages['vacationStartTime.required'] = 'Godzina rozpoczęcia jest wymagana.';
+            $validationMessages['vacationEndTime.required'] = 'Godzina zakończenia jest wymagana.';
+        }
+
+        $this->validate($validationRules, $validationMessages);
+
+        // Określ godziny na podstawie ustawienia "cały dzień"
+        $startTime = $this->vacationAllDay ? '00:00' : $this->vacationStartTime;
+        $endTime = $this->vacationAllDay ? '23:59' : $this->vacationEndTime;
+
+        // Utwórz wpisy urlopowe dla wszystkich dni w przedziale
+        $currentDate = \Carbon\Carbon::parse($this->vacationFromDate);
+        $endDate = \Carbon\Carbon::parse($this->vacationToDate);
+
+        $createdCount = 0;
+        $updatedCount = 0;
+
+        while ($currentDate->lte($endDate)) {
+            $availability = Availability::where('sitter_id', Auth::id())
+                ->where('available_date', $currentDate->format('Y-m-d'))
+                ->first();
+
+            if ($availability) {
+                // Aktualizuj istniejący wpis
+                $availability->update([
+                    'start_time' => $startTime,
+                    'end_time' => $endTime,
+                    'is_available' => false,
+                    'time_slot' => 'vacation',
+                    'available_services' => [],
+                    'notes' => 'URLOP: ' . $this->vacationNotes,
+                    'vacation_end_date' => $this->vacationToDate,
+                ]);
+                $updatedCount++;
+            } else {
+                // Utwórz nowy wpis
+                Availability::create([
+                    'sitter_id' => Auth::id(),
+                    'available_date' => $currentDate->format('Y-m-d'),
+                    'start_time' => $startTime,
+                    'end_time' => $endTime,
+                    'is_available' => false,
+                    'time_slot' => 'vacation',
+                    'available_services' => [],
+                    'notes' => 'URLOP: ' . $this->vacationNotes,
+                    'vacation_end_date' => $this->vacationToDate,
+                ]);
+                $createdCount++;
+            }
+
+            $currentDate->addDay();
+        }
+
+        $totalDays = $createdCount + $updatedCount;
+        $message = "Urlop został zapisany pomyślnie! ";
+        $message .= "Przetworzono {$totalDays} dni ";
+        if ($createdCount > 0 && $updatedCount > 0) {
+            $message .= "({$createdCount} nowych, {$updatedCount} aktualizacji).";
+        } elseif ($createdCount > 0) {
+            $message .= "({$createdCount} nowych dni).";
+        } else {
+            $message .= "({$updatedCount} aktualizacji istniejących dni).";
+        }
+
+        session()->flash('success', $message);
+        $this->closeVacationModal();
+        $this->dispatch('availability-updated');
+    }
+
+    public function getRecurringMaxWeeks()
+    {
+        $user = Auth::user();
+
+        // Pro account - 1 year
+        if ($user->hasActiveSubscription('pro')) {
+            return 52;
+        }
+
+        // Premium account - 2 months
+        if ($user->hasActiveSubscription('premium')) {
+            return 8;
+        }
+
+        // Basic account - 1 month
+        return 4;
+    }
+
+    public function isOnVacation()
+    {
+        $now = now();
+
+        return Availability::where('sitter_id', Auth::id())
+            ->where('time_slot', 'vacation')
+            ->where('available_date', '<=', $now->format('Y-m-d'))
+            ->where(function($query) use ($now) {
+                $query->whereNull('vacation_end_date')
+                    ->orWhere('vacation_end_date', '>=', $now->format('Y-m-d'));
+            })
+            ->exists();
+    }
+
+    public function getCurrentVacation()
+    {
+        $now = now();
+
+        return Availability::where('sitter_id', Auth::id())
+            ->where('time_slot', 'vacation')
+            ->where('available_date', '<=', $now->format('Y-m-d'))
+            ->where(function($query) use ($now) {
+                $query->whereNull('vacation_end_date')
+                    ->orWhere('vacation_end_date', '>=', $now->format('Y-m-d'));
+            })
+            ->first();
+    }
+
     public function render()
     {
+        $this->recurring_max_weeks = $this->getRecurringMaxWeeks();
+
         return view('livewire.availability-calendar');
     }
 }

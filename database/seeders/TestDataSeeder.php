@@ -161,12 +161,12 @@ class TestDataSeeder extends Seeder
                     'user_id' => $user->id,
                     'name' => 'Główna lokalizacja',
                     'city' => $sitterData['city'],
-                    'street' => 'ul. Przykładowa 1',
+                    'address' => 'ul. Przykładowa 1',
                     'postal_code' => '00-001',
                     'country' => 'Polska',
                     'latitude' => $sitterData['latitude'],
                     'longitude' => $sitterData['longitude'],
-                    'is_primary' => true
+                    'is_active' => true
                 ]);
             }
 
@@ -280,6 +280,15 @@ class TestDataSeeder extends Seeder
 
     private function createPetsForUser($user, $pets)
     {
+        // Mapowanie typów zwierząt na ID z tabeli pet_types
+        $petTypeMap = [
+            'dog' => 1,
+            'cat' => 2,
+            'bird' => 3,
+            'rabbit' => 4,
+            'other' => 5
+        ];
+
         foreach ($pets as $petData) {
             $existingPet = Pet::where('owner_id', $user->id)
                               ->where('name', $petData['name'])
@@ -289,7 +298,7 @@ class TestDataSeeder extends Seeder
                 Pet::create([
                     'owner_id' => $user->id,
                     'name' => $petData['name'],
-                    'type' => $petData['type'],
+                    'pet_type_id' => $petTypeMap[$petData['type']] ?? 5, // Domyślnie "inne"
                     'breed' => $petData['breed'],
                     'size' => $petData['size'],
                     'age' => rand(1, 8),

@@ -1,16 +1,35 @@
 @props([
     'plan',
     'isPopular' => false,
-    'currentPlan' => false
+    'currentPlan' => false,
+    'availablePlans' => collect()
 ])
 
-<div class="relative bg-white dark:bg-gray-800 rounded-lg border {{ $isPopular ? 'border-blue-500 ring-2 ring-blue-500' : 'border-gray-200 dark:border-gray-700' }} p-6 shadow-lg">
+<div class="relative bg-white dark:bg-gray-800 rounded-lg border {{ $isPopular ? 'border-blue-500 ring-2 ring-blue-500' : ($plan->billing_period === 'yearly' ? 'border-green-300 dark:border-green-600 ring-1 ring-green-300 dark:ring-green-600' : 'border-gray-200 dark:border-gray-700') }} p-6 shadow-lg">
     @if($isPopular)
         <div class="absolute -top-3 left-1/2 transform -translate-x-1/2">
             <span class="bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-medium">
                 Najpopularniejszy
             </span>
         </div>
+    @elseif($plan->billing_period === 'yearly' && $plan->price > 0 && isset($plan->monthlyVariant))
+        @php
+            $monthlyPlan = $plan->monthlyVariant;
+            if ($monthlyPlan) {
+                $yearlyPriceIfMonthly = $monthlyPlan->price * 12;
+                $savings = $yearlyPriceIfMonthly - $plan->price;
+                $discountPercent = round(($savings / $yearlyPriceIfMonthly) * 100);
+            } else {
+                $discountPercent = 0;
+            }
+        @endphp
+        @if($discountPercent > 0)
+            <div class="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    -{{ $discountPercent }}% RABATU
+                </span>
+            </div>
+        @endif
     @endif
 
     @if($currentPlan)
@@ -30,10 +49,23 @@
             <span class="text-gray-600 dark:text-gray-400">/{{ $plan->billing_period === 'yearly' ? 'rok' : 'miesiąc' }}</span>
         </div>
 
-        @if($plan->billing_period === 'yearly' && $plan->price > 0)
-            <p class="text-sm text-green-600 dark:text-green-400 mt-1">
-                Oszczędzasz {{ number_format(($plan->price / 12) * 12 * 0.17, 2, ',', ' ') }} PLN rocznie
-            </p>
+        @if($plan->billing_period === 'yearly' && $plan->price > 0 && isset($plan->monthlyVariant))
+            @php
+                $monthlyPlan = $plan->monthlyVariant;
+                if ($monthlyPlan) {
+                    $yearlyPriceIfMonthly = $monthlyPlan->price * 12;
+                    $savings = $yearlyPriceIfMonthly - $plan->price;
+                    $discountPercent = round(($savings / $yearlyPriceIfMonthly) * 100);
+                } else {
+                    $savings = 0;
+                    $discountPercent = 0;
+                }
+            @endphp
+            @if($savings > 0)
+                <p class="text-sm text-green-600 dark:text-green-400 mt-1">
+                    Oszczędzasz {{ number_format($savings, 2, ',', ' ') }} PLN rocznie ({{ $discountPercent }}% rabatu)
+                </p>
+            @endif
         @endif
     </div>
 
@@ -73,12 +105,34 @@
                 </button>
             </form>
         @else
-            <form method="POST" action="{{ route('subscription.subscribe', $plan) }}" class="w-full">
-                @csrf
-                <button type="submit" class="w-full {{ $isPopular ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-900 hover:bg-gray-800' }} text-white py-3 px-4 rounded-lg font-medium transition-colors">
-                    Wybierz {{ $plan->name }}
-                </button>
-            </form>
+            <a href="{{ route('subscription.checkout', $plan) }}" class="block w-full {{ $isPopular ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-900 hover:bg-gray-800' }} text-white py-3 px-4 rounded-lg font-medium transition-colors text-center">
+                Wybierz {{ $plan->name }}
+            </a>
+        @endif
+
+        {{-- Informacja o oszczędnościach dla planów miesięcznych --}}
+        @if($plan->billing_period === 'monthly' && $plan->price > 0 && isset($plan->yearlyVariant))
+            @php
+                $yearlyPlan = $plan->yearlyVariant;
+                if ($yearlyPlan) {
+                    $yearlyPriceIfMonthly = $plan->price * 12;
+                    $savings = $yearlyPriceIfMonthly - $yearlyPlan->price;
+                    $discountPercent = round(($savings / $yearlyPriceIfMonthly) * 100);
+                } else {
+                    $savings = 0;
+                    $discountPercent = 0;
+                }
+            @endphp
+            @if($savings > 0)
+                <div class="mt-3 text-center">
+                    <button
+                        wire:click="setBillingPeriod('yearly')"
+                        class="text-sm text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 transition-colors"
+                    >
+                        💰 Oszczędź {{ number_format($savings, 0, ',', ' ') }} PLN rocznie ({{ $discountPercent }}% rabatu)
+                    </button>
+                </div>
+            @endif
         @endif
     </div>
 

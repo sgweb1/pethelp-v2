@@ -5,6 +5,27 @@ use Livewire\Volt\Component;
 use Livewire\Attributes\Layout;
 
 new #[Layout('layouts.app')] class extends Component {
+
+    /**
+     * Breadcrumbs dla listy pupili.
+     *
+     * @return array
+     */
+    public function getBreadcrumbsProperty(): array
+    {
+        return [
+            [
+                'title' => 'Panel',
+                'icon' => '🏠',
+                'url' => route('dashboard')
+            ],
+            [
+                'title' => 'Moje pupile',
+                'icon' => '🐾'
+            ]
+        ];
+    }
+
     public $search = '';
     public $filterType = '';
     public $filterStatus = '';
@@ -94,6 +115,11 @@ new #[Layout('layouts.app')] class extends Component {
         session()->flash('success', 'Zwierzę zostało usunięte pomyślnie.');
     }
 }; ?>
+
+@php
+    // Przekaż breadcrumbs do layoutu
+    $breadcrumbs = $this->breadcrumbs;
+@endphp
 
 <div class="desktop-window">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

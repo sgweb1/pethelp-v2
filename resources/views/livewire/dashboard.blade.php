@@ -6,6 +6,22 @@ use Livewire\Volt\Component;
 use Livewire\Attributes\Layout;
 
 new #[Layout('layouts.app')] class extends Component {
+
+    /**
+     * Breadcrumbs dla głównego dashboardu.
+     *
+     * @return array
+     */
+    public function getBreadcrumbsProperty(): array
+    {
+        return [
+            [
+                'title' => 'Panel',
+                'icon' => '🏠'
+            ]
+        ];
+    }
+
     public function mount()
     {
         // Zapewniamy, że użytkownik ma profil
@@ -56,6 +72,11 @@ new #[Layout('layouts.app')] class extends Component {
         ];
     }
 }; ?>
+
+@php
+    // Przekaż breadcrumbs do layoutu
+    $breadcrumbs = $this->breadcrumbs;
+@endphp
 
 <div class="desktop-window">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

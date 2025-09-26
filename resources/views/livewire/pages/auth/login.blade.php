@@ -92,4 +92,7 @@ new #[Layout('layouts.guest')] class extends Component
             </x-ui.button>
         </div>
     </form>
+
+    {{-- Dynamiczne przyciski szybkiego logowania --}}
+    <livewire:quick-login-buttons />
 </div>

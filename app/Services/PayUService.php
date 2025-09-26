@@ -34,26 +34,14 @@ class PayUService
         $this->oauthClientSecret = config('payu.oauth_client_secret');
     }
 
-    public function createSubscriptionPayment(User $user, SubscriptionPlan $plan): array
+    public function createSubscriptionPayment(User $user, SubscriptionPlan $plan, array $additionalData = []): array
     {
-        $amount = $this->calculateAmount($plan->price);
-        $orderId = $this->generateOrderId();
+        // Użyj SubscriptionService do obliczenia proration
+        $subscriptionService = app(SubscriptionService::class);
+        $payment = $subscriptionService->createSubscriptionPayment($user, $plan, 'payu');
 
-        $payment = Payment::create([
-            'user_id' => $user->id,
-            'subscription_id' => null, // Will be set after subscription creation
-            'type' => 'subscription',
-            'status' => 'pending',
-            'amount' => $plan->price,
-            'currency' => config('payu.currency'),
-            'payment_method' => 'payu',
-            'external_id' => $orderId,
-            'description' => "Subskrypcja {$plan->name} - PetHelp",
-            'payment_data' => [
-                'plan_id' => $plan->id,
-                'billing_period' => $plan->billing_period,
-            ],
-        ]);
+        $amount = $this->calculateAmount($payment->amount);
+        $orderId = $payment->external_id;
 
         $orderData = $this->buildOrderData($user, $plan, $amount, $orderId);
 
@@ -63,11 +51,11 @@ class PayUService
 
             if (isset($response['redirectUri'])) {
                 $payment->update([
-                    'external_status' => $response['status']['statusCode'] ?? 'PENDING',
-                    'payment_data' => array_merge($payment->payment_data, [
+                    'gateway_response' => [
+                        'status' => $response['status']['statusCode'] ?? 'PENDING',
                         'payu_order_id' => $response['orderId'] ?? null,
                         'redirect_uri' => $response['redirectUri'],
-                    ]),
+                    ],
                 ]);
 
                 return [
@@ -88,8 +76,10 @@ class PayUService
 
             $payment->update([
                 'status' => 'failed',
-                'failed_at' => now(),
-                'failure_reason' => $e->getMessage(),
+                'gateway_response' => [
+                    'error' => $e->getMessage(),
+                    'failed_at' => now()->toISOString(),
+                ],
             ]);
 
             return [
@@ -111,7 +101,7 @@ class PayUService
                 return false;
             }
 
-            $payment = Payment::where('payment_data->payu_order_id', $orderId)->first();
+            $payment = Payment::where('gateway_response->payu_order_id', $orderId)->first();
 
             if (! $payment) {
                 Log::warning('PayU notification for unknown order', ['order_id' => $orderId]);
@@ -227,9 +217,10 @@ class PayUService
 
         $newStatus = $statusMap[$status] ?? 'pending';
 
+        $gatewayResponse = $payment->gateway_response ?? [];
         $updateData = [
-            'external_status' => $status,
-            'payment_data' => array_merge($payment->payment_data, [
+            'gateway_response' => array_merge($gatewayResponse, [
+                'external_status' => $status,
                 'last_notification' => now()->toISOString(),
                 'payu_data' => $data,
             ]),
@@ -237,11 +228,11 @@ class PayUService
 
         if ($newStatus === 'completed') {
             $updateData['status'] = 'completed';
-            $updateData['paid_at'] = now();
+            $updateData['processed_at'] = now();
         } elseif ($newStatus === 'failed') {
             $updateData['status'] = 'failed';
-            $updateData['failed_at'] = now();
-            $updateData['failure_reason'] = $data['order']['status'] ?? 'Payment failed';
+            $updateData['gateway_response']['failure_reason'] = $data['order']['status'] ?? 'Payment failed';
+            $updateData['gateway_response']['failed_at'] = now()->toISOString();
         }
 
         $payment->update($updateData);
@@ -249,38 +240,71 @@ class PayUService
 
     protected function completeSubscriptionPayment(Payment $payment): void
     {
-        if ($payment->subscription_id) {
+        $gatewayResponse = $payment->gateway_response ?? [];
+        if (isset($gatewayResponse['subscription_processed']) && $gatewayResponse['subscription_processed']) {
             return; // Already processed
         }
 
-        $planId = $payment->payment_data['plan_id'] ?? null;
+        // Dla nowych płatności subskrypcji sprawdź czy to nie jest płatność z SubscriptionService
+        if ($payment->isSubscriptionPayment()) {
+            $subscriptionService = app(SubscriptionService::class);
+            $success = $subscriptionService->processSubscriptionPayment($payment);
+
+            if ($success) {
+                // Oznacz jako przetworzoną
+                $gatewayResponse['subscription_processed'] = true;
+                $payment->update(['gateway_response' => $gatewayResponse]);
+
+                Log::info('Płatność subskrypcji przetworzona przez SubscriptionService', [
+                    'payment_id' => $payment->id,
+                    'user_id' => $payment->user_id,
+                    'plan_id' => $payment->subscription_plan_id
+                ]);
+            }
+            return;
+        }
+
+        // Legacy kod dla starych płatności (bez user_id i subscription_plan_id)
+        $planId = $gatewayResponse['plan_id'] ?? null;
         if (! $planId) {
             Log::error('Payment missing plan_id', ['payment_id' => $payment->id]);
-
             return;
         }
 
         $plan = SubscriptionPlan::find($planId);
         if (! $plan) {
             Log::error('Plan not found for payment', ['payment_id' => $payment->id, 'plan_id' => $planId]);
-
             return;
         }
 
-        // Cancel existing active subscriptions
-        $payment->user->subscriptions()
+        $userId = $gatewayResponse['user_id'] ?? null;
+        if (!$userId) {
+            Log::error('Payment missing user_id for subscription', ['payment_id' => $payment->id]);
+            return;
+        }
+
+        $user = User::find($userId);
+        if (!$user) {
+            Log::error('User not found for payment', ['payment_id' => $payment->id, 'user_id' => $userId]);
+            return;
+        }
+
+        // Cancel existing active subscriptions (legacy approach)
+        $user->subscriptions()
             ->where('status', Subscription::STATUS_ACTIVE)
             ->update(['status' => Subscription::STATUS_CANCELLED, 'cancelled_at' => now()]);
 
-        // Create new subscription
-        $subscription = Subscription::createFromPlan($payment->user, $plan);
+        // Create new subscription (legacy approach)
+        $subscription = Subscription::createFromPlan($user, $plan);
         $subscription->update(['status' => Subscription::STATUS_ACTIVE]);
 
-        // Link payment to subscription
-        $payment->update(['subscription_id' => $subscription->id]);
+        // Mark payment as processed
+        $gatewayResponse['subscription_processed'] = true;
+        $gatewayResponse['subscription_id'] = $subscription->id;
+        $payment->update(['gateway_response' => $gatewayResponse]);
 
         Log::info('Subscription activated via PayU payment', [
-            'user_id' => $payment->user_id,
+            'user_id' => $userId,
             'subscription_id' => $subscription->id,
             'payment_id' => $payment->id,
         ]);
@@ -301,5 +325,33 @@ class PayUService
         $calculatedSignature = hash(config('payu.signature_algorithm'), $string);
 
         return hash_equals($calculatedSignature, $signature);
+    }
+
+    /**
+     * Test PayU connection (tylko dla developmentu).
+     *
+     * @return array
+     */
+    public function testConnection(): array
+    {
+        try {
+            $token = $this->getOAuthToken();
+            return [
+                'success' => true,
+                'message' => 'Połączenie z PayU działa poprawnie',
+                'token_preview' => substr($token, 0, 20) . '...',
+                'environment' => $this->environment,
+                'merchant_id' => $this->merchantId,
+                'api_url' => $this->apiUrl
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Błąd połączenia z PayU',
+                'error' => $e->getMessage(),
+                'environment' => $this->environment,
+                'api_url' => $this->apiUrl
+            ];
+        }
     }
 }

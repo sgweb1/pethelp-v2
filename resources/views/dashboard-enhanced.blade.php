@@ -415,7 +415,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Auto-refresh dashboard data every 5 minutes
             setInterval(function() {
-                Livewire.emit('refreshDashboard');
+                Livewire.dispatch('refreshDashboard');
             }, 300000);
 
             // Handle dashboard notifications

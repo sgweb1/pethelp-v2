@@ -125,11 +125,42 @@
                             @endif
                         </div>
 
+                        {{-- Vacation Notice --}}
+                        @if($item->user && $item->user->isOnVacation())
+                            @php $vacation = $item->user->getCurrentVacation(); @endphp
+                            <div class="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4">
+                                <div class="flex items-start space-x-2">
+                                    <svg class="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <div class="text-sm">
+                                        <p class="font-medium text-orange-800 mb-1">🏖️ Opiekun jest w trybie urlopowym</p>
+                                        @if($vacation)
+                                            <p class="text-orange-700 text-xs">
+                                                Niedostępny do {{ $vacation->vacation_end_date->format('d.m.Y') }}
+                                                @if($vacation->notes)
+                                                    <br><span class="italic">{{ $vacation->notes }}</span>
+                                                @endif
+                                            </p>
+                                        @else
+                                            <p class="text-orange-700 text-xs">Obecnie niedostępny</p>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
                         {{-- Action Button --}}
                         <div class="flex gap-2">
-                            <button class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
-                                Zobacz szczegóły
-                            </button>
+                            @if($item->user && $item->user->isOnVacation())
+                                <button disabled class="flex-1 bg-gray-400 cursor-not-allowed text-white px-4 py-2 rounded-lg text-sm font-medium">
+                                    Obecnie niedostępny
+                                </button>
+                            @else
+                                <button class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                                    Zobacz szczegóły
+                                </button>
+                            @endif
                             <button class="px-3 py-2 text-gray-400 hover:text-red-500 transition-colors duration-200">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

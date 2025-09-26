@@ -5,6 +5,32 @@ use Livewire\Volt\Component;
 use Livewire\Attributes\Layout;
 
 new #[Layout('layouts.app')] class extends Component {
+
+    /**
+     * Breadcrumbs dla edycji pupila.
+     *
+     * @return array
+     */
+    public function getBreadcrumbsProperty(): array
+    {
+        return [
+            [
+                'title' => 'Panel',
+                'icon' => '🏠',
+                'url' => route('dashboard')
+            ],
+            [
+                'title' => 'Moje pupile',
+                'icon' => '🐾',
+                'url' => route('pets.index')
+            ],
+            [
+                'title' => $this->pet->name ?? 'Edytuj pupila',
+                'icon' => '✏️'
+            ]
+        ];
+    }
+
     public Pet $pet;
     public $name;
     public $type;
@@ -151,6 +177,11 @@ new #[Layout('layouts.app')] class extends Component {
         return redirect()->route('pets.index');
     }
 }; ?>
+
+@php
+    // Przekaż breadcrumbs do layoutu
+    $breadcrumbs = $this->breadcrumbs;
+@endphp
 
 <div class="desktop-window">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
