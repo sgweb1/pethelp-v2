@@ -1,6 +1,10 @@
 <?php
 
-use App\Models\{Event, EventType, EventLocation, EventRegistration, User};
+use App\Models\Event;
+use App\Models\EventLocation;
+use App\Models\EventRegistration;
+use App\Models\EventType;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -15,7 +19,7 @@ test('can create event with factory', function () {
 
     expect($event)->toBeInstanceOf(Event::class);
     expect($event->title)->toBeString();
-    expect($event->user_id)->toBeInt();
+    expect($event->organizer_id)->toBeInt();
     expect($event->event_type_id)->toBeInt();
 });
 

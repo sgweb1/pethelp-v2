@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Event;
 use App\Models\EventLocation;
 use App\Models\EventType;
+use App\Models\Location;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 
@@ -338,28 +339,36 @@ class EventSeeder extends Seeder
         foreach ($events as $eventData) {
             // Tworzymy wydarzenie
             $event = Event::create([
-                'user_id' => $users->random()->id,
+                'organizer_id' => $users->random()->id,
                 'title' => $eventData['title'],
                 'description' => $eventData['description'],
                 'event_type_id' => $eventData['event_type_id'],
-                'starts_at' => $eventData['start_date'],
-                'ends_at' => $eventData['end_date'],
+                'start_date' => $eventData['start_date'],
+                'end_date' => $eventData['end_date'],
                 'max_participants' => $eventData['max_participants'],
-                'current_participants' => $eventData['current_participants'],
-                'registration_deadline' => $eventData['registration_deadline'],
-                'entry_fee' => $eventData['price'],
+                'price' => $eventData['price'],
                 'status' => 'published',
             ]);
 
-            // Tworzymy lokalizację powiązaną z wydarzeniem
-            EventLocation::create([
-                'event_id' => $event->id,
-                'full_address' => $eventData['location']['address'],
-                'street' => explode(',', $eventData['location']['address'])[0] ?? null,
+            // Najpierw tworzymy lokalizację
+            $location = Location::create([
+                'name' => $eventData['location']['name'] ?? $eventData['title'].' - lokalizacja',
+                'description' => 'Lokalizacja wydarzenia: '.$eventData['title'],
+                'address' => $eventData['location']['address'],
                 'city' => $eventData['location']['city'],
+                'postal_code' => '00-000', // placeholder
+                'country' => 'PL',
                 'latitude' => $eventData['location']['latitude'],
                 'longitude' => $eventData['location']['longitude'],
-                'location_notes' => $eventData['location']['name'] ?? null,
+                'is_active' => true,
+            ]);
+
+            // Potem łączymy event z lokalizacją
+            EventLocation::create([
+                'event_id' => $event->id,
+                'location_id' => $location->id,
+                'is_primary' => true,
+                'notes' => $eventData['location']['name'] ?? null,
             ]);
         }
 

@@ -252,6 +252,55 @@ class DarkModeManager {
             setMode: (mode) => this.setMode(mode),
             systemPrefers: () => this.systemPreference.matches
         };
+
+        // Register Alpine.js component for dark mode toggle
+        document.addEventListener('alpine:init', () => {
+            if (window.Alpine) {
+                Alpine.data('darkModeToggle', () => ({
+                    isDark: false,
+                    currentMode: 'auto',
+                    systemPreference: false,
+                    showOptions: false,
+
+                    init() {
+                        this.updateState({
+                            isDark: window.darkMode?.isDark() || false,
+                            mode: window.darkMode?.mode() || 'auto',
+                            systemPreference: window.darkMode?.systemPrefers() || false
+                        });
+                    },
+
+                    updateState(detail) {
+                        this.isDark = detail.isDark;
+                        this.currentMode = detail.mode;
+                        this.systemPreference = detail.systemPreference;
+                    },
+
+                    toggle() {
+                        if (window.darkMode) {
+                            window.darkMode.toggle();
+                        }
+                        this.showOptions = false;
+                    },
+
+                    setMode(mode) {
+                        if (window.darkMode) {
+                            window.darkMode.setMode(mode);
+                        }
+                        this.showOptions = false;
+                    },
+
+                    getModeLabel(mode) {
+                        switch(mode) {
+                            case 'light': return 'Jasny';
+                            case 'dark': return 'Ciemny';
+                            case 'auto': return 'Auto';
+                            default: return 'Auto';
+                        }
+                    }
+                }));
+            }
+        });
     }
 
     // Public API methods

@@ -112,11 +112,11 @@
                 @endif
 
                 <div class="space-x-4">
-                    <a href="{{ route('bookings') }}"
+                    <a href="{{ route('profile.bookings') }}"
                        class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors">
                         Przejdź do rezerwacji
                     </a>
-                    <a href="{{ route('dashboard') }}"
+                    <a href="{{ route('profile.dashboard') }}"
                        class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors">
                         Powrót do panelu
                     </a>
@@ -140,7 +140,7 @@
                             class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors">
                         Spróbuj ponownie
                     </button>
-                    <a href="{{ route('bookings') }}"
+                    <a href="{{ route('profile.bookings') }}"
                        class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors">
                         Powrót do rezerwacji
                     </a>

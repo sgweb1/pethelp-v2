@@ -73,7 +73,7 @@
                                 </button>
 
                                 <!-- Edit -->
-                                <a href="{{ route('sitter-services.edit', $service) }}"
+                                <a href="{{ route('profile.services.edit', $service) }}"
                                    class="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
                                    title="Edytuj">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -88,7 +88,7 @@
 
             <!-- Add New Service Button -->
             <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
-                <a href="{{ route('sitter-services.create') }}"
+                <a href="{{ route('profile.services.create') }}"
                    class="flex items-center justify-center w-full p-3 text-sm font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -108,7 +108,7 @@
                 <p class="text-gray-500 dark:text-gray-400 mb-4">
                     Nie masz jeszcze żadnych aktywnych usług. Dodaj swoją pierwszą usługę.
                 </p>
-                <a href="{{ route('sitter-services.create') }}"
+                <a href="{{ route('profile.services.create') }}"
                    class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>

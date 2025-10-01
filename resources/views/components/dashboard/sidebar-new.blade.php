@@ -35,7 +35,7 @@
     <div class="py-4 overflow-y-auto">
         <!-- Dashboard Overview -->
         <div class="px-4 mb-6">
-            <a href="{{ route('dashboard') }}"
+            <a href="{{ route('profile.dashboard') }}"
                class="flex items-center p-3 rounded-lg {{ $activeSection === 'dashboard' ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400' : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700' }} transition-colors duration-200">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
@@ -109,11 +109,11 @@
                 </button>
 
                 <div x-show="expandedSections.pets" x-collapse class="ml-8 mt-2 space-y-1">
-                    <a href="{{ route('pets.index') }}"
+                    <a href="{{ route('profile.pets.index') }}"
                        class="block p-2 text-sm {{ $activeSection === 'pets' ? 'text-primary-600 bg-primary-50 dark:text-primary-400 dark:bg-primary-900/20' : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white' }} rounded transition-colors">
                         Lista zwierząt
                     </a>
-                    <a href="{{ route('pets.create') }}"
+                    <a href="{{ route('profile.pets.create') }}"
                        class="block p-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded transition-colors">
                         Dodaj zwierzę
                     </a>
@@ -144,15 +144,15 @@
                 </button>
 
                 <div x-show="expandedSections.gallery" x-collapse class="ml-8 mt-2 space-y-1">
-                    <a href="{{ route('gallery.index') }}"
+                    <a href="{{ route('profile.gallery.index') }}"
                        class="block p-2 text-sm {{ $activeSection === 'gallery' ? 'text-primary-600 bg-primary-50 dark:text-primary-400 dark:bg-primary-900/20' : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white' }} rounded transition-colors">
                         Wszystkie zdjęcia
                     </a>
-                    <a href="{{ route('gallery.upload') }}"
+                    <a href="{{ route('profile.gallery.upload') }}"
                        class="block p-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded transition-colors">
                         Upload zdjęć
                     </a>
-                    <a href="{{ route('gallery.index') }}?view=albums"
+                    <a href="{{ route('profile.gallery.index') }}?view=albums"
                        class="block p-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded transition-colors">
                         Albumy
                     </a>
@@ -177,9 +177,9 @@
 
                 <div x-show="expandedSections.petSitting" x-collapse class="ml-8 mt-2 space-y-1">
                     <a href="#" class="block p-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Mój dom</a>
-                    <a href="{{ route('services.index') }}" class="block p-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Moje usługi</a>
-                    <a href="{{ route('availability.calendar') }}" class="block p-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Kalendarz dostępności</a>
-                    <a href="{{ route('bookings') }}" class="block p-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Zlecenia</a>
+                    <a href="{{ route('profile.services.index') }}" class="block p-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Moje usługi</a>
+                    <a href="{{ route('profile.availability') }}" class="block p-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Kalendarz dostępności</a>
+                    <a href="{{ route('profile.bookings') }}" class="block p-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Zlecenia</a>
                     <a href="#" class="block p-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Rozliczenia</a>
                 </div>
             </div>
@@ -201,7 +201,7 @@
                 </button>
 
                 <div x-show="expandedSections.announcements" x-collapse class="ml-8 mt-2 space-y-1">
-                    <a href="{{ route('events.index') }}" class="block p-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Wydarzenia</a>
+                    <a href="{{ route('profile.events.index') }}" class="block p-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Wydarzenia</a>
                     <a href="#" class="block p-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Usługi dodatkowe</a>
                     <a href="#" class="block p-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Ogłoszenia różne</a>
                     <a href="{{ route('advertisements.index') }}" class="block p-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Sprzedaż/Adopcja</a>
@@ -224,9 +224,9 @@
                 </button>
 
                 <div x-show="expandedSections.communication" x-collapse class="ml-8 mt-2 space-y-1">
-                    <a href="{{ route('chat') }}" class="block p-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Wiadomości</a>
+                    <a href="{{ route('profile.chat.index') }}" class="block p-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Wiadomości</a>
                     <a href="#" class="block p-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Połączenia</a>
-                    <a href="{{ route('reviews') }}" class="block p-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Recenzje</a>
+                    <a href="{{ route('profile.reviews') }}" class="block p-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Recenzje</a>
                 </div>
             </div>
 

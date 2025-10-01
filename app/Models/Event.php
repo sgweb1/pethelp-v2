@@ -15,40 +15,34 @@ class Event extends Model
     use HasFactory, HasMapLocation;
 
     protected $fillable = [
-        'user_id',
+        'organizer_id',
         'event_type_id',
         'title',
         'description',
-        'starts_at',
-        'ends_at',
+        'start_date',
+        'end_date',
         'max_participants',
-        'entry_fee',
-        'currency',
-        'is_invitation_only',
+        'price',
         'status',
+        'requirements',
+        'contact_info',
         'is_featured',
-        'registration_deadline',
-        'allow_waiting_list',
-        'current_participants',
     ];
 
     protected function casts(): array
     {
         return [
-            'starts_at' => 'datetime',
-            'ends_at' => 'datetime',
-            'registration_deadline' => 'datetime',
-            'is_invitation_only' => 'boolean',
+            'start_date' => 'datetime',
+            'end_date' => 'datetime',
             'is_featured' => 'boolean',
-            'allow_waiting_list' => 'boolean',
-            'entry_fee' => 'decimal:2',
+            'price' => 'decimal:2',
         ];
     }
 
     // Relationships with eager loading optimization
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'organizer_id');
     }
 
     public function eventType(): BelongsTo
@@ -152,7 +146,7 @@ class Event extends Model
         $location = $this->location;
 
         return [
-            'user_id' => $this->user_id,
+            'user_id' => $this->organizer_id,
             'latitude' => $location->latitude,
             'longitude' => $location->longitude,
             'city' => $location->city,

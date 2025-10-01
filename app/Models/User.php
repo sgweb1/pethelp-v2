@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Model reprezentujący użytkownika aplikacji PetHelp.
@@ -14,8 +14,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * Reprezentuje zarówno właścicieli zwierząt jak i opiekunów oferujących swoje usługi.
  * Zawiera podstawowe dane użytkownika, profil, relacje do zwierząt i usług.
  *
- * @package App\Models
  * @author Claude AI Assistant
+ *
  * @since 1.0.0
  *
  * @property int $id Unikalny identyfikator użytkownika
@@ -27,7 +27,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property \Carbon\Carbon|null $premium_until Data wygaśnięcia statusu premium
  * @property \Carbon\Carbon $created_at Data utworzenia konta
  * @property \Carbon\Carbon $updated_at Data ostatniej aktualizacji
- *
  * @property-read \App\Models\UserProfile|null $profile Profil użytkownika z dodatkowymi danymi
  * @property-read \Illuminate\Database\Eloquent\Collection<\App\Models\Pet> $pets Zwierzęta należące do użytkownika
  * @property-read \Illuminate\Database\Eloquent\Collection<\App\Models\Service> $services Usługi oferowane przez użytkownika
@@ -184,7 +183,7 @@ class User extends Authenticatable
     public function conversations(): HasMany
     {
         return $this->hasMany(Conversation::class, 'user_one_id')
-                   ->orWhere('user_two_id', $this->id);
+            ->orWhere('user_two_id', $this->id);
     }
 
     public function sentMessages(): HasMany
@@ -197,11 +196,16 @@ class User extends Authenticatable
         return $this->hasMany(Subscription::class);
     }
 
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
     public function activeSubscription(): HasOne
     {
         return $this->hasOne(Subscription::class)->where('status', Subscription::STATUS_ACTIVE)
-                    ->where('starts_at', '<=', now())
-                    ->where('ends_at', '>', now());
+            ->where('starts_at', '<=', now())
+            ->where('ends_at', '>', now());
     }
 
     public function advertisements(): HasMany
@@ -211,7 +215,7 @@ class User extends Authenticatable
 
     public function events(): HasMany
     {
-        return $this->hasMany(Event::class);
+        return $this->hasMany(Event::class, 'organizer_id');
     }
 
     public function photos(): HasMany
@@ -226,14 +230,23 @@ class User extends Authenticatable
 
     public function getUnreadMessagesCount(): int
     {
-        return Message::whereHas('conversation', function($query) {
+        return Message::whereHas('conversation', function ($query) {
             $query->forUser($this->id);
         })->forReceiver($this->id)->unread()->count();
+    }
+
+    /**
+     * Zwraca liczbę nieprzeczytanych powiadomień użytkownika.
+     */
+    public function getUnreadNotificationsCount(): int
+    {
+        return $this->notifications()->whereNull('read_at')->count();
     }
 
     public function hasFeature(string $feature): bool
     {
         $subscription = $this->activeSubscription;
+
         return $subscription && $subscription->hasFeature($feature);
     }
 
@@ -246,7 +259,7 @@ class User extends Authenticatable
     {
         $subscription = $this->activeSubscription;
 
-        if (!$subscription) {
+        if (! $subscription) {
             return $this->advertisements()->count() < 3; // Basic plan limit
         }
 

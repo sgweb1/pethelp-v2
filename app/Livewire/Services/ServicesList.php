@@ -2,14 +2,15 @@
 
 namespace App\Livewire\Services;
 
-use App\Models\Service;
 use App\Models\MapItem;
-use Livewire\Component;
+use App\Models\Service;
 use Livewire\Attributes\On;
+use Livewire\Component;
 
 class ServicesList extends Component
 {
     public $confirmingServiceDeletion = false;
+
     public $serviceToDelete = null;
 
     public function getServicesProperty()
@@ -35,7 +36,7 @@ class ServicesList extends Component
 
     public function deleteService()
     {
-        if (!$this->serviceToDelete) {
+        if (! $this->serviceToDelete) {
             return;
         }
 
@@ -54,7 +55,7 @@ class ServicesList extends Component
             $this->serviceToDelete = null;
 
         } catch (\Exception $e) {
-            \Log::error('Error deleting service: ' . $e->getMessage());
+            \Log::error('Error deleting service: '.$e->getMessage());
             session()->flash('error', 'Wystąpił błąd podczas usuwania usługi. Spróbuj ponownie.');
         }
     }
@@ -71,17 +72,17 @@ class ServicesList extends Component
             [
                 'title' => 'Panel',
                 'icon' => '🏠',
-                'url' => route('dashboard')
+                'url' => route('profile.dashboard'),
             ],
             [
                 'title' => 'Pet Sitter',
                 'icon' => '🐕',
-                'url' => route('dashboard')
+                'url' => route('profile.dashboard'),
             ],
             [
                 'title' => 'Moje usługi',
-                'icon' => '🐾'
-            ]
+                'icon' => '🐾',
+            ],
         ];
 
         return view('livewire.services.services-list')->layout('components.dashboard-layout', compact('breadcrumbs'));

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wizard V4 - Krok 1 Mockup (Mobile First)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        .gradient-hero {
+            background: linear-gradient(135deg, #10b981 0%, #14b8a6 50%, #06b6d4 100%);
+        }
+
+        .gradient-button {
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+        }
+
+        .gradient-button:hover {
+            background: linear-gradient(135deg, #059669, #0284c7);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .stagger-1 { animation-delay: 0.1s; opacity: 0; }
+        .stagger-2 { animation-delay: 0.2s; opacity: 0; }
+        .stagger-3 { animation-delay: 0.3s; opacity: 0; }
+        .stagger-4 { animation-delay: 0.4s; opacity: 0; }
+    </style>
+</head>
+<body class="bg-gray-50 antialiased">
+
+    <div x-data="{
+        motivation: '',
+        showAIPanel: true,
+        generating: false,
+        get characterCount() {
+            return this.motivation.length;
+        },
+        get progress() {
+            return Math.min((this.characterCount / 100) * 100, 100);
+        },
+        get isValid() {
+            return this.characterCount >= 100 && this.characterCount <= 500;
+        },
+        generateWithAI() {
+            this.generating = true;
+            setTimeout(() => {
+                this.motivation = 'Kocham zwierzęta od dziecka i od zawsze marzyłam o pracy, która łączy moją pasję z pomaganiem innym. Jako pet sitter mogę zapewnić profesjonalną opiekę pupilom, gdy ich właściciele potrzebują wsparcia.';
+                this.generating = false;
+            }, 2000);
+        },
+        setExample(text) {
+            this.motivation = text;
+        }
+    }" class="min-h-screen pb-20">
+
+        <!-- Hero Section z gradientem (Mobile-optimized) -->
+        <div class="gradient-hero text-white px-4 py-8 sm:py-12 mb-6 animate-fade-in-up">
+            <div class="max-w-2xl mx-auto text-center">
+                <div class="text-5xl sm:text-6xl mb-4">👋</div>
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 leading-tight">
+                    Cześć! Dlaczego chcesz zostać pet sitterem?
+                </h1>
+                <p class="text-emerald-50 text-sm sm:text-base">
+                    Poznajmy Cię lepiej - opowiedz nam o swojej motywacji
+                </p>
+
+                <!-- Progress indicator -->
+                <div class="mt-6 flex items-center justify-center space-x-2 text-sm">
+                    <div class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center font-bold">
+                        1
+                    </div>
+                    <span class="text-emerald-100">z 12 kroków</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Container -->
+        <div class="max-w-2xl mx-auto px-4 space-y-6">
+
+            <!-- AI Assistant Card (zawsze widoczna, nie popup) -->
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden animate-fade-in-up stagger-1">
+                <!-- Header z gradientem -->
+                <div class="gradient-hero p-4 sm:p-6 text-white">
+                    <div class="flex items-start space-x-3">
+                        <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center flex-shrink-0 text-2xl">
+                            🤖
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h2 class="text-lg sm:text-xl font-bold mb-1">AI Assistant</h2>
+                            <p class="text-emerald-50 text-xs sm:text-sm">
+                                Pomożemy Ci stworzyć przekonujący opis
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="p-4 sm:p-6 space-y-4">
+                    <!-- Wskazówki -->
+                    <div class="space-y-3">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 text-emerald-600 font-bold text-sm">
+                                1
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-semibold text-gray-900 text-sm sm:text-base mb-1">Proces rejestracji</h4>
+                                <p class="text-xs sm:text-sm text-gray-600">12 prostych kroków, każdy zajmie tylko chwilę</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-3">
+                            <div class="w-6 h-6 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0 text-teal-600 font-bold text-sm">
+                                2
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-semibold text-gray-900 text-sm sm:text-base mb-1">Szacowany czas</h4>
+                                <p class="text-xs sm:text-sm text-gray-600">15-20 minut na ukończenie całej rejestracji</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-3">
+                            <div class="w-6 h-6 rounded-full bg-cyan-100 flex items-center justify-center flex-shrink-0 text-cyan-600 font-bold text-sm">
+                                3
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-semibold text-gray-900 text-sm sm:text-base mb-1">Co będzie potrzebne</h4>
+                                <p class="text-xs sm:text-sm text-gray-600">Zdjęcie profilowe, podstawowe dane i opis doświadczenia</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Generate Button -->
+                    <button
+                        @click="generateWithAI()"
+                        :disabled="generating"
+                        class="w-full gradient-button text-white font-semibold py-3 px-6 rounded-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 text-sm sm:text-base">
+                        <span x-show="!generating">✨ Wygeneruj opis z AI</span>
+                        <span x-show="generating">
+                            <svg class="animate-spin h-5 w-5 text-white inline-block mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Generowanie...
+                        </span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Form Card -->
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6 animate-fade-in-up stagger-2">
+                <label class="block mb-3">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-semibold text-gray-900 text-sm sm:text-base">
+                            Twoja motywacja <span class="text-red-500">*</span>
+                        </span>
+                        <span class="text-xs sm:text-sm transition-colors"
+                              :class="isValid ? 'text-emerald-600 font-semibold' : characterCount > 500 ? 'text-red-600' : 'text-gray-400'"
+                              x-text="`${characterCount}/500`"></span>
+                    </div>
+
+                    <textarea
+                        x-model="motivation"
+                        rows="6"
+                        maxlength="500"
+                        placeholder="Np. Kocham zwierzęta od dziecka i chciałabym pomóc właścicielom, którzy potrzebują wsparcia w opiece nad swoimi pupilami..."
+                        class="w-full px-4 py-3 text-sm sm:text-base border-2 border-gray-200 rounded-xl resize-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all"
+                        :class="isValid ? 'border-emerald-500' : ''"></textarea>
+                </label>
+
+                <!-- Progress Bar -->
+                <div class="mb-4">
+                    <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-500"
+                             :class="isValid ? 'bg-gradient-to-r from-emerald-400 to-emerald-600' : progress > 0 ? 'bg-gray-300' : 'bg-gray-200'"
+                             :style="`width: ${progress}%`"></div>
+                    </div>
+                    <p class="text-xs sm:text-sm mt-2 flex items-center"
+                       :class="isValid ? 'text-emerald-600' : 'text-gray-500'">
+                        <span x-show="isValid" class="mr-1">✓</span>
+                        <span x-show="!isValid && characterCount < 100">Minimum 100 znaków (jeszcze <span x-text="100 - characterCount"></span>)</span>
+                        <span x-show="isValid">Świetnie! Twój opis spełnia wymagania</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Wskazówki pisania (Mobile-optimized) -->
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6 animate-fade-in-up stagger-3">
+                <h3 class="font-bold text-gray-900 mb-3 flex items-center text-sm sm:text-base">
+                    <span class="text-xl sm:text-2xl mr-2">💡</span>
+                    Co warto zawrzeć w opisie?
+                </h3>
+
+                <div class="space-y-3">
+                    <div class="flex items-start space-x-3 p-3 bg-blue-50 rounded-xl border border-blue-100">
+                        <span class="text-lg sm:text-xl flex-shrink-0">🐾</span>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-medium text-gray-900 text-xs sm:text-sm mb-1">Twoja pasja</h4>
+                            <p class="text-xs text-gray-600">Napisz dlaczego kochasz zwierzęta</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-3 p-3 bg-purple-50 rounded-xl border border-purple-100">
+                        <span class="text-lg sm:text-xl flex-shrink-0">⭐</span>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-medium text-gray-900 text-xs sm:text-sm mb-1">Doświadczenie</h4>
+                            <p class="text-xs text-gray-600">Wspomnij o wcześniejszej opiece</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-3 p-3 bg-emerald-50 rounded-xl border border-emerald-100">
+                        <span class="text-lg sm:text-xl flex-shrink-0">❤️</span>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-medium text-gray-900 text-xs sm:text-sm mb-1">Cel</h4>
+                            <p class="text-xs text-gray-600">Jak chcesz pomagać właścicielom</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Przykłady inspirujące (Mobile Grid) -->
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6 animate-fade-in-up stagger-4">
+                <h3 class="font-bold text-gray-900 mb-3 flex items-center text-sm sm:text-base">
+                    <span class="text-xl sm:text-2xl mr-2">⭐</span>
+                    Przykłady inspirujących opisów
+                </h3>
+
+                <div class="space-y-3">
+                    <!-- Przykład 1 -->
+                    <button
+                        @click="setExample('Od dziecka otaczałam się zwierzętami i doskonale rozumiem ich potrzeby. Chciałabym pomagać właścicielom, którzy z różnych powodów nie mogą zapewnić opieki swoim pupilom, jednocześnie rozwijając swoją pasję.')"
+                        class="w-full text-left p-4 bg-gradient-to-br from-emerald-50 to-teal-50 hover:from-emerald-100 hover:to-teal-100 border-2 border-emerald-200 rounded-xl transition-all transform hover:scale-[1.02] group">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm group-hover:scale-110 transition-transform">
+                                1
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs sm:text-sm text-gray-700 line-clamp-2">
+                                    "Od dziecka otaczałam się zwierzętami i doskonale rozumiem ich potrzeby..."
+                                </p>
+                                <span class="text-xs text-emerald-600 font-medium mt-1 inline-block">👆 Kliknij aby użyć</span>
+                            </div>
+                        </div>
+                    </button>
+
+                    <!-- Przykład 2 -->
+                    <button
+                        @click="setExample('Mam doświadczenie w pracy z różnymi rasami psów i kotów. Widzę, jak ważna jest odpowiednia opieka dla dobrostanu zwierząt, dlatego chcę oferować profesjonalne usługi pet sittingu w mojej okolicy.')"
+                        class="w-full text-left p-4 bg-gradient-to-br from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100 border-2 border-blue-200 rounded-xl transition-all transform hover:scale-[1.02] group">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm group-hover:scale-110 transition-transform">
+                                2
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs sm:text-sm text-gray-700 line-clamp-2">
+                                    "Mam doświadczenie w pracy z różnymi rasami psów i kotów. Widzę jak ważna jest..."
+                                </p>
+                                <span class="text-xs text-blue-600 font-medium mt-1 inline-block">👆 Kliknij aby użyć</span>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons (Sticky na mobile) -->
+            <div class="sticky bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 -mx-4 sm:relative sm:border-0 sm:bg-transparent sm:p-0 sm:m-0">
+                <div class="flex items-center justify-between space-x-3">
+                    <button class="px-4 sm:px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all text-sm sm:text-base">
+                        ← Wstecz
+                    </button>
+                    <button
+                        :disabled="!isValid"
+                        :class="isValid ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-gray-300 cursor-not-allowed'"
+                        class="flex-1 sm:flex-initial sm:px-8 py-3 text-white rounded-xl font-semibold transition-all transform hover:scale-105 disabled:transform-none text-sm sm:text-base">
+                        Dalej →
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

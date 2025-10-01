@@ -7,8 +7,8 @@
         [
             'name' => 'Dashboard',
             'icon' => '📊',
-            'route' => 'dashboard',
-            'active' => request()->routeIs('dashboard'),
+            'route' => 'profile.dashboard',
+            'active' => request()->routeIs('profile.dashboard'),
         ],
         [
             'name' => 'Mój profil',
@@ -23,14 +23,14 @@
             [
                 'name' => 'Moje zlecenia',
                 'icon' => '📋',
-                'route' => 'bookings',
-                'active' => request()->routeIs('bookings*'),
+                'route' => 'profile.bookings',
+                'active' => request()->routeIs('profile.bookings*'),
                 'badge' => $user->ownerBookings()->whereIn('status', ['pending'])->count()
             ],
             [
                 'name' => 'Moje pupile',
                 'icon' => '🐾',
-                'route' => 'pets.index',
+                'route' => 'profile.pets.index',
                 'active' => request()->routeIs('pets.*'),
             ],
             [
@@ -47,20 +47,20 @@
             [
                 'name' => 'Moje zlecenia',
                 'icon' => '📋',
-                'route' => 'bookings',
-                'active' => request()->routeIs('bookings*'),
+                'route' => 'profile.bookings',
+                'active' => request()->routeIs('profile.bookings*'),
                 'badge' => $user->sitterBookings()->whereIn('status', ['pending'])->count()
             ],
             [
                 'name' => 'Moje usługi',
                 'icon' => '🛠️',
-                'route' => 'sitter-services.index',
+                'route' => 'profile.services.index',
                 'active' => request()->routeIs('sitter-services.*'),
             ],
             [
                 'name' => 'Kalendarz',
                 'icon' => '📅',
-                'route' => 'availability.calendar',
+                'route' => 'profile.availability',
                 'active' => request()->routeIs('availability.*'),
             ]
         ]);
@@ -70,21 +70,21 @@
         [
             'name' => 'Oceny',
             'icon' => '⭐',
-            'route' => 'reviews',
-            'active' => request()->routeIs('reviews*'),
+            'route' => 'profile.reviews',
+            'active' => request()->routeIs('profile.reviews*'),
         ],
         [
             'name' => 'Wiadomości',
             'icon' => '💬',
-            'route' => 'chat',
-            'active' => request()->routeIs('chat*'),
+            'route' => 'profile.chat.index',
+            'active' => request()->routeIs('profile.chat*'),
             'badge' => $user->getUnreadMessagesCount()
         ],
         [
             'name' => 'Powiadomienia',
             'icon' => '🔔',
-            'route' => 'notifications',
-            'active' => request()->routeIs('notifications*'),
+            'route' => 'profile.notifications',
+            'active' => request()->routeIs('profile.notifications*'),
             'badge' => $user->notifications()->unread()->count()
         ]
     ]);

@@ -142,7 +142,7 @@ $toggleAvailability = function() {
             </div>
 
             <div class="flex items-center space-x-2">
-                <a href="{{ route('sitter-services.create') }}" class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition-all duration-300">
+                <a href="{{ route('profile.services.create') }}" class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition-all duration-300">
                     ➕ Dodaj usługę
                 </a>
             </div>
@@ -286,7 +286,7 @@ $toggleAvailability = function() {
                     </h3>
 
                     <div class="space-y-3">
-                        <a href="{{ route('sitter-services.create') }}"
+                        <a href="{{ route('profile.services.create') }}"
                            class="flex items-center p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
                             <div class="text-2xl mr-3">➕</div>
                             <div>

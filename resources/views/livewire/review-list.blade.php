@@ -4,9 +4,9 @@
         <div class="flex justify-between items-center mb-6">
             <div>
                 <h2 class="text-2xl font-bold text-gray-900">
-                    {{ $user ? 'Recenzje dla ' . $user->name : 'Wszystkie recenzje' }}
+                    {{ $this->user ? 'Recenzje dla ' . $this->user->name : 'Wszystkie recenzje' }}
                 </h2>
-                @if($user && $this->averageRating > 0)
+                @if($this->user && $this->averageRating > 0)
                     <div class="flex items-center mt-2">
                         <div class="text-2xl mr-2">{{ str_repeat('⭐', round($this->averageRating)) }}</div>
                         <span class="text-lg font-semibold">{{ number_format($this->averageRating, 1) }}/5</span>
@@ -24,7 +24,7 @@
         </div>
 
         <!-- Rating Distribution (only for user profiles) -->
-        @if($user && array_sum($this->ratingDistribution) > 0)
+        @if($this->user && array_sum($this->ratingDistribution) > 0)
             <div class="grid grid-cols-5 gap-2 mb-6">
                 @for($i = 5; $i >= 1; $i--)
                     <div class="text-center">
@@ -113,7 +113,7 @@
                                         <span class="font-medium text-gray-600">Data:</span>
                                         <div>{{ $review->booking->start_date->format('d.m.Y') }}</div>
                                     </div>
-                                    @if(!$user)
+                                    @if(!$this->user)
                                         <div>
                                             <span class="font-medium text-gray-600">Recenzowany:</span>
                                             <div>{{ $review->reviewee->name }}</div>
@@ -157,8 +157,8 @@
                 <div class="text-6xl mb-4">⭐</div>
                 <h3 class="text-xl font-semibold text-gray-900 mb-2">Brak recenzji</h3>
                 <p class="text-gray-600">
-                    @if($user)
-                        {{ $user->name }} nie ma jeszcze żadnych recenzji.
+                    @if($this->user)
+                        {{ $this->user->name }} nie ma jeszcze żadnych recenzji.
                     @else
                         Nie znaleziono recenzji spełniających kryteria.
                     @endif

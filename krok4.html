@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="pl">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+        <meta name="csrf-token" content="n98HZ9ZkRTPd0iFHtYEuo7i2CGi08pvvyi5nUGzL">
+
+        <!-- Mobile app meta tags -->
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+        <meta name="apple-mobile-web-app-title" content="PetHelp">
+        <meta name="theme-color" content="#3b82f6">
+        <meta name="format-detection" content="telephone=no">
+
+        <title>PetHelp</title>
+
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.bunny.net">
+        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
+
+        <!-- Scripts -->
+        <link rel="preload" as="style" href="http://pethelp.test/build/assets/app-DkF7qp_w.css" /><link rel="modulepreload" as="script" href="http://pethelp.test/build/assets/app-Bq8Q6IJE.js" /><link rel="stylesheet" href="http://pethelp.test/build/assets/app-DkF7qp_w.css" data-navigate-track="reload" /><script type="module" src="http://pethelp.test/build/assets/app-Bq8Q6IJE.js" data-navigate-track="reload"></script>        <!-- Livewire Styles --><style >[wire\:loading][wire\:loading], [wire\:loading\.delay][wire\:loading\.delay], [wire\:loading\.inline-block][wire\:loading\.inline-block], [wire\:loading\.inline][wire\:loading\.inline], [wire\:loading\.block][wire\:loading\.block], [wire\:loading\.flex][wire\:loading\.flex], [wire\:loading\.table][wire\:loading\.table], [wire\:loading\.grid][wire\:loading\.grid], [wire\:loading\.inline-flex][wire\:loading\.inline-flex] {display: none;}[wire\:loading\.delay\.none][wire\:loading\.delay\.none], [wire\:loading\.delay\.shortest][wire\:loading\.delay\.shortest], [wire\:loading\.delay\.shorter][wire\:loading\.delay\.shorter], [wire\:loading\.delay\.short][wire\:loading\.delay\.short], [wire\:loading\.delay\.default][wire\:loading\.delay\.default], [wire\:loading\.delay\.long][wire\:loading\.delay\.long], [wire\:loading\.delay\.longer][wire\:loading\.delay\.longer], [wire\:loading\.delay\.longest][wire\:loading\.delay\.longest] {display: none;}[wire\:offline][wire\:offline] {display: none;}[wire\:dirty]:not(textarea):not(input):not(select) {display: none;}:root {--livewire-progress-bar-color: #2299dd;}[x-cloak] {display: none !important;}[wire\:cloak] {display: none !important;}</style>
+    <link rel='stylesheet' type='text/css' property='stylesheet' href='/_debugbar/assets/stylesheets?v=1753192890' data-turbolinks-eval='false' data-turbo-eval='false'><script src='/_debugbar/assets/javascript?v=1753192890' data-turbolinks-eval='false' data-turbo-eval='false'></script><script data-turbo-eval='false'>jQuery.noConflict(true);</script>
+<script> Sfdump = window.Sfdump || (function (doc) { doc.documentElement.classList.add('sf-js-enabled'); var rxEsc = /([.*+?^${}()|\[\]\/\\])/g, idRx = /\bsf-dump-\d+-ref[012]\w+\b/, keyHint = 0 <= navigator.platform.toUpperCase().indexOf('MAC') ? 'Cmd' : 'Ctrl', addEventListener = function (e, n, cb) { e.addEventListener(n, cb, false); }; if (!doc.addEventListener) { addEventListener = function (element, eventName, callback) { element.attachEvent('on' + eventName, function (e) { e.preventDefault = function () {e.returnValue = false;}; e.target = e.srcElement; callback(e); }); }; } function toggle(a, recursive) { var s = a.nextSibling || {}, oldClass = s.className, arrow, newClass; if (/\bsf-dump-compact\b/.test(oldClass)) { arrow = '▼'; newClass = 'sf-dump-expanded'; } else if (/\bsf-dump-expanded\b/.test(oldClass)) { arrow = '▶'; newClass = 'sf-dump-compact'; } else { return false; } if (doc.createEvent && s.dispatchEvent) { var event = doc.createEvent('Event'); event.initEvent('sf-dump-expanded' === newClass ? 'sfbeforedumpexpand' : 'sfbeforedumpcollapse', true, false); s.dispatchEvent(event); } a.lastChild.innerHTML = arrow; s.className = s.className.replace(/\bsf-dump-(compact|expanded)\b/, newClass); if (recursive) { try { a = s.querySelectorAll('.'+oldClass); for (s = 0; s < a.length; ++s) { if (-1 == a[s].className.indexOf(newClass)) { a[s].className = newClass; a[s].previousSibling.lastChild.innerHTML = arrow; } } } catch (e) { } } return true; }; function collapse(a, recursive) { var s = a.nextSibling || {}, oldClass = s.className; if (/\bsf-dump-expanded\b/.test(oldClass)) { toggle(a, recursive); return true; } return false; }; function expand(a, recursive) { var s = a.nextSibling || {}, oldClass = s.className; if (/\bsf-dump-compact\b/.test(oldClass)) { toggle(a, recursive); return true; } return false; }; function collapseAll(root) { var a = root.querySelector('a.sf-dump-toggle'); if (a) { collapse(a, true); expand(a); return true; } return false; } function reveal(node) { var previous, parents = []; while ((node = node.parentNode || {}) && (previous = node.previousSibling) && 'A' === previous.tagName) { parents.push(previous); } if (0 !== parents.length) { parents.forEach(function (parent) { expand(parent); }); return true; } return false; } function highlight(root, activeNode, nodes) { resetHighlightedNodes(root); Array.from(nodes||[]).forEach(function (node) { if (!/\bsf-dump-highlight\b/.test(node.className)) { node.className = node.className + ' sf-dump-highlight'; } }); if (!/\bsf-dump-highlight-active\b/.test(activeNode.className)) { activeNode.className = activeNode.className + ' sf-dump-highlight-active'; } } function resetHighlightedNodes(root) { Array.from(root.querySelectorAll('.sf-dump-str, .sf-dump-key, .sf-dump-public, .sf-dump-protected, .sf-dump-private')).forEach(function (strNode) { strNode.className = strNode.className.replace(/\bsf-dump-highlight\b/, ''); strNode.className = strNode.className.replace(/\bsf-dump-highlight-active\b/, ''); }); } return function (root, x) { root = doc.getElementById(root); var indentRx = new RegExp('^('+(root.getAttribute('data-indent-pad') || ' ').replace(rxEsc, '\\$1')+')+', 'm'), options = {"maxDepth":1,"maxStringLength":160,"fileLinkFormat":false}, elt = root.getElementsByTagName('A'), len = elt.length, i = 0, s, h, t = []; while (i < len) t.push(elt[i++]); for (i in x) { options[i] = x[i]; } function a(e, f) { addEventListener(root, e, function (e, n) { if ('A' == e.target.tagName) { f(e.target, e); } else if ('A' == e.target.parentNode.tagName) { f(e.target.parentNode, e); } else { n = /\bsf-dump-ellipsis\b/.test(e.target.className) ? e.target.parentNode : e.target; if ((n = n.nextElementSibling) && 'A' == n.tagName) { if (!/\bsf-dump-toggle\b/.test(n.className)) { n = n.nextElementSibling || n; } f(n, e, true); } } }); }; function isCtrlKey(e) { return e.ctrlKey || e.metaKey; } function xpathString(str) { var parts = str.match(/[^'"]+|['"]/g).map(function (part) { if ("'" == part) { return '"\'"'; } if ('"' == part) { return "'\"'"; } return "'" + part + "'"; }); return "concat(" + parts.join(",") + ", '')"; } function xpathHasClass(className) { return "contains(concat(' ', normalize-space(@class), ' '), ' " + className +" ')"; } a('mouseover', function (a, e, c) { if (c) { e.target.style.cursor = "pointer"; } }); a('click', function (a, e, c) { if (/\bsf-dump-toggle\b/.test(a.className)) { e.preventDefault(); if (!toggle(a, isCtrlKey(e))) { var r = doc.getElementById(a.getAttribute('href').slice(1)), s = r.previousSibling, f = r.parentNode, t = a.parentNode; t.replaceChild(r, a); f.replaceChild(a, s); t.insertBefore(s, r); f = f.firstChild.nodeValue.match(indentRx); t = t.firstChild.nodeValue.match(indentRx); if (f && t && f[0] !== t[0]) { r.innerHTML = r.innerHTML.replace(new RegExp('^'+f[0].replace(rxEsc, '\\$1'), 'mg'), t[0]); } if (/\bsf-dump-compact\b/.test(r.className)) { toggle(s, isCtrlKey(e)); } } if (c) { } else if (doc.getSelection) { try { doc.getSelection().removeAllRanges(); } catch (e) { doc.getSelection().empty(); } } else { doc.selection.empty(); } } else if (/\bsf-dump-str-toggle\b/.test(a.className)) { e.preventDefault(); e = a.parentNode.parentNode; e.className = e.className.replace(/\bsf-dump-str-(expand|collapse)\b/, a.parentNode.className); } }); elt = root.getElementsByTagName('SAMP'); len = elt.length; i = 0; while (i < len) t.push(elt[i++]); len = t.length; for (i = 0; i < len; ++i) { elt = t[i]; if ('SAMP' == elt.tagName) { a = elt.previousSibling || {}; if ('A' != a.tagName) { a = doc.createElement('A'); a.className = 'sf-dump-ref'; elt.parentNode.insertBefore(a, elt); } else { a.innerHTML += ' '; } a.title = (a.title ? a.title+'\n[' : '[')+keyHint+'+click] Expand all children'; a.innerHTML += elt.className == 'sf-dump-compact' ? '<span>▶</span>' : '<span>▼</span>'; a.className += ' sf-dump-toggle'; x = 1; if ('sf-dump' != elt.parentNode.className) { x += elt.parentNode.getAttribute('data-depth')/1; } } else if (/\bsf-dump-ref\b/.test(elt.className) && (a = elt.getAttribute('href'))) { a = a.slice(1); elt.className += ' sf-dump-hover'; elt.className += ' '+a; if (/[\[{]$/.test(elt.previousSibling.nodeValue)) { a = a != elt.nextSibling.id && doc.getElementById(a); try { s = a.nextSibling; elt.appendChild(a); s.parentNode.insertBefore(a, s); if (/^[@#]/.test(elt.innerHTML)) { elt.innerHTML += ' <span>▶</span>'; } else { elt.innerHTML = '<span>▶</span>'; elt.className = 'sf-dump-ref'; } elt.className += ' sf-dump-toggle'; } catch (e) { if ('&' == elt.innerHTML.charAt(0)) { elt.innerHTML = '…'; elt.className = 'sf-dump-ref'; } } } } } if (doc.evaluate && Array.from && root.children.length > 1) { root.setAttribute('tabindex', 0); SearchState = function () { this.nodes = []; this.idx = 0; }; SearchState.prototype = { next: function () { if (this.isEmpty()) { return this.current(); } this.idx = this.idx < (this.nodes.length - 1) ? this.idx + 1 : 0; return this.current(); }, previous: function () { if (this.isEmpty()) { return this.current(); } this.idx = this.idx > 0 ? this.idx - 1 : (this.nodes.length - 1); return this.current(); }, isEmpty: function () { return 0 === this.count(); }, current: function () { if (this.isEmpty()) { return null; } return this.nodes[this.idx]; }, reset: function () { this.nodes = []; this.idx = 0; }, count: function () { return this.nodes.length; }, }; function showCurrent(state) { var currentNode = state.current(), currentRect, searchRect; if (currentNode) { reveal(currentNode); highlight(root, currentNode, state.nodes); if ('scrollIntoView' in currentNode) { currentNode.scrollIntoView(true); currentRect = currentNode.getBoundingClientRect(); searchRect = search.getBoundingClientRect(); if (currentRect.top < (searchRect.top + searchRect.height)) { window.scrollBy(0, -(searchRect.top + searchRect.height + 5)); } } } counter.textContent = (state.isEmpty() ? 0 : state.idx + 1) + ' of ' + state.count(); } var search = doc.createElement('div'); search.className = 'sf-dump-search-wrapper sf-dump-search-hidden'; search.innerHTML = ' <input type="text" class="sf-dump-search-input"> <span class="sf-dump-search-count">0 of 0<\/span> <button type="button" class="sf-dump-search-input-previous" tabindex="-1"> <svg viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1683 1331l-166 165q-19 19-45 19t-45-19L896 965l-531 531q-19 19-45 19t-45-19l-166-165q-19-19-19-45.5t19-45.5l742-741q19-19 45-19t45 19l742 741q19 19 19 45.5t-19 45.5z"\/><\/svg> <\/button> <button type="button" class="sf-dump-search-input-next" tabindex="-1"> <svg viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1683 808l-742 741q-19 19-45 19t-45-19L109 808q-19-19-19-45.5t19-45.5l166-165q19-19 45-19t45 19l531 531 531-531q19-19 45-19t45 19l166 165q19 19 19 45.5t-19 45.5z"\/><\/svg> <\/button> '; root.insertBefore(search, root.firstChild); var state = new SearchState(); var searchInput = search.querySelector('.sf-dump-search-input'); var counter = search.querySelector('.sf-dump-search-count'); var searchInputTimer = 0; var previousSearchQuery = ''; addEventListener(searchInput, 'keyup', function (e) { var searchQuery = e.target.value; /* Don't perform anything if the pressed key didn't change the query */ if (searchQuery === previousSearchQuery) { return; } previousSearchQuery = searchQuery; clearTimeout(searchInputTimer); searchInputTimer = setTimeout(function () { state.reset(); collapseAll(root); resetHighlightedNodes(root); if ('' === searchQuery) { counter.textContent = '0 of 0'; return; } var classMatches = [ "sf-dump-str", "sf-dump-key", "sf-dump-public", "sf-dump-protected", "sf-dump-private", ].map(xpathHasClass).join(' or '); var xpathResult = doc.evaluate('.//span[' + classMatches + '][contains(translate(child::text(), ' + xpathString(searchQuery.toUpperCase()) + ', ' + xpathString(searchQuery.toLowerCase()) + '), ' + xpathString(searchQuery.toLowerCase()) + ')]', root, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null); while (node = xpathResult.iterateNext()) state.nodes.push(node); showCurrent(state); }, 400); }); Array.from(search.querySelectorAll('.sf-dump-search-input-next, .sf-dump-search-input-previous')).forEach(function (btn) { addEventListener(btn, 'click', function (e) { e.preventDefault(); -1 !== e.target.className.indexOf('next') ? state.next() : state.previous(); searchInput.focus(); collapseAll(root); showCurrent(state); }) }); addEventListener(root, 'keydown', function (e) { var isSearchActive = !/\bsf-dump-search-hidden\b/.test(search.className); if ((114 === e.keyCode && !isSearchActive) || (isCtrlKey(e) && 70 === e.keyCode)) { /* F3 or CMD/CTRL + F */ if (70 === e.keyCode && document.activeElement === searchInput) { /* * If CMD/CTRL + F is hit while having focus on search input, * the user probably meant to trigger browser search instead. * Let the browser execute its behavior: */ return; } e.preventDefault(); search.className = search.className.replace(/\bsf-dump-search-hidden\b/, ''); searchInput.focus(); } else if (isSearchActive) { if (27 === e.keyCode) { /* ESC key */ search.className += ' sf-dump-search-hidden'; e.preventDefault(); resetHighlightedNodes(root); searchInput.value = ''; } else if ( (isCtrlKey(e) && 71 === e.keyCode) /* CMD/CTRL + G */ || 13 === e.keyCode /* Enter */ || 114 === e.keyCode /* F3 */ ) { e.preventDefault(); e.shiftKey ? state.previous() : state.next(); collapseAll(root); showCurrent(state); } } }); } if (0 >= options.maxStringLength) { return; } try { elt = root.querySelectorAll('.sf-dump-str'); len = elt.length; i = 0; t = []; while (i < len) t.push(elt[i++]); len = t.length; for (i = 0; i < len; ++i) { elt = t[i]; s = elt.innerText || elt.textContent; x = s.length - options.maxStringLength; if (0 < x) { h = elt.innerHTML; elt[elt.innerText ? 'innerText' : 'textContent'] = s.substring(0, options.maxStringLength); elt.className += ' sf-dump-str-collapse'; elt.innerHTML = '<span class=sf-dump-str-collapse>'+h+'<a class="sf-dump-ref sf-dump-str-toggle" title="Collapse"> ◀</a></span>'+ '<span class=sf-dump-str-expand>'+elt.innerHTML+'<a class="sf-dump-ref sf-dump-str-toggle" title="'+x+' remaining characters"> ▶</a></span>'; } } } catch (e) { } }; })(document); </script><style> .sf-js-enabled .phpdebugbar pre.sf-dump .sf-dump-compact, .sf-js-enabled .sf-dump-str-collapse .sf-dump-str-collapse, .sf-js-enabled .sf-dump-str-expand .sf-dump-str-expand { display: none; } .sf-dump-hover:hover { background-color: #B729D9; color: #FFF !important; border-radius: 2px; } .phpdebugbar pre.sf-dump { display: block; white-space: pre; padding: 5px; overflow: initial !important; } .phpdebugbar pre.sf-dump:after { content: ""; visibility: hidden; display: block; height: 0; clear: both; } .phpdebugbar pre.sf-dump .sf-dump-ellipsization { display: inline-flex; } .phpdebugbar pre.sf-dump a { text-decoration: none; cursor: pointer; border: 0; outline: none; color: inherit; } .phpdebugbar pre.sf-dump img { max-width: 50em; max-height: 50em; margin: .5em 0 0 0; padding: 0; background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAAAAAA6mKC9AAAAHUlEQVQY02O8zAABilCaiQEN0EeA8QuUcX9g3QEAAjcC5piyhyEAAAAASUVORK5CYII=) #D3D3D3; } .phpdebugbar pre.sf-dump .sf-dump-ellipsis { text-overflow: ellipsis; white-space: nowrap; overflow: hidden; } .phpdebugbar pre.sf-dump .sf-dump-ellipsis-tail { flex-shrink: 0; } .phpdebugbar pre.sf-dump code { display:inline; padding:0; background:none; } .sf-dump-public.sf-dump-highlight, .sf-dump-protected.sf-dump-highlight, .sf-dump-private.sf-dump-highlight, .sf-dump-str.sf-dump-highlight, .sf-dump-key.sf-dump-highlight { background: rgba(111, 172, 204, 0.3); border: 1px solid #7DA0B1; border-radius: 3px; } .sf-dump-public.sf-dump-highlight-active, .sf-dump-protected.sf-dump-highlight-active, .sf-dump-private.sf-dump-highlight-active, .sf-dump-str.sf-dump-highlight-active, .sf-dump-key.sf-dump-highlight-active { background: rgba(253, 175, 0, 0.4); border: 1px solid #ffa500; border-radius: 3px; } .phpdebugbar pre.sf-dump .sf-dump-search-hidden { display: none !important; } .phpdebugbar pre.sf-dump .sf-dump-search-wrapper { font-size: 0; white-space: nowrap; margin-bottom: 5px; display: flex; position: -webkit-sticky; position: sticky; top: 5px; } .phpdebugbar pre.sf-dump .sf-dump-search-wrapper > * { vertical-align: top; box-sizing: border-box; height: 21px; font-weight: normal; border-radius: 0; background: #FFF; color: #757575; border: 1px solid #BBB; } .phpdebugbar pre.sf-dump .sf-dump-search-wrapper > input.sf-dump-search-input { padding: 3px; height: 21px; font-size: 12px; border-right: none; border-top-left-radius: 3px; border-bottom-left-radius: 3px; color: #000; min-width: 15px; width: 100%; } .phpdebugbar pre.sf-dump .sf-dump-search-wrapper > .sf-dump-search-input-next, .phpdebugbar pre.sf-dump .sf-dump-search-wrapper > .sf-dump-search-input-previous { background: #F2F2F2; outline: none; border-left: none; font-size: 0; line-height: 0; } .phpdebugbar pre.sf-dump .sf-dump-search-wrapper > .sf-dump-search-input-next { border-top-right-radius: 3px; border-bottom-right-radius: 3px; } .phpdebugbar pre.sf-dump .sf-dump-search-wrapper > .sf-dump-search-input-next > svg, .phpdebugbar pre.sf-dump .sf-dump-search-wrapper > .sf-dump-search-input-previous > svg { pointer-events: none; width: 12px; height: 12px; } .phpdebugbar pre.sf-dump .sf-dump-search-wrapper > .sf-dump-search-count { display: inline-block; padding: 0 5px; margin: 0; border-left: none; line-height: 21px; font-size: 12px; }.phpdebugbar pre.sf-dump, .phpdebugbar pre.sf-dump .sf-dump-default{word-wrap: break-word; white-space: pre-wrap; word-break: normal}.phpdebugbar pre.sf-dump .sf-dump-num{font-weight:bold; color:#1299DA}.phpdebugbar pre.sf-dump .sf-dump-const{font-weight:bold}.phpdebugbar pre.sf-dump .sf-dump-str{font-weight:bold; color:#3A9B26}.phpdebugbar pre.sf-dump .sf-dump-note{color:#1299DA}.phpdebugbar pre.sf-dump .sf-dump-ref{color:#7B7B7B}.phpdebugbar pre.sf-dump .sf-dump-public{color:#000000}.phpdebugbar pre.sf-dump .sf-dump-protected{color:#000000}.phpdebugbar pre.sf-dump .sf-dump-private{color:#000000}.phpdebugbar pre.sf-dump .sf-dump-meta{color:#B729D9}.phpdebugbar pre.sf-dump .sf-dump-key{color:#3A9B26}.phpdebugbar pre.sf-dump .sf-dump-index{color:#1299DA}.phpdebugbar pre.sf-dump .sf-dump-ellipsis{color:#A0A000}.phpdebugbar pre.sf-dump .sf-dump-virtual{font-style:italic}.phpdebugbar pre.sf-dump .sf-dump-ns{user-select:none;}.phpdebugbar pre.sf-dump .sf-dump-ellipsis-note{color:#1299DA}.phpdebugbar[data-theme='dark'] pre.sf-dump, pre.sf-dump .sf-dump-default{background-color:#18171B; color:#FF8400; line-height:1.2em; font:12px Menlo, Monaco, Consolas, monospace; word-wrap: break-word; white-space: pre-wrap; position:relative; z-index:99999; word-break: break-all}.phpdebugbar[data-theme='dark'] pre.sf-dump .sf-dump-num{font-weight:bold; color:#1299DA}.phpdebugbar[data-theme='dark'] pre.sf-dump .sf-dump-const{font-weight:bold}.phpdebugbar[data-theme='dark'] pre.sf-dump .sf-dump-virtual{font-style:italic}.phpdebugbar[data-theme='dark'] pre.sf-dump .sf-dump-str{font-weight:bold; color:#56DB3A}.phpdebugbar[data-theme='dark'] pre.sf-dump .sf-dump-note{color:#1299DA}.phpdebugbar[data-theme='dark'] pre.sf-dump .sf-dump-ref{color:#A0A0A0}.phpdebugbar[data-theme='dark'] pre.sf-dump .sf-dump-public{color:#FFFFFF}.phpdebugbar[data-theme='dark'] pre.sf-dump .sf-dump-protected{color:#FFFFFF}.phpdebugbar[data-theme='dark'] pre.sf-dump .sf-dump-private{color:#FFFFFF}.phpdebugbar[data-theme='dark'] pre.sf-dump .sf-dump-meta{color:#B729D9}.phpdebugbar[data-theme='dark'] pre.sf-dump .sf-dump-key{color:#56DB3A}.phpdebugbar[data-theme='dark'] pre.sf-dump .sf-dump-index{color:#1299DA}.phpdebugbar[data-theme='dark'] pre.sf-dump .sf-dump-ellipsis{color:#FF8400}.phpdebugbar[data-theme='dark'] pre.sf-dump .sf-dump-ns{user-select:none;}.phpdebugbar[data-theme='dark'] pre.sf-dump .sf-dump-ellipsis-note{color:#1299DA}</style>
+</head>
+    <body class="font-sans antialiased">
+        <!-- Skip Navigation Link -->
+        <a href="#main-content" class="skip-navigation">Przejdź do głównej treści</a>
+
+        <div class="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-purple-700 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+            <!-- Navigation Header -->
+            <header class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-lg sticky top-0 z-50" role="banner">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <nav class="flex justify-between items-center py-4" role="navigation" aria-label="Główna nawigacja">
+                        <!-- Logo -->
+                        <div class="flex items-center">
+                            <span class="text-2xl mr-2" aria-hidden="true">🐾</span>
+                            <span class="text-2xl font-bold text-indigo-600">PetHelp</span>
+                        </div>
+
+                        <!-- Navigation Links -->
+                        <div class="hidden md:flex space-x-8" role="menubar">
+                            <a href="/" class="text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium transition-colors link-accessible" role="menuitem" aria-current="false">Strona główna</a>
+                            <a href="#jak-to-dziala" class="text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium transition-colors link-accessible" role="menuitem">Jak to działa</a>
+                            <a href="#opiekunowie" class="text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium transition-colors link-accessible" role="menuitem">Zostań opiekunem</a>
+                            <a href="#kontakt" class="text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium transition-colors link-accessible" role="menuitem">Kontakt</a>
+                        </div>
+
+                        <!-- Auth Buttons -->
+                        <div class="hidden sm:flex items-center space-x-2 lg:space-x-4">
+                            <!-- Dark Mode Toggle -->
+                            <div class="dark-mode-toggle relative"
+     x-data="darkModeToggle"
+     x-init="init()"
+     @dark-mode-changed.window="updateState($event.detail)">
+
+            <!-- Simple toggle button -->
+        <button @click="toggle()"
+                class="w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-200
+                       bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300
+                       hover:bg-gray-200 dark:hover:bg-gray-600 hover:scale-105 active:scale-95
+                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-gray-800"
+                :title="isDark ? 'Przełącz na jasny motyw' : 'Przełącz na ciemny motyw'"
+                aria-label="Przełącz motyw">
+
+            <!-- Light mode icon -->
+            <svg x-show="!isDark"
+                 x-transition:enter="transition ease-in-out duration-300 transform"
+                 x-transition:enter-start="opacity-0 rotate-90 scale-50"
+                 x-transition:enter-end="opacity-100 rotate-0 scale-100"
+                 x-transition:leave="transition ease-in-out duration-300 transform"
+                 x-transition:leave-start="opacity-100 rotate-0 scale-100"
+                 x-transition:leave-end="opacity-0 -rotate-90 scale-50"
+                 class="w-4 h-4"
+                 fill="none"
+                 stroke="currentColor"
+                 viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+
+            <!-- Dark mode icon -->
+            <svg x-show="isDark"
+                 x-transition:enter="transition ease-in-out duration-300 transform"
+                 x-transition:enter-start="opacity-0 -rotate-90 scale-50"
+                 x-transition:enter-end="opacity-100 rotate-0 scale-100"
+                 x-transition:leave="transition ease-in-out duration-300 transform"
+                 x-transition:leave-start="opacity-100 rotate-0 scale-100"
+                 x-transition:leave-end="opacity-0 rotate-90 scale-50"
+                 class="w-4 h-4"
+                 fill="none"
+                 stroke="currentColor"
+                 viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+            </svg>
+        </button>
+
+            </div>
+                                                            <div class="flex items-center space-x-3">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">Witaj, Anna Testowa!</span>
+                                    <a href="http://pethelp.test/profil" class="px-4 lg:px-6 py-2 text-sm lg:text-base text-indigo-600 dark:text-indigo-400 border-2 border-indigo-600 dark:border-indigo-400 rounded-full font-semibold hover:bg-indigo-600 dark:hover:bg-indigo-500 hover:text-white transition-all duration-300">Panel</a>
+                                    <form method="POST" action="http://pethelp.test/logout" class="inline">
+                                        <input type="hidden" name="_token" value="n98HZ9ZkRTPd0iFHtYEuo7i2CGi08pvvyi5nUGzL" autocomplete="off">                                        <button type="submit" class="px-4 lg:px-6 py-2 text-sm lg:text-base text-gray-600 dark:text-gray-400 border-2 border-gray-600 dark:border-gray-400 rounded-full font-semibold hover:bg-gray-600 dark:hover:bg-gray-500 hover:text-white transition-all duration-300">
+                                            Wyloguj
+                                        </button>
+                                    </form>
+                                </div>
+                                                    </div>
+
+                        <!-- Mobile menu button (temporarily hidden to fix Alpine errors) -->
+                        <div class="md:hidden hidden">
+                            <button type="button" class="text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                                </svg>
+                            </button>
+                        </div>
+                    </nav>
+
+
+                    <!-- Mobile Navigation (temporarily hidden to fix Alpine errors) -->
+                    <div class="md:hidden hidden">
+                        <div class="px-2 pt-2 pb-4 space-y-1 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-lg shadow-lg mb-4">
+                            <!-- Navigation Links -->
+                            <a href="/" class="block px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 font-medium rounded-md transition-colors">Strona główna</a>
+                            <a href="#jak-to-dziala" class="block px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 font-medium rounded-md transition-colors">Jak to działa</a>
+                            <a href="#opiekunowie" class="block px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 font-medium rounded-md transition-colors">Zostań opiekunem</a>
+                            <a href="#kontakt" class="block px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 font-medium rounded-md transition-colors">Kontakt</a>
+
+                            <!-- Mobile Auth Buttons -->
+                            <div class="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
+                                                                    <div class="text-center text-sm text-gray-700 dark:text-gray-300 mb-2">Witaj, Anna Testowa!</div>
+                                    <a href="http://pethelp.test/profil" class="block w-full text-center px-4 py-2 text-indigo-600 dark:text-indigo-400 border-2 border-indigo-600 dark:border-indigo-400 rounded-full font-semibold hover:bg-indigo-600 dark:hover:bg-indigo-500 hover:text-white transition-all">Panel użytkownika</a>
+                                    <form method="POST" action="http://pethelp.test/logout" class="w-full">
+                                        <input type="hidden" name="_token" value="n98HZ9ZkRTPd0iFHtYEuo7i2CGi08pvvyi5nUGzL" autocomplete="off">                                        <button type="submit" class="block w-full text-center px-4 py-2 text-gray-600 dark:text-gray-400 border-2 border-gray-600 dark:border-gray-400 rounded-full font-semibold hover:bg-gray-600 dark:hover:bg-gray-500 hover:text-white transition-all">
+                                            Wyloguj się
+                                        </button>
+                                    </form>
+                                                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <main id="main-content" tabindex="-1" role="main">
+                <div wire:snapshot="{&quot;data&quot;:{&quot;currentStep&quot;:4,&quot;maxSteps&quot;:12,&quot;wizardData&quot;:[[],{&quot;s&quot;:&quot;arr&quot;}],&quot;showAIPanel&quot;:true,&quot;isActive&quot;:true,&quot;currentDraft&quot;:null,&quot;isTransitioning&quot;:false,&quot;isSaving&quot;:false,&quot;isValidating&quot;:false,&quot;lastValidationMessage&quot;:&quot;&quot;,&quot;showSuccessFeedback&quot;:false,&quot;motivation&quot;:&quot;&quot;,&quot;aiEditPrompt&quot;:&quot;&quot;,&quot;isEditingWithAI&quot;:false,&quot;aiEditPromptExperience&quot;:&quot;&quot;,&quot;isEditingExperienceWithAI&quot;:false,&quot;petExperience&quot;:[[],{&quot;s&quot;:&quot;arr&quot;}],&quot;experienceDescription&quot;:&quot;&quot;,&quot;yearsOfExperience&quot;:0,&quot;animalTypes&quot;:[[],{&quot;s&quot;:&quot;arr&quot;}],&quot;animalSizes&quot;:[[],{&quot;s&quot;:&quot;arr&quot;}],&quot;serviceTypes&quot;:[[],{&quot;s&quot;:&quot;arr&quot;}],&quot;specialServices&quot;:[[],{&quot;s&quot;:&quot;arr&quot;}],&quot;address&quot;:&quot;&quot;,&quot;latitude&quot;:0,&quot;longitude&quot;:0,&quot;serviceRadius&quot;:10,&quot;weeklyAvailability&quot;:[{&quot;monday&quot;:[{&quot;available&quot;:false,&quot;start&quot;:&quot;09:00&quot;,&quot;end&quot;:&quot;17:00&quot;},{&quot;s&quot;:&quot;arr&quot;}],&quot;tuesday&quot;:[{&quot;available&quot;:false,&quot;start&quot;:&quot;09:00&quot;,&quot;end&quot;:&quot;17:00&quot;},{&quot;s&quot;:&quot;arr&quot;}],&quot;wednesday&quot;:[{&quot;available&quot;:false,&quot;start&quot;:&quot;09:00&quot;,&quot;end&quot;:&quot;17:00&quot;},{&quot;s&quot;:&quot;arr&quot;}],&quot;thursday&quot;:[{&quot;available&quot;:false,&quot;start&quot;:&quot;09:00&quot;,&quot;end&quot;:&quot;17:00&quot;},{&quot;s&quot;:&quot;arr&quot;}],&quot;friday&quot;:[{&quot;available&quot;:false,&quot;start&quot;:&quot;09:00&quot;,&quot;end&quot;:&quot;17:00&quot;},{&quot;s&quot;:&quot;arr&quot;}],&quot;saturday&quot;:[{&quot;available&quot;:false,&quot;start&quot;:&quot;10:00&quot;,&quot;end&quot;:&quot;16:00&quot;},{&quot;s&quot;:&quot;arr&quot;}],&quot;sunday&quot;:[{&quot;available&quot;:false,&quot;start&quot;:&quot;10:00&quot;,&quot;end&quot;:&quot;16:00&quot;},{&quot;s&quot;:&quot;arr&quot;}]},{&quot;s&quot;:&quot;arr&quot;}],&quot;emergencyAvailable&quot;:false,&quot;flexibleSchedule&quot;:true,&quot;homeType&quot;:&quot;&quot;,&quot;hasGarden&quot;:false,&quot;isSmoking&quot;:false,&quot;hasOtherPets&quot;:false,&quot;otherPets&quot;:[[],{&quot;s&quot;:&quot;arr&quot;}],&quot;profilePhoto&quot;:null,&quot;homePhotos&quot;:[[],{&quot;s&quot;:&quot;arr&quot;}],&quot;existingPhotos&quot;:[[],{&quot;s&quot;:&quot;arr&quot;}],&quot;identityDocument&quot;:null,&quot;criminalRecord&quot;:null,&quot;references&quot;:[[],{&quot;s&quot;:&quot;arr&quot;}],&quot;servicePricing&quot;:[{&quot;walking&quot;:[{&quot;enabled&quot;:false,&quot;price&quot;:30},{&quot;s&quot;:&quot;arr&quot;}],&quot;home_care&quot;:[{&quot;enabled&quot;:false,&quot;price&quot;:50},{&quot;s&quot;:&quot;arr&quot;}],&quot;overnight&quot;:[{&quot;enabled&quot;:false,&quot;price&quot;:80},{&quot;s&quot;:&quot;arr&quot;}],&quot;feeding&quot;:[{&quot;enabled&quot;:false,&quot;price&quot;:25},{&quot;s&quot;:&quot;arr&quot;}],&quot;grooming&quot;:[{&quot;enabled&quot;:false,&quot;price&quot;:60},{&quot;s&quot;:&quot;arr&quot;}]},{&quot;s&quot;:&quot;arr&quot;}],&quot;pricingStrategy&quot;:&quot;competitive&quot;,&quot;agreedToTerms&quot;:false,&quot;marketingConsent&quot;:false},&quot;memo&quot;:{&quot;id&quot;:&quot;ZkpygYjWkKHEAIasYGmy&quot;,&quot;name&quot;:&quot;pet-sitter-wizard&quot;,&quot;path&quot;:&quot;profil\/zostan-pet-sitterem\/4&quot;,&quot;method&quot;:&quot;GET&quot;,&quot;children&quot;:[],&quot;scripts&quot;:[],&quot;assets&quot;:[],&quot;errors&quot;:[],&quot;locale&quot;:&quot;pl&quot;},&quot;checksum&quot;:&quot;04ec47efc4208eeec2f8f31c52c910983909a7c7baf9d2be9419c674db36aa58&quot;}" wire:effects="[]" wire:id="ZkpygYjWkKHEAIasYGmy" class="pet-sitter-wizard">
+
+    <!--[if BLOCK]><![endif]-->        
+        <div class="fixed inset-0 z-50 bg-gray-50"
+             x-data="petSitterWizard()"
+             x-init="init()"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0">
+
+            
+            <div class="h-full flex items-center justify-center p-4 md:p-8">
+                
+                <div class="bg-white w-full max-w-4xl h-full max-h-screen md:max-h-[90vh] rounded-none md:rounded-2xl shadow-none md:shadow-2xl border-0 md:border md:border-gray-200 flex flex-col overflow-hidden">
+
+                    
+                    <header class="flex-shrink-0 p-4 md:p-6 border-b border-gray-200 bg-white">
+                        
+                        <div class="flex items-center justify-between mb-4">
+                            <button wire:click="deactivateWizard"
+                                    class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors duration-200 rounded-full hover:bg-gray-100">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+
+                            
+                            <div class="text-sm font-medium text-gray-900">
+                                Krok 4 z 12
+                            </div>
+
+                            
+                            <div class="w-8 h-8"></div>
+                        </div>
+
+                        
+                        <div class="w-full h-1 bg-gray-200 rounded-full">
+                            <div class="h-full bg-gray-900 rounded-full transition-all duration-500 ease-out" style="width: 33.3%"></div>
+                        </div>
+                    </header>
+
+                    
+                    <div class="flex flex-1 min-h-0">
+                        
+                        <main class="flex-1 px-4 py-4 md:px-8 md:py-6 max-w-2xl mx-auto overflow-y-auto flex flex-col wizard-main-content wizard-scrollbar">
+                            
+                            <div class="wizard-container max-w-4xl">
+    <div class="text-center mb-6 sm:mb-8">
+        <h1 class="wizard-step-title">
+            Jakie usługi chcesz oferować?
+        </h1>
+        <p class="wizard-step-description">
+            Wybierz rodzaje opieki, które możesz zapewnić zwierzętom
+        </p>
+    </div>
+
+    
+    <div class="wizard-form-group">
+        <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Podstawowe usługi</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        
+        <!--[if BLOCK]><![endif]-->            <label class="wizard-checkbox-tile "
+                   wire:click.prevent="toggleServiceType('dog_walking')"
+                   wire:key="main-service-dog_walking">
+                <input type="checkbox"
+                       value="dog_walking"
+                       class="sr-only"
+                       >
+                <div class="flex items-center w-full">
+                    <span class="wizard-checkbox-emoji">🚶‍♂️</span>
+                    <div class="flex-1 min-w-0">
+                        <span class="wizard-checkbox-text">Spacery z psami</span>
+                        <div class="wizard-checkbox-description">Regularne spacery dla psów</div>
+                    </div>
+
+                    
+                    <svg class="wizard-checkbox-icon"
+                         fill="currentColor"
+                         viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+            </label>
+                    <label class="wizard-checkbox-tile "
+                   wire:click.prevent="toggleServiceType('pet_sitting')"
+                   wire:key="main-service-pet_sitting">
+                <input type="checkbox"
+                       value="pet_sitting"
+                       class="sr-only"
+                       >
+                <div class="flex items-center w-full">
+                    <span class="wizard-checkbox-emoji">🏠</span>
+                    <div class="flex-1 min-w-0">
+                        <span class="wizard-checkbox-text">Opieka w domu właściciela</span>
+                        <div class="wizard-checkbox-description">Opieka u klienta podczas nieobecności</div>
+                    </div>
+
+                    
+                    <svg class="wizard-checkbox-icon"
+                         fill="currentColor"
+                         viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+            </label>
+                    <label class="wizard-checkbox-tile "
+                   wire:click.prevent="toggleServiceType('pet_boarding')"
+                   wire:key="main-service-pet_boarding">
+                <input type="checkbox"
+                       value="pet_boarding"
+                       class="sr-only"
+                       >
+                <div class="flex items-center w-full">
+                    <span class="wizard-checkbox-emoji">🏡</span>
+                    <div class="flex-1 min-w-0">
+                        <span class="wizard-checkbox-text">Opieka u opiekuna</span>
+                        <div class="wizard-checkbox-description">Zwierzę przebywa w Twoim domu</div>
+                    </div>
+
+                    
+                    <svg class="wizard-checkbox-icon"
+                         fill="currentColor"
+                         viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+            </label>
+                    <label class="wizard-checkbox-tile "
+                   wire:click.prevent="toggleServiceType('overnight_care')"
+                   wire:key="main-service-overnight_care">
+                <input type="checkbox"
+                       value="overnight_care"
+                       class="sr-only"
+                       >
+                <div class="flex items-center w-full">
+                    <span class="wizard-checkbox-emoji">🌙</span>
+                    <div class="flex-1 min-w-0">
+                        <span class="wizard-checkbox-text">Opieka nocna</span>
+                        <div class="wizard-checkbox-description">Nocowanie z zwierzęciem u klienta</div>
+                    </div>
+
+                    
+                    <svg class="wizard-checkbox-icon"
+                         fill="currentColor"
+                         viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+            </label>
+        <!--[if ENDBLOCK]><![endif]-->
+        </div>
+    </div>
+
+    
+    <div class="wizard-form-group">
+        <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Usługi dodatkowe</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        
+        <!--[if BLOCK]><![endif]-->            <label class="wizard-checkbox-tile "
+                   wire:click.prevent="toggleSpecialService('pet_grooming')"
+                   wire:key="extra-service-pet_grooming">
+                <input type="checkbox"
+                       value="pet_grooming"
+                       class="sr-only"
+                       >
+                <div class="flex items-center w-full">
+                    <span class="wizard-checkbox-emoji">✂️</span>
+                    <span class="wizard-checkbox-text">Pielęgnacja</span>
+
+                    
+                    <svg class="wizard-checkbox-icon"
+                         fill="currentColor"
+                         viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+            </label>
+                    <label class="wizard-checkbox-tile "
+                   wire:click.prevent="toggleSpecialService('pet_training')"
+                   wire:key="extra-service-pet_training">
+                <input type="checkbox"
+                       value="pet_training"
+                       class="sr-only"
+                       >
+                <div class="flex items-center w-full">
+                    <span class="wizard-checkbox-emoji">🎯</span>
+                    <span class="wizard-checkbox-text">Szkolenie podstawowe</span>
+
+                    
+                    <svg class="wizard-checkbox-icon"
+                         fill="currentColor"
+                         viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+            </label>
+                    <label class="wizard-checkbox-tile "
+                   wire:click.prevent="toggleSpecialService('pet_transport')"
+                   wire:key="extra-service-pet_transport">
+                <input type="checkbox"
+                       value="pet_transport"
+                       class="sr-only"
+                       >
+                <div class="flex items-center w-full">
+                    <span class="wizard-checkbox-emoji">🚗</span>
+                    <span class="wizard-checkbox-text">Transport zwierząt</span>
+
+                    
+                    <svg class="wizard-checkbox-icon"
+                         fill="currentColor"
+                         viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+            </label>
+                    <label class="wizard-checkbox-tile "
+                   wire:click.prevent="toggleSpecialService('vet_visits')"
+                   wire:key="extra-service-vet_visits">
+                <input type="checkbox"
+                       value="vet_visits"
+                       class="sr-only"
+                       >
+                <div class="flex items-center w-full">
+                    <span class="wizard-checkbox-emoji">🏥</span>
+                    <span class="wizard-checkbox-text">Wizyty u weterynarza</span>
+
+                    
+                    <svg class="wizard-checkbox-icon"
+                         fill="currentColor"
+                         viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+            </label>
+                    <label class="wizard-checkbox-tile "
+                   wire:click.prevent="toggleSpecialService('pet_feeding')"
+                   wire:key="extra-service-pet_feeding">
+                <input type="checkbox"
+                       value="pet_feeding"
+                       class="sr-only"
+                       >
+                <div class="flex items-center w-full">
+                    <span class="wizard-checkbox-emoji">🍽️</span>
+                    <span class="wizard-checkbox-text">Specjalne karmienie</span>
+
+                    
+                    <svg class="wizard-checkbox-icon"
+                         fill="currentColor"
+                         viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+            </label>
+                    <label class="wizard-checkbox-tile "
+                   wire:click.prevent="toggleSpecialService('medication')"
+                   wire:key="extra-service-medication">
+                <input type="checkbox"
+                       value="medication"
+                       class="sr-only"
+                       >
+                <div class="flex items-center w-full">
+                    <span class="wizard-checkbox-emoji">💊</span>
+                    <span class="wizard-checkbox-text">Podawanie leków</span>
+
+                    
+                    <svg class="wizard-checkbox-icon"
+                         fill="currentColor"
+                         viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+            </label>
+                    <label class="wizard-checkbox-tile "
+                   wire:click.prevent="toggleSpecialService('senior_care')"
+                   wire:key="extra-service-senior_care">
+                <input type="checkbox"
+                       value="senior_care"
+                       class="sr-only"
+                       >
+                <div class="flex items-center w-full">
+                    <span class="wizard-checkbox-emoji">👴</span>
+                    <span class="wizard-checkbox-text">Opieka nad seniorami</span>
+
+                    
+                    <svg class="wizard-checkbox-icon"
+                         fill="currentColor"
+                         viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+            </label>
+                    <label class="wizard-checkbox-tile "
+                   wire:click.prevent="toggleSpecialService('puppy_care')"
+                   wire:key="extra-service-puppy_care">
+                <input type="checkbox"
+                       value="puppy_care"
+                       class="sr-only"
+                       >
+                <div class="flex items-center w-full">
+                    <span class="wizard-checkbox-emoji">🐶</span>
+                    <span class="wizard-checkbox-text">Opieka nad szczeniętami</span>
+
+                    
+                    <svg class="wizard-checkbox-icon"
+                         fill="currentColor"
+                         viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+            </label>
+        <!--[if ENDBLOCK]><![endif]-->
+    </div>
+</div>
+
+
+<!--[if BLOCK]><![endif]--><!--[if ENDBLOCK]><![endif]-->
+
+
+<!--[if BLOCK]><![endif]--><!--[if ENDBLOCK]><![endif]-->
+                        </main>
+
+                    </div>
+
+
+                    
+                    <div x-show="$wire.showAIPanel && $wire.currentStep <= 2"
+                         x-transition:enter="transition ease-out duration-300"
+                         x-transition:enter-start="opacity-0 transform translate-x-full"
+                         x-transition:enter-end="opacity-100 transform translate-x-0"
+                         x-transition:leave="transition ease-in duration-200"
+                         x-transition:leave-start="opacity-100 transform translate-x-0"
+                         x-transition:leave-end="opacity-0 transform translate-x-full"
+                         class="fixed top-0 right-0 bottom-0 w-80 bg-gradient-to-b from-gray-50 to-purple-50 shadow-2xl z-30 overflow-y-auto border-l border-gray-200">
+
+                        
+                        <div class="flex items-center justify-between p-4 border-b border-gray-200">
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mr-3">
+                                    <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                <h4 class="text-sm font-medium text-gray-900">AI Assistant & Wskazówki</h4>
+                            </div>
+                            <button @click="$wire.showAIPanel = false"
+                                    class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors duration-200 rounded-full hover:bg-gray-100">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        
+                        <div class="p-4 space-y-4">
+                            
+                            <div class="bg-white rounded-lg p-4 shadow-sm border border-purple-200">
+                                
+                                <div class="mb-4">
+                                    <h5 class="text-xs font-medium text-gray-800 mb-2 flex items-center">
+                                        <span class="w-1.5 h-1.5 bg-purple-500 rounded-full mr-2"></span>
+                                        Podstawowe informacje
+                                    </h5>
+                                    <ul class="space-y-1 text-xs text-gray-600">
+                                        <li class="flex items-start">
+                                            <span class="text-purple-400 mr-2">•</span>
+                                            Użyj prawdziwego imienia - buduje zaufanie klientów
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-purple-400 mr-2">•</span>
+                                            Dodaj krótkie, przyjazne przedstawienie się
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-purple-400 mr-2">•</span>
+                                            Unikaj pseudonimów - klienci preferują prawdziwe osoby
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                
+                                <!--[if BLOCK]><![endif]-->                                    <div class="mb-4">
+                                        <h5 class="text-xs font-medium text-gray-800 mb-2 flex items-center">
+                                            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></span>
+                                            Doświadczenie
+                                        </h5>
+                                        <ul class="space-y-1">
+                                            <!--[if BLOCK]><![endif]-->                                                <li class="flex items-start">
+                                                    <span class="text-blue-400 mr-2 text-xs">•</span>
+                                                    <span class="text-xs text-gray-600">Bądź szczery co do swojego doświadczenia</span>
+                                                </li>
+                                                                                            <li class="flex items-start">
+                                                    <span class="text-blue-400 mr-2 text-xs">•</span>
+                                                    <span class="text-xs text-gray-600">Uwzględnij nieformalną opiekę nad zwierzętami</span>
+                                                </li>
+                                                                                            <li class="flex items-start">
+                                                    <span class="text-blue-400 mr-2 text-xs">•</span>
+                                                    <span class="text-xs text-gray-600">Mentorowanie też się liczy jako doświadczenie</span>
+                                                </li>
+                                            <!--[if ENDBLOCK]><![endif]-->
+                                        </ul>
+                                    </div>
+                                <!--[if ENDBLOCK]><![endif]-->
+
+                                
+                                <div class="mb-4">
+                                    <h5 class="text-xs font-medium text-gray-800 mb-2 flex items-center">
+                                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></span>
+                                        💡 Ogólne wskazówki
+                                    </h5>
+                                    <ul class="space-y-1 text-xs text-gray-600">
+                                        <li class="flex items-start">
+                                            <span class="text-green-400 mr-2">•</span>
+                                            Bądź szczery i autentyczny
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-green-400 mr-2">•</span>
+                                            Podkreśl swoje doświadczenie
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-green-400 mr-2">•</span>
+                                            Wspomnij o swojej motywacji
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                
+                                <!--[if BLOCK]><![endif]--><!--[if ENDBLOCK]><![endif]-->
+
+                                
+                                <!--[if BLOCK]><![endif]--><!--[if ENDBLOCK]><![endif]-->
+
+                                
+                                <div class="space-y-3 pt-3 border-t border-gray-200">
+                                    <div class="relative group block w-full">
+    
+    <div class="cursor-help w-full">
+        <input
+                                            wire:model="aiEditPromptExperience"
+                                            type="text"
+                                            placeholder="Np. opisz moje doświadczenie z kotami..."
+                                            class="w-full px-3 py-2 text-xs border border-purple-200 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                            :disabled="$wire.isEditingExperienceWithAI">
+    </div>
+
+    
+    <div class="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-gradient-to-r from-gray-700 to-gray-800 text-gray-100 px-3 py-2 text-xs max-w-sm rounded-lg shadow-lg opacity-0 invisible group-focus-within:opacity-100 group-focus-within:visible transition-all duration-200 z-50 pointer-events-none"
+         role="tooltip">
+
+        
+        <div class="font-medium">
+            Przykłady instrukcji
+        </div>
+
+        
+        <!--[if BLOCK]><![endif]-->            <div class="text-xs opacity-90 mt-1">
+                <!--[if BLOCK]><![endif]-->                                                • "dodaj doświadczenie z psami większych ras"<br>
+                                                • "wspomnij o wolontariacie w schronisku"<br>
+                                                • "opisz moje umiejętności podawania leków"<br>
+                                                • "dodaj przykład trudnej sytuacji"
+                                            <!--[if ENDBLOCK]><![endif]-->
+            </div>
+        <!--[if ENDBLOCK]><![endif]-->
+
+        
+        <!--[if BLOCK]><![endif]-->            <div class="absolute w-0 h-0 bottom-full left-1/2 transform -translate-x-1/2 border-l-transparent border-r-transparent border-t-transparent"
+                 style="
+                                            border-left: 6px solid transparent;
+                        border-right: 6px solid transparent;
+                        border-bottom: 6px solid #374151;
+                                     ">
+            </div>
+        <!--[if ENDBLOCK]><![endif]-->
+    </div>
+</div>
+                                    <div class="relative group block w-full">
+    
+    <div class="cursor-help w-full">
+        <button
+                                            wire:click="editExperienceWithAI"
+                                            :disabled="($wire.isEditingExperienceWithAI || !$wire.aiEditPromptExperience)"
+                                            class="w-full px-3 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:from-purple-700 hover:to-pink-700 transition-all duration-200">
+                                            <span wire:loading.remove wire:target="editExperienceWithAI">Przepisz</span>
+                                            <span wire:loading wire:target="editExperienceWithAI">Przepisuję...</span>
+                                        </button>
+    </div>
+
+    
+    <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-2 py-1 text-xs max-w-xs rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none"
+         role="tooltip">
+
+        
+        <div class="font-medium">
+            Przepisz istniejący tekst według instrukcji
+        </div>
+
+        
+        <!--[if BLOCK]><![endif]--><!--[if ENDBLOCK]><![endif]-->
+
+        
+        <!--[if BLOCK]><![endif]-->            <div class="absolute w-0 h-0 top-full left-1/2 transform -translate-x-1/2 border-l-transparent border-r-transparent border-b-transparent"
+                 style="
+                                            border-left: 6px solid transparent;
+                        border-right: 6px solid transparent;
+                        border-top: 6px solid #9333ea;
+                                     ">
+            </div>
+        <!--[if ENDBLOCK]><![endif]-->
+    </div>
+</div>
+                                    
+                                    <div class="relative group block w-full">
+    
+    <div class="cursor-help w-full">
+        <button
+                                            wire:click="generateExperienceSuggestion"
+                                            :disabled="$wire.isEditingExperienceWithAI"
+                                            class="w-full px-3 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-sm font-medium rounded-md hover:from-emerald-700 hover:to-teal-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 shadow-sm">
+                                            <span wire:loading.remove wire:target="generateExperienceSuggestion">✨ Generuj</span>
+                                            <span wire:loading wire:target="generateExperienceSuggestion">Generuję...</span>
+                                        </button>
+    </div>
+
+    
+    <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-3 py-2 text-xs max-w-sm rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none"
+         role="tooltip">
+
+        
+        <div class="font-medium">
+            🐕‍🦺 Wygeneruj opis doświadczenia
+        </div>
+
+        
+        <!--[if BLOCK]><![endif]-->            <div class="text-xs opacity-90 mt-1">
+                AI stworzy szczegółowy opis doświadczenia na podstawie wybranych typów
+            </div>
+        <!--[if ENDBLOCK]><![endif]-->
+
+        
+        <!--[if BLOCK]><![endif]-->            <div class="absolute w-0 h-0 top-full left-1/2 transform -translate-x-1/2 border-l-transparent border-r-transparent border-b-transparent"
+                 style="
+                                            border-left: 6px solid transparent;
+                        border-right: 6px solid transparent;
+                        border-top: 6px solid #059669;
+                                     ">
+            </div>
+        <!--[if ENDBLOCK]><![endif]-->
+    </div>
+</div>                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                    <footer class="flex-shrink-0 p-4 md:p-6 border-t border-gray-200 bg-white">
+                        <div class="flex flex-row items-center gap-3">
+                            
+                            <!--[if BLOCK]><![endif]-->                                <button wire:click="previousStep"
+                                        @click="animateButtonClick($el)"
+                                        :disabled="isTransitioning"
+                                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                    </svg>
+                                    <span wire:loading.remove wire:target="previousStep">Wstecz</span>
+                                    <span wire:loading wire:target="previousStep" class="flex items-center">
+                                        Ładowanie...
+                                    </span>
+                                </button>
+                            <!--[if ENDBLOCK]><![endif]-->
+
+                            
+                            <!--[if BLOCK]><![endif]-->                                
+                                <button wire:click="nextStep"
+                                        @click="animateButtonClick($el)"
+                                        :disabled="isTransitioning"
+                                        :class="{'opacity-75 cursor-not-allowed': isTransitioning}"
+                                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-lg hover:from-emerald-700 hover:to-emerald-800 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <span wire:loading.remove wire:target="nextStep">
+                                        Dalej
+                                    </span>
+                                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                <span wire:loading wire:target="nextStep" class="flex items-center">
+                                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <!--[if BLOCK]><![endif]-->                                        Dalej
+                                    <!--[if ENDBLOCK]><![endif]-->
+                                </span>
+                            </button>
+                        <!--[if ENDBLOCK]><![endif]-->
+                        </div>
+                    </footer>
+                </div>
+            </div>
+
+            
+            <div wire:loading.flex
+                 wire:target="nextStep,previousStep,completeSitterRegistration,editMotivationWithAI,editExperienceWithAI,generateMotivationSuggestion,generateExperienceSuggestion"
+                 class="fixed inset-0 z-50 items-center justify-center bg-white bg-opacity-75 backdrop-blur-sm">
+                <div class="text-center">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+                    <p class="text-gray-600">Przetwarzanie...</p>
+                </div>
+            </div>
+        </div>
+    <!--[if ENDBLOCK]><![endif]-->
+
+    
+    <div wire:loading.flex wire:target="activateWizard,deactivateWizard"
+         class="fixed inset-0 z-50 items-center justify-center bg-white bg-opacity-75 backdrop-blur-sm">
+        <div class="text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+            <p class="text-gray-600">Ładowanie...</p>
+        </div>
+    </div>
+</div>
+            </main>
+
+            <!-- Footer -->
+            <footer class="bg-gray-900 text-white mt-auto">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                        <!-- Brand Section -->
+                        <div class="col-span-1 md:col-span-2">
+                            <div class="flex items-center mb-4">
+                                <span class="text-2xl mr-2">🐾</span>
+                                <span class="text-2xl font-bold text-indigo-400">PetHelp</span>
+                            </div>
+                            <p class="text-gray-300 mb-4 max-w-md">
+                                Łączymy właścicieli zwierząt z najlepszymi opiekunami i usługami w Twojej okolicy.
+                                Zaufana platforma dla miłośników zwierząt.
+                            </p>
+                            <div class="flex space-x-4">
+                                <a href="#" class="text-gray-400 hover:text-indigo-400 transition-colors">
+                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
+                                    </svg>
+                                </a>
+                                <a href="#" class="text-gray-400 hover:text-indigo-400 transition-colors">
+                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z"/>
+                                    </svg>
+                                </a>
+                                <a href="#" class="text-gray-400 hover:text-indigo-400 transition-colors">
+                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.746-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001.012.001z"/>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Quick Links -->
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4">Szybkie linki</h3>
+                            <ul class="space-y-2">
+                                <li><a href="/" class="text-gray-300 hover:text-white transition-colors">Strona główna</a></li>
+                                <li><a href="/search" class="text-gray-300 hover:text-white transition-colors">Szukaj opiekunów</a></li>
+                                <li><a href="#" class="text-gray-300 hover:text-white transition-colors">Zostań opiekunem</a></li>
+                                <li><a href="#" class="text-gray-300 hover:text-white transition-colors">O nas</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Support -->
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4">Wsparcie</h3>
+                            <ul class="space-y-2">
+                                <li><a href="#" class="text-gray-300 hover:text-white transition-colors">Centrum pomocy</a></li>
+                                <li><a href="#" class="text-gray-300 hover:text-white transition-colors">Kontakt</a></li>
+                                <li><a href="#" class="text-gray-300 hover:text-white transition-colors">Regulamin</a></li>
+                                <li><a href="#" class="text-gray-300 hover:text-white transition-colors">Polityka prywatności</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Bar -->
+                    <div class="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
+                        <p class="text-gray-400 text-sm">
+                            © 2025 PetHelp. Wszystkie prawa zastrzeżone.
+                        </p>
+                        <div class="flex items-center space-x-4 mt-4 md:mt-0">
+                            <span class="text-gray-400 text-sm">Dostępne na:</span>
+                            <div class="flex space-x-2">
+                                <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                                    </svg>
+                                </a>
+                                <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M17.523 15.3414c-.5665 0-.9311-.0481-1.0775-.1442-.3467-.2277-.9276-.8526-.9276-1.906 0-.5386.2165-1.0775.6518-1.6162.4353-.5386 1.0103-1.0103 1.584-1.3913.2882-.1923.6518-.4353.996-.4353.4353 0 .7235.1731.8696.5195.1442.3467.0962.7716-.1442 1.1183-.2404.3467-.6518.7716-1.2268 1.2268-.5748.4553-1.2267.8696-1.9059 1.1183-.1923.0692-.4353.1052-.7235.1052z"/>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+
+        <!-- Alpine.js Store for Mobile Menu is defined in alpine-components.js -->
+
+        <!-- Livewire Scripts -->
+<script src="/livewire/livewire.js?id=df3a17f2"   data-csrf="n98HZ9ZkRTPd0iFHtYEuo7i2CGi08pvvyi5nUGzL" data-update-uri="/livewire/update" data-navigate-once="true"></script>
+    <script type="text/javascript">
+var phpdebugbar = new PhpDebugBar.DebugBar({"theme":"auto","hideEmptyTabs":true});
+phpdebugbar.addTab("request", new PhpDebugBar.DebugBar.Tab({"icon":"tags","order":-100,"title":"Request", "widget": new PhpDebugBar.Widgets.HtmlVariableListWidget()}));
+phpdebugbar.addTab("messages", new PhpDebugBar.DebugBar.Tab({"icon":"list-alt","title":"Messages", "widget": new PhpDebugBar.Widgets.MessagesWidget()}));
+phpdebugbar.addIndicator("time", new PhpDebugBar.DebugBar.Indicator({"icon":"clock-o","tooltip":"Request Duration","link":"timeline"}), "right");
+phpdebugbar.addTab("timeline", new PhpDebugBar.DebugBar.Tab({"icon":"tasks","title":"Timeline", "widget": new PhpDebugBar.Widgets.TimelineWidget()}));
+phpdebugbar.addIndicator("memory", new PhpDebugBar.DebugBar.Indicator({"icon":"cogs","tooltip":"Memory Usage"}), "right");
+phpdebugbar.addTab("exceptions", new PhpDebugBar.DebugBar.Tab({"icon":"bug","title":"Exceptions", "widget": new PhpDebugBar.Widgets.ExceptionsWidget()}));
+phpdebugbar.addIndicator("version", new PhpDebugBar.DebugBar.Indicator({"icon":"laravel phpdebugbar-fab"}), "right");
+phpdebugbar.addTab("views", new PhpDebugBar.DebugBar.Tab({"icon":"leaf","title":"Views", "widget": new PhpDebugBar.Widgets.TemplatesWidget()}));
+phpdebugbar.addTab("queries", new PhpDebugBar.DebugBar.Tab({"icon":"database","title":"Queries", "widget": new PhpDebugBar.Widgets.LaravelQueriesWidget()}));
+phpdebugbar.addTab("models", new PhpDebugBar.DebugBar.Tab({"icon":"cubes","title":"Models", "widget": new PhpDebugBar.Widgets.TableVariableListWidget()}));
+phpdebugbar.addTab("livewire", new PhpDebugBar.DebugBar.Tab({"icon":"bolt","title":"Livewire", "widget": new PhpDebugBar.Widgets.VariableListWidget()}));
+phpdebugbar.addTab("emails", new PhpDebugBar.DebugBar.Tab({"icon":"inbox","title":"Mails", "widget": new PhpDebugBar.Widgets.MailsWidget()}));
+phpdebugbar.addTab("gate", new PhpDebugBar.DebugBar.Tab({"icon":"list-alt","title":"Gate", "widget": new PhpDebugBar.Widgets.MessagesWidget()}));
+phpdebugbar.addIndicator("currentrequest", new PhpDebugBar.DebugBar.Indicator({"icon":"share","link":"request"}), "right");
+phpdebugbar.setDataMap({
+"request": ["request.data", {}],
+"messages": ["messages.messages", []],
+"messages:badge": ["messages.count", null],
+"time": ["time.duration_str", '0ms'],
+"timeline": ["time", {}],
+"memory": ["memory.peak_usage_str", '0B'],
+"exceptions": ["exceptions.exceptions", []],
+"exceptions:badge": ["exceptions.count", null],
+"version": ["laravel.version", ],
+"version:tooltip": ["laravel.tooltip", {}],
+"views": ["views", []],
+"views:badge": ["views.nb_templates", 0],
+"queries": ["queries", []],
+"queries:badge": ["queries.nb_statements", 0],
+"models": ["models", {}],
+"models:badge": ["models.count", 0],
+"livewire": ["livewire.data", {}],
+"livewire:badge": ["livewire.count", 0],
+"emails": ["symfonymailer_mails.mails", []],
+"emails:badge": ["symfonymailer_mails.count", null],
+"gate": ["gate.messages", []],
+"gate:badge": ["gate.count", null],
+"request:badge": ["request.badge", null],
+"currentrequest": ["request.data.uri", ],
+"currentrequest:tooltip": ["request.tooltip", {}]
+});
+phpdebugbar.restoreState();
+phpdebugbar.enableAjaxHandlerTab();
+phpdebugbar.ajaxHandler = new PhpDebugBar.AjaxHandler(phpdebugbar, undefined, true);
+phpdebugbar.ajaxHandler.bindToFetch();
+phpdebugbar.ajaxHandler.bindToXHR();
+phpdebugbar.setOpenHandler(new PhpDebugBar.OpenHandler({"url":"http:\/\/pethelp.test\/_debugbar\/open"}));
+phpdebugbar.addDataSet({"__meta":{"id":"01K68SFRJYRB2F44KSXC0YAHW6","datetime":"2025-09-28 18:31:14","utime":1759084274.270739,"method":"GET","uri":"\/profil\/zostan-pet-sitterem\/4","ip":"127.0.0.1"},"messages":{"count":1,"messages":[{"message":"[18:31:14] LOG.info: Generowanie sugestii regu\u0142 biznesowych {\n    \u0022step\u0022: 4,\n    \u0022user_data_keys\u0022: [\n        \u0022name\u0022,\n        \u0022email\u0022,\n        \u0022city\u0022,\n        \u0022current_step\u0022,\n        \u0022motivation\u0022,\n        \u0022pet_experience\u0022,\n        \u0022experience_description\u0022,\n        \u0022years_of_experience\u0022,\n        \u0022animal_types\u0022,\n        \u0022animal_sizes\u0022,\n        \u0022service_types\u0022,\n        \u0022special_services\u0022,\n        \u0022address\u0022,\n        \u0022service_radius\u0022,\n        \u0022weekly_availability\u0022,\n        \u0022emergency_available\u0022,\n        \u0022flexible_schedule\u0022,\n        \u0022home_type\u0022,\n        \u0022has_garden\u0022,\n        \u0022is_smoking\u0022,\n        \u0022has_other_pets\u0022,\n        \u0022other_pets\u0022,\n        \u0022has_profile_photo\u0022,\n        \u0022home_photos_count\u0022,\n        \u0022has_identity_document\u0022,\n        \u0022has_criminal_record\u0022,\n        \u0022references_count\u0022,\n        \u0022pricing_strategy\u0022,\n        \u0022service_pricing\u0022,\n        \u0022agreed_to_terms\u0022,\n        \u0022marketing_consent\u0022,\n        \u0022completion_percentage\u0022,\n        \u0022completed_steps\u0022\n    ],\n    \u0022context\u0022: {\n        \u0022user_type\u0022: \u0022pet_sitter\u0022,\n        \u0022time_of_day\u0022: \u002218:31\u0022,\n        \u0022step_name\u0022: \u0022services\u0022\n    }\n}","message_html":null,"is_string":false,"label":"info","time":1759084274.251688,"xdebug_link":null,"collector":"log"}]},"time":{"count":12,"start":1759084273.121184,"end":1759084274.270765,"duration":1.149580955505371,"duration_str":"1.15s","measures":[{"label":"Booting","start":1759084273.121184,"relative_start":0,"end":1759084274.200822,"relative_end":1759084274.200822,"duration":1.0796380043029785,"duration_str":"1.08s","memory":0,"memory_str":"0B","params":[],"collector":"time","group":null},{"label":"Application","start":1759084274.200843,"relative_start":1.0796589851379395,"end":1759084274.270769,"relative_end":3.814697265625e-6,"duration":0.06992578506469727,"duration_str":"69.93ms","memory":0,"memory_str":"0B","params":[],"collector":"time","group":null},{"label":"Routing","start":1759084274.206314,"relative_start":1.085129976272583,"end":1759084274.20925,"relative_end":1759084274.20925,"duration":0.0029358863830566406,"duration_str":"2.94ms","memory":0,"memory_str":"0B","params":[],"collector":null,"group":null},{"label":"View: livewire.pet-sitter-wizard","start":1759084274.255322,"relative_start":1.1341378688812256,"end":1759084274.255322,"relative_end":1759084274.255322,"duration":0,"duration_str":"0\u03bcs","memory":0,"memory_str":"0B","params":[],"collector":"views","group":"View"},{"label":"View: livewire.pet-sitter-wizard.steps.step-4","start":1759084274.256316,"relative_start":1.1351318359375,"end":1759084274.256316,"relative_end":1759084274.256316,"duration":0,"duration_str":"0\u03bcs","memory":0,"memory_str":"0B","params":[],"collector":"views","group":"View"},{"label":"View: components.ui.tooltip","start":1759084274.257856,"relative_start":1.136671781539917,"end":1759084274.257856,"relative_end":1759084274.257856,"duration":0,"duration_str":"0\u03bcs","memory":0,"memory_str":"0B","params":[],"collector":"views","group":"View"},{"label":"View: components.ui.tooltip","start":1759084274.258338,"relative_start":1.1371538639068604,"end":1759084274.258338,"relative_end":1759084274.258338,"duration":0,"duration_str":"0\u03bcs","memory":0,"memory_str":"0B","params":[],"collector":"views","group":"View"},{"label":"View: components.ui.tooltip","start":1759084274.258531,"relative_start":1.1373469829559326,"end":1759084274.258531,"relative_end":1759084274.258531,"duration":0,"duration_str":"0\u03bcs","memory":0,"memory_str":"0B","params":[],"collector":"views","group":"View"},{"label":"View: __components::4943bc92ebba41e8b0e508149542e0ad","start":1759084274.263341,"relative_start":1.1421568393707275,"end":1759084274.263341,"relative_end":1759084274.263341,"duration":0,"duration_str":"0\u03bcs","memory":0,"memory_str":"0B","params":[],"collector":"views","group":"View"},{"label":"View: components.layouts.app","start":1759084274.265526,"relative_start":1.1443419456481934,"end":1759084274.265526,"relative_end":1759084274.265526,"duration":0,"duration_str":"0\u03bcs","memory":0,"memory_str":"0B","params":[],"collector":"views","group":"View"},{"label":"View: components.dark-mode-toggle","start":1759084274.266944,"relative_start":1.1457598209381104,"end":1759084274.266944,"relative_end":1759084274.266944,"duration":0,"duration_str":"0\u03bcs","memory":0,"memory_str":"0B","params":[],"collector":"views","group":"View"},{"label":"Preparing Response","start":1759084274.26949,"relative_start":1.148305892944336,"end":1759084274.26967,"relative_end":1759084274.26967,"duration":0.0001800060272216797,"duration_str":"180\u03bcs","memory":0,"memory_str":"0B","params":[],"collector":null,"group":null}]},"memory":{"peak_usage":4297840,"peak_usage_str":"4MB"},"exceptions":{"count":0,"exceptions":[]},"laravel":{"version":"12.x","tooltip":{"Laravel Version":"12.29.0","PHP Version":"8.3.16","Environment":"local","Debug Mode":"Enabled","URL":"pethelp.test","Timezone":"UTC","Locale":"pl"}},"views":{"count":8,"nb_templates":8,"templates":[{"name":"livewire.pet-sitter-wizard","param_count":null,"params":[],"start":1759084274.255248,"type":"blade","hash":"bladeC:\\laragon\\www\\pethelp\\resources\\views\/livewire\/pet-sitter-wizard.blade.phplivewire.pet-sitter-wizard","xdebug_link":{"url":"phpstorm:\/\/open?file=C%3A%2Flaragon%2Fwww%2Fpethelp%2Fresources%2Fviews%2Flivewire%2Fpet-sitter-wizard.blade.php\u0026line=1","ajax":false,"filename":"pet-sitter-wizard.blade.php","line":"?"}},{"name":"livewire.pet-sitter-wizard.steps.step-4","param_count":null,"params":[],"start":1759084274.256184,"type":"blade","hash":"bladeC:\\laragon\\www\\pethelp\\resources\\views\/livewire\/pet-sitter-wizard\/steps\/step-4.blade.phplivewire.pet-sitter-wizard.steps.step-4","xdebug_link":{"url":"phpstorm:\/\/open?file=C%3A%2Flaragon%2Fwww%2Fpethelp%2Fresources%2Fviews%2Flivewire%2Fpet-sitter-wizard%2Fsteps%2Fstep-4.blade.php\u0026line=1","ajax":false,"filename":"step-4.blade.php","line":"?"}},{"name":"components.ui.tooltip","param_count":null,"params":[],"start":1759084274.257787,"type":"blade","hash":"bladeC:\\laragon\\www\\pethelp\\resources\\views\/components\/ui\/tooltip.blade.phpcomponents.ui.tooltip","xdebug_link":{"url":"phpstorm:\/\/open?file=C%3A%2Flaragon%2Fwww%2Fpethelp%2Fresources%2Fviews%2Fcomponents%2Fui%2Ftooltip.blade.php\u0026line=1","ajax":false,"filename":"tooltip.blade.php","line":"?"}},{"name":"components.ui.tooltip","param_count":null,"params":[],"start":1759084274.258285,"type":"blade","hash":"bladeC:\\laragon\\www\\pethelp\\resources\\views\/components\/ui\/tooltip.blade.phpcomponents.ui.tooltip","xdebug_link":{"url":"phpstorm:\/\/open?file=C%3A%2Flaragon%2Fwww%2Fpethelp%2Fresources%2Fviews%2Fcomponents%2Fui%2Ftooltip.blade.php\u0026line=1","ajax":false,"filename":"tooltip.blade.php","line":"?"}},{"name":"components.ui.tooltip","param_count":null,"params":[],"start":1759084274.258496,"type":"blade","hash":"bladeC:\\laragon\\www\\pethelp\\resources\\views\/components\/ui\/tooltip.blade.phpcomponents.ui.tooltip","xdebug_link":{"url":"phpstorm:\/\/open?file=C%3A%2Flaragon%2Fwww%2Fpethelp%2Fresources%2Fviews%2Fcomponents%2Fui%2Ftooltip.blade.php\u0026line=1","ajax":false,"filename":"tooltip.blade.php","line":"?"}},{"name":"__components::4943bc92ebba41e8b0e508149542e0ad","param_count":null,"params":[],"start":1759084274.263294,"type":"blade","hash":"bladeC:\\laragon\\www\\pethelp\\storage\\framework\\views\/4943bc92ebba41e8b0e508149542e0ad.blade.php__components::4943bc92ebba41e8b0e508149542e0ad","xdebug_link":{"url":"phpstorm:\/\/open?file=C%3A%2Flaragon%2Fwww%2Fpethelp%2Fstorage%2Fframework%2Fviews%2F4943bc92ebba41e8b0e508149542e0ad.blade.php\u0026line=1","ajax":false,"filename":"4943bc92ebba41e8b0e508149542e0ad.blade.php","line":"?"}},{"name":"components.layouts.app","param_count":null,"params":[],"start":1759084274.265461,"type":"blade","hash":"bladeC:\\laragon\\www\\pethelp\\resources\\views\/components\/layouts\/app.blade.phpcomponents.layouts.app","xdebug_link":{"url":"phpstorm:\/\/open?file=C%3A%2Flaragon%2Fwww%2Fpethelp%2Fresources%2Fviews%2Fcomponents%2Flayouts%2Fapp.blade.php\u0026line=1","ajax":false,"filename":"app.blade.php","line":"?"}},{"name":"components.dark-mode-toggle","param_count":null,"params":[],"start":1759084274.266877,"type":"blade","hash":"bladeC:\\laragon\\www\\pethelp\\resources\\views\/components\/dark-mode-toggle.blade.phpcomponents.dark-mode-toggle","xdebug_link":{"url":"phpstorm:\/\/open?file=C%3A%2Flaragon%2Fwww%2Fpethelp%2Fresources%2Fviews%2Fcomponents%2Fdark-mode-toggle.blade.php\u0026line=1","ajax":false,"filename":"dark-mode-toggle.blade.php","line":"?"}}]},"queries":{"count":5,"nb_statements":4,"nb_visible_statements":5,"nb_excluded_statements":0,"nb_failed_statements":0,"accumulated_duration":0.00808,"accumulated_duration_str":"8.08ms","memory_usage":0,"memory_usage_str":null,"statements":[{"sql":"Connection Established","type":"transaction","params":[],"bindings":[],"hints":null,"show_copy":false,"backtrace":[{"index":7,"namespace":null,"name":"vendor\/laravel\/framework\/src\/Illuminate\/Session\/SessionManager.php","file":"C:\\laragon\\www\\pethelp\\vendor\\laravel\\framework\\src\\Illuminate\\Session\\SessionManager.php","line":108},{"index":8,"namespace":null,"name":"vendor\/laravel\/framework\/src\/Illuminate\/Session\/SessionManager.php","file":"C:\\laragon\\www\\pethelp\\vendor\\laravel\\framework\\src\\Illuminate\\Session\\SessionManager.php","line":95},{"index":11,"namespace":null,"name":"vendor\/laravel\/framework\/src\/Illuminate\/Session\/Middleware\/StartSession.php","file":"C:\\laragon\\www\\pethelp\\vendor\\laravel\\framework\\src\\Illuminate\\Session\\Middleware\\StartSession.php","line":158},{"index":12,"namespace":null,"name":"vendor\/laravel\/framework\/src\/Illuminate\/Session\/Middleware\/StartSession.php","file":"C:\\laragon\\www\\pethelp\\vendor\\laravel\\framework\\src\\Illuminate\\Session\\Middleware\\StartSession.php","line":56},{"index":13,"namespace":null,"name":"vendor\/laravel\/framework\/src\/Illuminate\/Pipeline\/Pipeline.php","file":"C:\\laragon\\www\\pethelp\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php","line":219}],"start":1759084274.217072,"duration":0,"duration_str":"","memory":0,"memory_str":null,"filename":"SessionManager.php:108","source":{"index":7,"namespace":null,"name":"vendor\/laravel\/framework\/src\/Illuminate\/Session\/SessionManager.php","file":"C:\\laragon\\www\\pethelp\\vendor\\laravel\\framework\\src\\Illuminate\\Session\\SessionManager.php","line":108},"xdebug_link":{"url":"phpstorm:\/\/open?file=C%3A%2Flaragon%2Fwww%2Fpethelp%2Fvendor%2Flaravel%2Fframework%2Fsrc%2FIlluminate%2FSession%2FSessionManager.php\u0026line=108","ajax":false,"filename":"SessionManager.php","line":"108"},"connection":"pethelp","explain":null,"start_percent":0,"width_percent":0},{"sql":"select * from `sessions` where `id` = \u0027rZz34hIN3smUttjnrCe3HUc0JLCFGDQPODrP0iFu\u0027 limit 1","type":"query","params":[],"bindings":["rZz34hIN3smUttjnrCe3HUc0JLCFGDQPODrP0iFu"],"hints":null,"show_copy":true,"backtrace":[{"index":15,"namespace":null,"name":"vendor\/laravel\/framework\/src\/Illuminate\/Session\/DatabaseSessionHandler.php","file":"C:\\laragon\\www\\pethelp\\vendor\\laravel\\framework\\src\\Illuminate\\Session\\DatabaseSessionHandler.php","line":96},{"index":16,"namespace":null,"name":"vendor\/laravel\/framework\/src\/Illuminate\/Session\/Store.php","file":"C:\\laragon\\www\\pethelp\\vendor\\laravel\\framework\\src\\Illuminate\\Session\\Store.php","line":117},{"index":17,"namespace":null,"name":"vendor\/laravel\/framework\/src\/Illuminate\/Session\/Store.php","file":"C:\\laragon\\www\\pethelp\\vendor\\laravel\\framework\\src\\Illuminate\\Session\\Store.php","line":105},{"index":18,"namespace":null,"name":"vendor\/laravel\/framework\/src\/Illuminate\/Session\/Store.php","file":"C:\\laragon\\www\\pethelp\\vendor\\laravel\\framework\\src\\Illuminate\\Session\\Store.php","line":89},{"index":19,"namespace":null,"name":"vendor\/laravel\/framework\/src\/Illuminate\/Session\/Middleware\/StartSession.php","file":"C:\\laragon\\www\\pethelp\\vendor\\laravel\\framework\\src\\Illuminate\\Session\\Middleware\\StartSession.php","line":146}],"start":1759084274.218051,"duration":0.00364,"duration_str":"3.64ms","memory":0,"memory_str":null,"filename":"DatabaseSessionHandler.php:96","source":{"index":15,"namespace":null,"name":"vendor\/laravel\/framework\/src\/Illuminate\/Session\/DatabaseSessionHandler.php","file":"C:\\laragon\\www\\pethelp\\vendor\\laravel\\framework\\src\\Illuminate\\Session\\DatabaseSessionHandler.php","line":96},"xdebug_link":{"url":"phpstorm:\/\/open?file=C%3A%2Flaragon%2Fwww%2Fpethelp%2Fvendor%2Flaravel%2Fframework%2Fsrc%2FIlluminate%2FSession%2FDatabaseSessionHandler.php\u0026line=96","ajax":false,"filename":"DatabaseSessionHandler.php","line":"96"},"connection":"pethelp","explain":null,"start_percent":0,"width_percent":45.05},{"sql":"select * from `users` where `id` = 5 limit 1","type":"query","params":[],"bindings":[5],"hints":null,"show_copy":true,"backtrace":[{"index":16,"namespace":null,"name":"vendor\/laravel\/framework\/src\/Illuminate\/Auth\/EloquentUserProvider.php","file":"C:\\laragon\\www\\pethelp\\vendor\\laravel\\framework\\src\\Illuminate\\Auth\\EloquentUserProvider.php","line":58},{"index":17,"namespace":null,"name":"vendor\/laravel\/framework\/src\/Illuminate\/Auth\/SessionGuard.php","file":"C:\\laragon\\www\\pethelp\\vendor\\laravel\\framework\\src\\Illuminate\\Auth\\SessionGuard.php","line":179},{"index":18,"namespace":null,"name":"vendor\/laravel\/framework\/src\/Illuminate\/Auth\/GuardHelpers.php","file":"C:\\laragon\\www\\pethelp\\vendor\\laravel\\framework\\src\\Illuminate\\Auth\\GuardHelpers.php","line":56},{"index":19,"namespace":"middleware","name":"auth","file":"C:\\laragon\\www\\pethelp\\vendor\\laravel\\framework\\src\\Illuminate\\Auth\\Middleware\\Authenticate.php","line":82},{"index":20,"namespace":"middleware","name":"auth","file":"C:\\laragon\\www\\pethelp\\vendor\\laravel\\framework\\src\\Illuminate\\Auth\\Middleware\\Authenticate.php","line":61}],"start":1759084274.229389,"duration":0.00102,"duration_str":"1.02ms","memory":0,"memory_str":null,"filename":"EloquentUserProvider.php:58","source":{"index":16,"namespace":null,"name":"vendor\/laravel\/framework\/src\/Illuminate\/Auth\/EloquentUserProvider.php","file":"C:\\laragon\\www\\pethelp\\vendor\\laravel\\framework\\src\\Illuminate\\Auth\\EloquentUserProvider.php","line":58},"xdebug_link":{"url":"phpstorm:\/\/open?file=C%3A%2Flaragon%2Fwww%2Fpethelp%2Fvendor%2Flaravel%2Fframework%2Fsrc%2FIlluminate%2FAuth%2FEloquentUserProvider.php\u0026line=58","ajax":false,"filename":"EloquentUserProvider.php","line":"58"},"connection":"pethelp","explain":null,"start_percent":45.05,"width_percent":12.624},{"sql":"select * from `user_profiles` where `user_profiles`.`user_id` = 5 and `user_profiles`.`user_id` is not null limit 1","type":"query","params":[],"bindings":[5],"hints":null,"show_copy":true,"backtrace":[{"index":21,"namespace":null,"name":"app\/Models\/User.php","file":"C:\\laragon\\www\\pethelp\\app\\Models\\User.php","line":175},{"index":22,"namespace":null,"name":"app\/Livewire\/PetSitterWizard.php","file":"C:\\laragon\\www\\pethelp\\app\\Livewire\\PetSitterWizard.php","line":195},{"index":23,"namespace":null,"name":"vendor\/laravel\/framework\/src\/Illuminate\/Container\/BoundMethod.php","file":"C:\\laragon\\www\\pethelp\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php","line":36},{"index":24,"namespace":null,"name":"vendor\/laravel\/framework\/src\/Illuminate\/Container\/Util.php","file":"C:\\laragon\\www\\pethelp\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php","line":43},{"index":25,"namespace":null,"name":"vendor\/laravel\/framework\/src\/Illuminate\/Container\/BoundMethod.php","file":"C:\\laragon\\www\\pethelp\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php","line":96}],"start":1759084274.2405581,"duration":0.00186,"duration_str":"1.86ms","memory":0,"memory_str":null,"filename":"User.php:175","source":{"index":21,"namespace":null,"name":"app\/Models\/User.php","file":"C:\\laragon\\www\\pethelp\\app\\Models\\User.php","line":175},"xdebug_link":{"url":"phpstorm:\/\/open?file=C%3A%2Flaragon%2Fwww%2Fpethelp%2Fapp%2FModels%2FUser.php\u0026line=175","ajax":false,"filename":"User.php","line":"175"},"connection":"pethelp","explain":null,"start_percent":57.673,"width_percent":23.02},{"sql":"select * from `wizard_drafts` where `user_id` = 5 and `wizard_type` = \u0027pet_sitter\u0027 limit 1","type":"query","params":[],"bindings":[5,"pet_sitter"],"hints":null,"show_copy":true,"backtrace":[{"index":16,"namespace":null,"name":"app\/Livewire\/PetSitterWizard.php","file":"C:\\laragon\\www\\pethelp\\app\\Livewire\\PetSitterWizard.php","line":1484},{"index":17,"namespace":null,"name":"app\/Livewire\/PetSitterWizard.php","file":"C:\\laragon\\www\\pethelp\\app\\Livewire\\PetSitterWizard.php","line":203},{"index":18,"namespace":null,"name":"vendor\/laravel\/framework\/src\/Illuminate\/Container\/BoundMethod.php","file":"C:\\laragon\\www\\pethelp\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php","line":36},{"index":19,"namespace":null,"name":"vendor\/laravel\/framework\/src\/Illuminate\/Container\/Util.php","file":"C:\\laragon\\www\\pethelp\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php","line":43},{"index":20,"namespace":null,"name":"vendor\/laravel\/framework\/src\/Illuminate\/Container\/BoundMethod.php","file":"C:\\laragon\\www\\pethelp\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php","line":96}],"start":1759084274.247229,"duration":0.00156,"duration_str":"1.56ms","memory":0,"memory_str":null,"filename":"PetSitterWizard.php:1484","source":{"index":16,"namespace":null,"name":"app\/Livewire\/PetSitterWizard.php","file":"C:\\laragon\\www\\pethelp\\app\\Livewire\\PetSitterWizard.php","line":1484},"xdebug_link":{"url":"phpstorm:\/\/open?file=C%3A%2Flaragon%2Fwww%2Fpethelp%2Fapp%2FLivewire%2FPetSitterWizard.php\u0026line=1484","ajax":false,"filename":"PetSitterWizard.php","line":"1484"},"connection":"pethelp","explain":null,"start_percent":80.693,"width_percent":19.307}]},"models":{"data":{"App\\Models\\User":{"retrieved":1,"xdebug_link":{"url":"phpstorm:\/\/open?file=C%3A%2Flaragon%2Fwww%2Fpethelp%2Fapp%2FModels%2FUser.php\u0026line=1","ajax":false,"filename":"User.php","line":"?"}}},"count":1,"key_map":{"retrieved":"Retrieved","created":"Created","updated":"Updated","deleted":"Deleted"},"is_counter":true,"badges":{"retrieved":1}},"livewire":{"data":{"pet-sitter-wizard #ZkpygYjWkKHEAIasYGmy":"array:4 [\n  \u0022data\u0022 =\u003E array:45 [\n    \u0022currentStep\u0022 =\u003E 4\n    \u0022maxSteps\u0022 =\u003E 12\n    \u0022wizardData\u0022 =\u003E []\n    \u0022showAIPanel\u0022 =\u003E true\n    \u0022isActive\u0022 =\u003E true\n    \u0022currentDraft\u0022 =\u003E null\n    \u0022isTransitioning\u0022 =\u003E false\n    \u0022isSaving\u0022 =\u003E false\n    \u0022isValidating\u0022 =\u003E false\n    \u0022lastValidationMessage\u0022 =\u003E \u0022\u0022\n    \u0022showSuccessFeedback\u0022 =\u003E false\n    \u0022motivation\u0022 =\u003E \u0022\u0022\n    \u0022aiEditPrompt\u0022 =\u003E \u0022\u0022\n    \u0022isEditingWithAI\u0022 =\u003E false\n    \u0022aiEditPromptExperience\u0022 =\u003E \u0022\u0022\n    \u0022isEditingExperienceWithAI\u0022 =\u003E false\n    \u0022petExperience\u0022 =\u003E []\n    \u0022experienceDescription\u0022 =\u003E \u0022\u0022\n    \u0022yearsOfExperience\u0022 =\u003E 0\n    \u0022animalTypes\u0022 =\u003E []\n    \u0022animalSizes\u0022 =\u003E []\n    \u0022serviceTypes\u0022 =\u003E []\n    \u0022specialServices\u0022 =\u003E []\n    \u0022address\u0022 =\u003E \u0022\u0022\n    \u0022latitude\u0022 =\u003E 0.0\n    \u0022longitude\u0022 =\u003E 0.0\n    \u0022serviceRadius\u0022 =\u003E 10\n    \u0022weeklyAvailability\u0022 =\u003E array:7 [\n      \u0022monday\u0022 =\u003E array:3 [\n        \u0022available\u0022 =\u003E false\n        \u0022start\u0022 =\u003E \u002209:00\u0022\n        \u0022end\u0022 =\u003E \u002217:00\u0022\n      ]\n      \u0022tuesday\u0022 =\u003E array:3 [\n        \u0022available\u0022 =\u003E false\n        \u0022start\u0022 =\u003E \u002209:00\u0022\n        \u0022end\u0022 =\u003E \u002217:00\u0022\n      ]\n      \u0022wednesday\u0022 =\u003E array:3 [\n        \u0022available\u0022 =\u003E false\n        \u0022start\u0022 =\u003E \u002209:00\u0022\n        \u0022end\u0022 =\u003E \u002217:00\u0022\n      ]\n      \u0022thursday\u0022 =\u003E array:3 [\n        \u0022available\u0022 =\u003E false\n        \u0022start\u0022 =\u003E \u002209:00\u0022\n        \u0022end\u0022 =\u003E \u002217:00\u0022\n      ]\n      \u0022friday\u0022 =\u003E array:3 [\n        \u0022available\u0022 =\u003E false\n        \u0022start\u0022 =\u003E \u002209:00\u0022\n        \u0022end\u0022 =\u003E \u002217:00\u0022\n      ]\n      \u0022saturday\u0022 =\u003E array:3 [\n        \u0022available\u0022 =\u003E false\n        \u0022start\u0022 =\u003E \u002210:00\u0022\n        \u0022end\u0022 =\u003E \u002216:00\u0022\n      ]\n      \u0022sunday\u0022 =\u003E array:3 [\n        \u0022available\u0022 =\u003E false\n        \u0022start\u0022 =\u003E \u002210:00\u0022\n        \u0022end\u0022 =\u003E \u002216:00\u0022\n      ]\n    ]\n    \u0022emergencyAvailable\u0022 =\u003E false\n    \u0022flexibleSchedule\u0022 =\u003E true\n    \u0022homeType\u0022 =\u003E \u0022\u0022\n    \u0022hasGarden\u0022 =\u003E false\n    \u0022isSmoking\u0022 =\u003E false\n    \u0022hasOtherPets\u0022 =\u003E false\n    \u0022otherPets\u0022 =\u003E []\n    \u0022profilePhoto\u0022 =\u003E null\n    \u0022homePhotos\u0022 =\u003E []\n    \u0022existingPhotos\u0022 =\u003E []\n    \u0022identityDocument\u0022 =\u003E null\n    \u0022criminalRecord\u0022 =\u003E null\n    \u0022references\u0022 =\u003E []\n    \u0022servicePricing\u0022 =\u003E array:5 [\n      \u0022walking\u0022 =\u003E array:2 [\n        \u0022enabled\u0022 =\u003E false\n        \u0022price\u0022 =\u003E 30\n      ]\n      \u0022home_care\u0022 =\u003E array:2 [\n        \u0022enabled\u0022 =\u003E false\n        \u0022price\u0022 =\u003E 50\n      ]\n      \u0022overnight\u0022 =\u003E array:2 [\n        \u0022enabled\u0022 =\u003E false\n        \u0022price\u0022 =\u003E 80\n      ]\n      \u0022feeding\u0022 =\u003E array:2 [\n        \u0022enabled\u0022 =\u003E false\n        \u0022price\u0022 =\u003E 25\n      ]\n      \u0022grooming\u0022 =\u003E array:2 [\n        \u0022enabled\u0022 =\u003E false\n        \u0022price\u0022 =\u003E 60\n      ]\n    ]\n    \u0022pricingStrategy\u0022 =\u003E \u0022competitive\u0022\n    \u0022agreedToTerms\u0022 =\u003E false\n    \u0022marketingConsent\u0022 =\u003E false\n  ]\n  \u0022name\u0022 =\u003E \u0022pet-sitter-wizard\u0022\n  \u0022component\u0022 =\u003E \u0022App\\Livewire\\PetSitterWizard\u0022\n  \u0022id\u0022 =\u003E \u0022ZkpygYjWkKHEAIasYGmy\u0022\n]"},"count":1},"symfonymailer_mails":{"count":0,"mails":[]},"gate":{"count":0,"messages":[]},"request":{"data":{"status":"200 OK","full_url":"http:\/\/pethelp.test\/profil\/zostan-pet-sitterem\/4","action_name":"profile.become-sitter","controller_action":"App\\Livewire\\PetSitterWizard","uri":"GET profil\/zostan-pet-sitterem\/{step?}","controller":"App\\Livewire\\PetSitterWizard@render\u003Ca href=\u0022phpstorm:\/\/open?file=C%3A%2Flaragon%2Fwww%2Fpethelp%2Fapp%2FLivewire%2FPetSitterWizard.php\u0026line=1814\u0022 class=\u0022phpdebugbar-widgets-editor-link\u0022\u003E\u003C\/a\u003E","prefix":"\/profil","file":"\u003Ca href=\u0022phpstorm:\/\/open?file=C%3A%2Flaragon%2Fwww%2Fpethelp%2Fapp%2FLivewire%2FPetSitterWizard.php\u0026line=1814\u0022 onclick=\u0022\u0022 class=\u0022phpdebugbar-widgets-editor-link\u0022\u003Eapp\/Livewire\/PetSitterWizard.php:1814-1820\u003C\/a\u003E","middleware":"web, auth","duration":"1.15s","peak_memory":"6MB","response":"text\/html; charset=UTF-8","request_format":"html","request_query":"\u003Cpre class=sf-dump id=sf-dump-1860561726 data-indent-pad=\u0022  \u0022\u003E[]\n\u003C\/pre\u003E\u003Cscript\u003ESfdump(\u0022sf-dump-1860561726\u0022, {\u0022maxDepth\u0022:0})\u003C\/script\u003E\n","request_request":"\u003Cpre class=sf-dump id=sf-dump-80796586 data-indent-pad=\u0022  \u0022\u003E[]\n\u003C\/pre\u003E\u003Cscript\u003ESfdump(\u0022sf-dump-80796586\u0022, {\u0022maxDepth\u0022:0})\u003C\/script\u003E\n","request_headers":"\u003Cpre class=sf-dump id=sf-dump-1629481987 data-indent-pad=\u0022  \u0022\u003E\u003Cspan class=sf-dump-note\u003Earray:4\u003C\/span\u003E [\u003Csamp data-depth=1 class=sf-dump-expanded\u003E\n  \u0022\u003Cspan class=sf-dump-key\u003Ehost\u003C\/span\u003E\u0022 =\u003E \u003Cspan class=sf-dump-note\u003Earray:1\u003C\/span\u003E [\u003Csamp data-depth=2 class=sf-dump-compact\u003E\n    \u003Cspan class=sf-dump-index\u003E0\u003C\/span\u003E =\u003E \u0022\u003Cspan class=sf-dump-str title=\u002212 characters\u0022\u003Epethelp.test\u003C\/span\u003E\u0022\n  \u003C\/samp\u003E]\n  \u0022\u003Cspan class=sf-dump-key\u003Euser-agent\u003C\/span\u003E\u0022 =\u003E \u003Cspan class=sf-dump-note\u003Earray:1\u003C\/span\u003E [\u003Csamp data-depth=2 class=sf-dump-compact\u003E\n    \u003Cspan class=sf-dump-index\u003E0\u003C\/span\u003E =\u003E \u0022\u003Cspan class=sf-dump-str title=\u002211 characters\u0022\u003Ecurl\/7.83.0\u003C\/span\u003E\u0022\n  \u003C\/samp\u003E]\n  \u0022\u003Cspan class=sf-dump-key\u003Eaccept\u003C\/span\u003E\u0022 =\u003E \u003Cspan class=sf-dump-note\u003Earray:1\u003C\/span\u003E [\u003Csamp data-depth=2 class=sf-dump-compact\u003E\n    \u003Cspan class=sf-dump-index\u003E0\u003C\/span\u003E =\u003E \u0022\u003Cspan class=sf-dump-str title=\u00223 characters\u0022\u003E*\/*\u003C\/span\u003E\u0022\n  \u003C\/samp\u003E]\n  \u0022\u003Cspan class=sf-dump-key\u003Ecookie\u003C\/span\u003E\u0022 =\u003E \u003Cspan class=sf-dump-note\u003Earray:1\u003C\/span\u003E [\u003Csamp data-depth=2 class=sf-dump-compact\u003E\n    \u003Cspan class=sf-dump-index\u003E0\u003C\/span\u003E =\u003E \u0022\u003Cspan class=sf-dump-str title=\u0022713 characters\u0022\u003Epethelp_session=eyJpdiI6IjdxRlVHRE5TMitLY3RwdkZ4c2MzdXc9PSIsInZhbHVlIjoibjczVVBDSGRVa3NEWldGQXdjSmhYSHNWZUtsTWxnWHRHTFRBWThnNlpBV0dndVdVVTBrc3lXS3dLZjVYdDJwTTlDbXBFTC9CVHJXeHJRNnhIOXRQMTQrRVNvbTlBQU0xMWtjeXpNWStjNFJldUZuZ2xuWHlJbVQ1SEc4d0Rxb3AiLCJtYWMiOiJiYTcxZWRhOTdkMDMwMmU5ZDBmYTkyNWIyZTc4MWFlMjQwNjY2MWU1YmExY2IwZTIxZjkyNzEyNjE4M2IyNzI4IiwidGFnIjoiIn0%3D; XSRF-TOKEN=eyJpdiI6InVKQ3Jnczk4bGI0OWNjMyt5OFlhSUE9PSIsInZhbHVlIjoiVEZQaGwweVh1VHA5RzlQOVNGRDQrbk15NnEzekhXdk5Oa1NqckZLR3FKeWFpTTR1N1d6K29TeHp5UFVmbzZoQVlVc2hVdXVsNFN0aHgvaUppZHBkQjkvcS9ja1dIYW82aCs5bi9uUXJMcm9hb3kzb1hoYWppeEszcG8vWnUyZjciLCJtYWMiOiJmMGRjYzc4NTY2MTg2OGJlYzY0ZTQ4NjZhZjBkNDNlZGI1ZmE2YjlmMTFmZDBkNDMwODM2NWIwMmNiOTRkNjAzIiwidGFnIjoiIn0%3D\u003C\/span\u003E\u0022\n  \u003C\/samp\u003E]\n\u003C\/samp\u003E]\n\u003C\/pre\u003E\u003Cscript\u003ESfdump(\u0022sf-dump-1629481987\u0022, {\u0022maxDepth\u0022:0})\u003C\/script\u003E\n","request_cookies":"\u003Cpre class=sf-dump id=sf-dump-1863901679 data-indent-pad=\u0022  \u0022\u003E\u003Cspan class=sf-dump-note\u003Earray:2\u003C\/span\u003E [\u003Csamp data-depth=1 class=sf-dump-expanded\u003E\n  \u0022\u003Cspan class=sf-dump-key\u003Epethelp_session\u003C\/span\u003E\u0022 =\u003E \u0022\u003Cspan class=sf-dump-str title=\u002240 characters\u0022\u003ErZz34hIN3smUttjnrCe3HUc0JLCFGDQPODrP0iFu\u003C\/span\u003E\u0022\n  \u0022\u003Cspan class=sf-dump-key\u003EXSRF-TOKEN\u003C\/span\u003E\u0022 =\u003E \u0022\u003Cspan class=sf-dump-str title=\u002240 characters\u0022\u003En98HZ9ZkRTPd0iFHtYEuo7i2CGi08pvvyi5nUGzL\u003C\/span\u003E\u0022\n\u003C\/samp\u003E]\n\u003C\/pre\u003E\u003Cscript\u003ESfdump(\u0022sf-dump-1863901679\u0022, {\u0022maxDepth\u0022:0})\u003C\/script\u003E\n","response_headers":"\u003Cpre class=sf-dump id=sf-dump-1001946892 data-indent-pad=\u0022  \u0022\u003E\u003Cspan class=sf-dump-note\u003Earray:3\u003C\/span\u003E [\u003Csamp data-depth=1 class=sf-dump-expanded\u003E\n  \u0022\u003Cspan class=sf-dump-key\u003Ecache-control\u003C\/span\u003E\u0022 =\u003E \u003Cspan class=sf-dump-note\u003Earray:1\u003C\/span\u003E [\u003Csamp data-depth=2 class=sf-dump-compact\u003E\n    \u003Cspan class=sf-dump-index\u003E0\u003C\/span\u003E =\u003E \u0022\u003Cspan class=sf-dump-str title=\u002217 characters\u0022\u003Eno-cache, private\u003C\/span\u003E\u0022\n  \u003C\/samp\u003E]\n  \u0022\u003Cspan class=sf-dump-key\u003Edate\u003C\/span\u003E\u0022 =\u003E \u003Cspan class=sf-dump-note\u003Earray:1\u003C\/span\u003E [\u003Csamp data-depth=2 class=sf-dump-compact\u003E\n    \u003Cspan class=sf-dump-index\u003E0\u003C\/span\u003E =\u003E \u0022\u003Cspan class=sf-dump-str title=\u002229 characters\u0022\u003ESun, 28 Sep 2025 18:31:14 GMT\u003C\/span\u003E\u0022\n  \u003C\/samp\u003E]\n  \u0022\u003Cspan class=sf-dump-key\u003Econtent-type\u003C\/span\u003E\u0022 =\u003E \u003Cspan class=sf-dump-note\u003Earray:1\u003C\/span\u003E [\u003Csamp data-depth=2 class=sf-dump-compact\u003E\n    \u003Cspan class=sf-dump-index\u003E0\u003C\/span\u003E =\u003E \u0022\u003Cspan class=sf-dump-str title=\u002224 characters\u0022\u003Etext\/html; charset=UTF-8\u003C\/span\u003E\u0022\n  \u003C\/samp\u003E]\n\u003C\/samp\u003E]\n\u003C\/pre\u003E\u003Cscript\u003ESfdump(\u0022sf-dump-1001946892\u0022, {\u0022maxDepth\u0022:0})\u003C\/script\u003E\n","session_attributes":"\u003Cpre class=sf-dump id=sf-dump-834349189 data-indent-pad=\u0022  \u0022\u003E\u003Cspan class=sf-dump-note\u003Earray:6\u003C\/span\u003E [\u003Csamp data-depth=1 class=sf-dump-expanded\u003E\n  \u0022\u003Cspan class=sf-dump-key\u003E_token\u003C\/span\u003E\u0022 =\u003E \u0022\u003Cspan class=sf-dump-str title=\u002240 characters\u0022\u003En98HZ9ZkRTPd0iFHtYEuo7i2CGi08pvvyi5nUGzL\u003C\/span\u003E\u0022\n  \u0022\u003Cspan class=sf-dump-key\u003Elogin_web_59ba36addc2b2f9401580f014c7f58ea4e30989d\u003C\/span\u003E\u0022 =\u003E \u003Cspan class=sf-dump-num\u003E5\u003C\/span\u003E\n  \u0022\u003Cspan class=sf-dump-key\u003E_flash\u003C\/span\u003E\u0022 =\u003E \u003Cspan class=sf-dump-note\u003Earray:2\u003C\/span\u003E [\u003Csamp data-depth=2 class=sf-dump-compact\u003E\n    \u0022\u003Cspan class=sf-dump-key\u003Enew\u003C\/span\u003E\u0022 =\u003E \u003Cspan class=sf-dump-note\u003Earray:1\u003C\/span\u003E [\u003Csamp data-depth=3 class=sf-dump-compact\u003E\n      \u003Cspan class=sf-dump-index\u003E0\u003C\/span\u003E =\u003E \u0022\u003Cspan class=sf-dump-str title=\u00224 characters\u0022\u003Einfo\u003C\/span\u003E\u0022\n    \u003C\/samp\u003E]\n    \u0022\u003Cspan class=sf-dump-key\u003Eold\u003C\/span\u003E\u0022 =\u003E []\n  \u003C\/samp\u003E]\n  \u0022\u003Cspan class=sf-dump-key\u003E_previous\u003C\/span\u003E\u0022 =\u003E \u003Cspan class=sf-dump-note\u003Earray:1\u003C\/span\u003E [\u003Csamp data-depth=2 class=sf-dump-compact\u003E\n    \u0022\u003Cspan class=sf-dump-key\u003Eurl\u003C\/span\u003E\u0022 =\u003E \u0022\u003Cspan class=sf-dump-str title=\u002248 characters\u0022\u003Ehttp:\/\/pethelp.test\/profil\/zostan-pet-sitterem\/5\u003C\/span\u003E\u0022\n  \u003C\/samp\u003E]\n  \u0022\u003Cspan class=sf-dump-key\u003Einfo\u003C\/span\u003E\u0022 =\u003E \u0022\u003Cspan class=sf-dump-str title=\u002261 characters\u0022\u003EOtworzy\u0026#322;e\u0026#347; wizard bezpo\u0026#347;rednio na kroku 4 (tryb deweloperski)\u003C\/span\u003E\u0022\n  \u0022\u003Cspan class=sf-dump-key\u003EPHPDEBUGBAR_STACK_DATA\u003C\/span\u003E\u0022 =\u003E []\n\u003C\/samp\u003E]\n\u003C\/pre\u003E\u003Cscript\u003ESfdump(\u0022sf-dump-834349189\u0022, {\u0022maxDepth\u0022:0})\u003C\/script\u003E\n"},"tooltip":{"status":"200 OK","full_url":"http:\/\/pethelp.test\/profil\/zostan-pet-sitterem\/4","action_name":"profile.become-sitter","controller_action":"App\\Livewire\\PetSitterWizard"},"badge":null}}, "01K68SFRJYRB2F44KSXC0YAHW6");
+
+</script>
+</body>
+</html>

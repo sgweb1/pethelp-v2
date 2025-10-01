@@ -4,17 +4,18 @@ namespace App\Livewire\Dashboard\Pets;
 
 use App\Models\Pet;
 use App\Models\PetType;
-use Livewire\Component;
-use Livewire\Attributes\Computed;
-use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Validate;
+use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class PetForm extends Component
 {
     use WithFileUploads;
 
     public ?Pet $pet = null;
+
     public bool $editing = false;
 
     #[Validate('required|string|max:255')]
@@ -87,7 +88,7 @@ class PetForm extends Component
         $this->medical_info[] = [
             'type' => '',
             'description' => '',
-            'date' => ''
+            'date' => '',
         ];
     }
 
@@ -113,7 +114,7 @@ class PetForm extends Component
         $this->emergency_contacts[] = [
             'name' => '',
             'phone' => '',
-            'relationship' => ''
+            'relationship' => '',
         ];
     }
 
@@ -138,8 +139,8 @@ class PetForm extends Component
             'description' => $this->description ?: null,
             'medical_info' => array_filter($this->medical_info),
             'behavior_traits' => array_filter($this->behavior_traits),
-            'emergency_contacts' => array_filter($this->emergency_contacts, function($contact) {
-                return !empty($contact['name']) || !empty($contact['phone']);
+            'emergency_contacts' => array_filter($this->emergency_contacts, function ($contact) {
+                return ! empty($contact['name']) || ! empty($contact['phone']);
             }),
             'is_active' => $this->is_active,
         ];
@@ -164,12 +165,12 @@ class PetForm extends Component
             session()->flash('success', 'Zwierzę zostało dodane.');
         }
 
-        $this->redirect(route('pets.index'), navigate: true);
+        $this->redirect(route('profile.pets.index'), navigate: true);
     }
 
     public function cancel(): void
     {
-        $this->redirect(route('pets.index'), navigate: true);
+        $this->redirect(route('profile.pets.index'), navigate: true);
     }
 
     public function render()
@@ -177,7 +178,7 @@ class PetForm extends Component
         return view('livewire.dashboard.pets.pet-form')
             ->layout('components.dashboard-layout', [
                 'title' => $this->editing ? 'Edytuj zwierzę' : 'Dodaj zwierzę',
-                'activeSection' => 'pets'
+                'activeSection' => 'pets',
             ]);
     }
 }

@@ -4,6 +4,8 @@
 
 ## 🚀 Szybki Start
 
+### 💻 Rozwój lokalny
+
 1. **Instalacja:**
    ```bash
    composer install
@@ -26,6 +28,33 @@
    php artisan serve
    http://localhost:8000
    ```
+
+### 🌐 Wdrożenie produkcyjne
+
+**Automatyczna instalacja jednym poleceniem:**
+
+```bash
+curl -O https://raw.githubusercontent.com/sgweb1/pethelp-v2/master/install-production.sh
+chmod +x install-production.sh
+sudo ./install-production.sh
+```
+
+Skrypt automatycznie:
+- ✅ Zainstaluje PHP 8.3, MySQL, Nginx, Node.js
+- ✅ Skonfiguruje bazę danych
+- ✅ Zainstaluje certyfikat SSL (Let's Encrypt)
+- ✅ Skonfiguruje Supervisor dla kolejek
+- ✅ Uruchomi aplikację
+
+**📖 Dokumentacja wdrożenia:**
+- [📘 Przewodnik Wdrożenia](DEPLOYMENT_GUIDE.md) - Szybki start i FAQ
+- [📕 Szczegółowa Instrukcja](INSTRUKCJA_INSTALACJI_PRODUKCJA.md) - Pełna dokumentacja
+
+**🔄 Aktualizacja:**
+```bash
+cd /var/www/pethelp
+./update-production.sh
+```
 
 ## ✨ Funkcjonalności
 

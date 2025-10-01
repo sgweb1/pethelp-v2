@@ -179,7 +179,7 @@
                     @php
                         $otherUser = $view === 'owner' ? $booking->sitter : $booking->owner;
                     @endphp
-                    <a href="{{ route('chat') }}?user={{ $otherUser->id }}&booking={{ $booking->id }}"
+                    <a href="{{ route('profile.chat.index') }}?user={{ $otherUser->id }}&booking={{ $booking->id }}"
                        class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm">
                         💬 Czat
                     </a>

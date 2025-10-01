@@ -51,7 +51,7 @@ new class extends Component
         $user = Auth::user();
 
         if ($user->hasVerifiedEmail()) {
-            $this->redirectIntended(default: route('dashboard', absolute: false));
+            $this->redirectIntended(default: route('profile.dashboard', absolute: false));
 
             return;
         }
@@ -119,10 +119,16 @@ new class extends Component
                 Zapisz zmiany
             </button>
 
-            <div x-data="{ show: false }"
+            <div x-data="{
+                    show: false,
+                    showMessage() {
+                        this.show = true;
+                        setTimeout(() => this.show = false, 3000);
+                    }
+                 }"
                  x-show="show"
                  x-transition
-                 @profile-updated.window="show = true; setTimeout(() => show = false, 3000)"
+                 @profile-updated.window="showMessage()"
                  class="text-sm text-green-600 font-medium">
                 Zapisano!
             </div>

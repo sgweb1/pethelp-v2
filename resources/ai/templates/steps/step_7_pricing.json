@@ -1,0 +1,65 @@
+{
+  "title": "Ustalanie cen",
+  "description": "Ustaw konkurencyjne ceny dla swoich usług",
+  "suggestions": [
+    "Zacznij od średnich cen rynkowych - zawsze możesz podwyższyć",
+    "Pierwsi zadowoleni klienci = dobre opinie = wyższe ceny w przyszłości",
+    "Oferuj pakiety usług za korzystniejszą cenę",
+    "Różnicuj ceny między usługami weekendowymi a tygodniowymi"
+  ],
+  "pricing_strategy": {
+    "beginner": {
+      "approach": "Konkurencyjne ceny poniżej średniej rynkowej",
+      "discount": "10-20% poniżej średniej",
+      "focus": "Zdobywanie pierwszych klientów i opinii"
+    },
+    "experienced": {
+      "approach": "Ceny na poziomie średniej rynkowej",
+      "premium": "5-10% powyżej średniej",
+      "focus": "Budowanie stałej bazy klientów"
+    },
+    "professional": {
+      "approach": "Ceny premium za wysoką jakość",
+      "premium": "15-30% powyżej średniej",
+      "focus": "Specjalizacja i wyjątkowa obsługa"
+    }
+  },
+  "tips": [
+    {
+      "type": "success",
+      "content": "Pakiety usług mogą zwiększyć średnią wartość zamówienia o 25%"
+    },
+    {
+      "type": "info",
+      "content": "Ceny weekendowe mogą być o 20% wyższe niż w tygodniu"
+    },
+    {
+      "type": "warning",
+      "content": "Za niskie ceny mogą sugerować niską jakość usług"
+    }
+  ],
+  "market_factors": [
+    "Lokalizacja (miasta wojewódzkie +20-30%)",
+    "Konkurencja lokalna",
+    "Sezonowość (wakacje +15%, święta +25%)",
+    "Doświadczenie i certyfikaty (+10-50%)",
+    "Dodatkowe usługi w pakiecie"
+  ],
+  "common_packages": [
+    {
+      "name": "Pakiet spacerowy",
+      "description": "5 spacerów w tygodniu",
+      "discount": "10% taniej niż pojedyncze spacery"
+    },
+    {
+      "name": "Opieka weekendowa",
+      "description": "Sobota + niedziela",
+      "discount": "15% taniej niż dwa oddzielne dni"
+    },
+    {
+      "name": "Urlop właściciela",
+      "description": "Opieka 7+ dni",
+      "discount": "20% taniej od stawki dziennej"
+    }
+  ]
+}

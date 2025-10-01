@@ -6,6 +6,18 @@ import { createMapComponent } from './map-component';
 import './mobile-touch';
 import './dark-mode';
 import './accessibility';
+import './wizard-animations';
+import './wizard-state-manager-v3';
+import './components/wizard-step-1-v3';
+import './components/wizard-step-2-v3';
+import './components/wizard-step-5-v3';
+import './components/wizard-step-6-v3';
+import './components/wizard-step-7-v3';
+import './components/wizard-step-8-v3';
+import './components/wizard-step-9-v3';
+import './components/wizard-step-10-v3';
+import './dev-tools/wizard-debug-tools';
+import './utils/svg-icons';
 
 // Safe clipboard function to prevent clipboard API errors
 window.copyToClipboard = async function(text) {

@@ -21,6 +21,20 @@ class UserProfile extends Model
             'has_insurance' => 'boolean',
             'certifications' => 'array',
             'rating_average' => 'decimal:2',
+
+            // Nowe pola z wizard'a
+            'weekly_availability' => 'array',
+            'emergency_available' => 'boolean',
+            'flexible_schedule' => 'boolean',
+            'has_garden' => 'boolean',
+            'is_smoking' => 'boolean',
+            'has_other_pets' => 'boolean',
+            'other_pets' => 'array',
+            'home_photos' => 'array',
+            'verification_documents' => 'array',
+            'marketing_consent' => 'boolean',
+            'pets_experience' => 'array',
+            'sitter_activated_at' => 'datetime',
         ];
     }
 
@@ -44,6 +58,26 @@ class UserProfile extends Model
         'rating_average',
         'reviews_count',
         'total_bookings',
+
+        // Nowe pola z wizard'a
+        'latitude',
+        'longitude',
+        'service_radius',
+        'weekly_availability',
+        'emergency_available',
+        'flexible_schedule',
+        'home_type',
+        'has_garden',
+        'is_smoking',
+        'has_other_pets',
+        'other_pets',
+        'home_photos',
+        'verification_documents',
+        'verification_status',
+        'pricing_strategy',
+        'marketing_consent',
+        'pets_experience',
+        'sitter_activated_at',
     ];
 
     public function user(): BelongsTo

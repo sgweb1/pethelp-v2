@@ -54,7 +54,7 @@
                             @auth
                                 <div class="flex items-center space-x-3">
                                     <span class="text-sm text-gray-700 dark:text-gray-300">Witaj, {{ auth()->user()->name }}!</span>
-                                    <a href="{{ route('dashboard') }}" class="px-4 lg:px-6 py-2 text-sm lg:text-base text-indigo-600 dark:text-indigo-400 border-2 border-indigo-600 dark:border-indigo-400 rounded-full font-semibold hover:bg-indigo-600 dark:hover:bg-indigo-500 hover:text-white transition-all duration-300">Panel</a>
+                                    <a href="{{ route('profile.dashboard') }}" class="px-4 lg:px-6 py-2 text-sm lg:text-base text-indigo-600 dark:text-indigo-400 border-2 border-indigo-600 dark:border-indigo-400 rounded-full font-semibold hover:bg-indigo-600 dark:hover:bg-indigo-500 hover:text-white transition-all duration-300">Panel</a>
                                     <form method="POST" action="{{ route('logout') }}" class="inline">
                                         @csrf
                                         <button type="submit" class="px-4 lg:px-6 py-2 text-sm lg:text-base text-gray-600 dark:text-gray-400 border-2 border-gray-600 dark:border-gray-400 rounded-full font-semibold hover:bg-gray-600 dark:hover:bg-gray-500 hover:text-white transition-all duration-300">
@@ -92,7 +92,7 @@
                             <div class="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
                                 @auth
                                     <div class="text-center text-sm text-gray-700 dark:text-gray-300 mb-2">Witaj, {{ auth()->user()->name }}!</div>
-                                    <a href="{{ route('dashboard') }}" class="block w-full text-center px-4 py-2 text-indigo-600 dark:text-indigo-400 border-2 border-indigo-600 dark:border-indigo-400 rounded-full font-semibold hover:bg-indigo-600 dark:hover:bg-indigo-500 hover:text-white transition-all">Panel użytkownika</a>
+                                    <a href="{{ route('profile.dashboard') }}" class="block w-full text-center px-4 py-2 text-indigo-600 dark:text-indigo-400 border-2 border-indigo-600 dark:border-indigo-400 rounded-full font-semibold hover:bg-indigo-600 dark:hover:bg-indigo-500 hover:text-white transition-all">Panel użytkownika</a>
                                     <form method="POST" action="{{ route('logout') }}" class="w-full">
                                         @csrf
                                         <button type="submit" class="block w-full text-center px-4 py-2 text-gray-600 dark:text-gray-400 border-2 border-gray-600 dark:border-gray-400 rounded-full font-semibold hover:bg-gray-600 dark:hover:bg-gray-500 hover:text-white transition-all">

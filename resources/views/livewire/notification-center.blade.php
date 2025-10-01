@@ -80,7 +80,7 @@
                                 </div>
 
                                 @if($notification->data && isset($notification->data['booking_id']))
-                                    <a href="{{ route('bookings') }}" class="text-indigo-600 hover:text-indigo-800">
+                                    <a href="{{ route('profile.bookings') }}" class="text-indigo-600 hover:text-indigo-800">
                                         Zobacz rezerwację →
                                     </a>
                                 @endif

@@ -3,9 +3,9 @@
 namespace App\Livewire\Subscription;
 
 use App\Models\SubscriptionPlan;
-use App\Services\PayUService;
-use Livewire\Component;
+use App\Services\SubscriptionService;
 use Livewire\Attributes\Validate;
+use Livewire\Component;
 
 class CheckoutForm extends Component
 {
@@ -62,8 +62,8 @@ class CheckoutForm extends Component
     public function mount(SubscriptionPlan $plan)
     {
         \Log::info('=== CheckoutForm MOUNT START ===');
-        \Log::info('Current time: ' . now());
-        \Log::info('Plan ID: ' . $plan->id);
+        \Log::info('Current time: '.now());
+        \Log::info('Plan ID: '.$plan->id);
 
         $this->plan = $plan;
 
@@ -81,9 +81,36 @@ class CheckoutForm extends Component
     }
 
     /**
+     * Oblicza cenę z uwzględnieniem proration.
+     */
+    public function getPricingProperty(): array
+    {
+        $user = auth()->user();
+        if (! $user || ! $user->activeSubscription) {
+            return [
+                'original_price' => $this->plan->price,
+                'final_price' => $this->plan->price,
+                'credit_amount' => 0,
+                'savings' => 0,
+                'has_proration' => false,
+            ];
+        }
+
+        $subscriptionService = app(SubscriptionService::class);
+        $prorationData = $subscriptionService->calculateProration($user, $this->plan);
+
+        return [
+            'original_price' => $this->plan->price,
+            'final_price' => $prorationData['amount_to_charge'],
+            'credit_amount' => $prorationData['credit_amount'] ?? 0,
+            'savings' => $this->plan->price - $prorationData['amount_to_charge'],
+            'has_proration' => $prorationData['is_plan_change'] ?? false,
+            'proration_data' => $prorationData,
+        ];
+    }
+
+    /**
      * Breadcrumbs dla checkout.
-     *
-     * @return array
      */
     public function getBreadcrumbsProperty(): array
     {
@@ -91,26 +118,26 @@ class CheckoutForm extends Component
             [
                 'title' => 'Panel',
                 'icon' => '🏠',
-                'url' => route('dashboard')
+                'url' => route('profile.dashboard'),
             ],
             [
                 'title' => 'Plany subskrypcji',
                 'icon' => '💳',
-                'url' => route('subscription.plans')
+                'url' => route('subscription.plans'),
             ],
             [
                 'title' => 'Potwierdzenie zamówienia',
-                'icon' => '📋'
-            ]
+                'icon' => '📋',
+            ],
         ];
     }
 
     public function processPayment()
     {
         \Log::info('=== CheckoutForm processPayment START ===');
-        \Log::info('Current time: ' . now());
-        \Log::info('User ID: ' . auth()->user()->id);
-        \Log::info('Plan ID: ' . $this->plan->id);
+        \Log::info('Current time: '.now());
+        \Log::info('User ID: '.auth()->user()->id);
+        \Log::info('Plan ID: '.$this->plan->id);
 
         $this->validate();
 
@@ -124,7 +151,7 @@ class CheckoutForm extends Component
 
             \Log::info('Calling createSubscriptionPayment', [
                 'user_id' => auth()->user()->id,
-                'plan_id' => $this->plan->id
+                'plan_id' => $this->plan->id,
             ]);
 
             $result = $payuService->createSubscriptionPayment(auth()->user(), $this->plan, [
@@ -145,7 +172,7 @@ class CheckoutForm extends Component
                     'privacy' => $this->accept_privacy,
                     'marketing' => $this->accept_marketing,
                     'consumer_info' => $this->consumer_withdrawal_info,
-                ]
+                ],
             ]);
 
             if ($result['success']) {
@@ -157,12 +184,11 @@ class CheckoutForm extends Component
         } catch (\Exception $e) {
             \Log::error('CheckoutForm processPayment exception', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
             session()->flash('error', 'Wystąpił błąd podczas przetwarzania płatności. Spróbuj ponownie.');
         }
     }
-
 
     public function render()
     {

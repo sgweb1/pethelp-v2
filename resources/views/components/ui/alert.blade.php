@@ -58,9 +58,14 @@ $classes = collect([
             show: true,
             init() {
                 @if($timeout)
-                    setTimeout(() => { this.show = false }, {{ $timeout * 1000 }});
+                    this.autoHide();
                 @endif
+            },
+            @if($timeout)
+            autoHide() {
+                setTimeout(() => { this.show = false }, {{ $timeout * 1000 }});
             }
+            @endif
         }"
         x-show="show"
         x-transition:enter="transition ease-out duration-300"

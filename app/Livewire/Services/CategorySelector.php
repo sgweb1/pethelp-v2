@@ -2,8 +2,8 @@
 
 namespace App\Livewire\Services;
 
-use App\Models\ServiceCategory;
 use App\Models\Service;
+use App\Models\ServiceCategory;
 use Livewire\Component;
 
 class CategorySelector extends Component
@@ -21,6 +21,7 @@ class CategorySelector extends Component
 
         return $categories->map(function ($category) use ($userCategoryIds) {
             $category->has_service = in_array($category->id, $userCategoryIds);
+
             return $category;
         });
     }
@@ -34,12 +35,14 @@ class CategorySelector extends Component
 
         if ($existingService) {
             $category = ServiceCategory::find($categoryId);
-            session()->flash('error', 'Masz już usługę w kategorii "' . $category->name . '". Usuń najpierw istniejącą usługę aby dodać nową.');
+            session()->flash('error', 'Masz już usługę w kategorii "'.$category->name.'". Usuń najpierw istniejącą usługę aby dodać nową.');
+
             return;
         }
 
         $this->selectedCategory = $categoryId;
-        return $this->redirect(route('sitter-services.create.form', ['category' => $categoryId]));
+
+        return $this->redirect(route('profile.services.create.form', ['category' => $categoryId]));
     }
 
     public function render()
@@ -48,26 +51,26 @@ class CategorySelector extends Component
             [
                 'title' => 'Panel',
                 'icon' => '🏠',
-                'url' => route('dashboard')
+                'url' => route('profile.dashboard'),
             ],
             [
                 'title' => 'Pet Sitter',
                 'icon' => '🐕',
-                'url' => route('dashboard') // lub odpowiednia strona pet sitter jeśli istnieje
+                'url' => route('profile.dashboard'), // lub odpowiednia strona pet sitter jeśli istnieje
             ],
             [
                 'title' => 'Usługi',
                 'icon' => '🐾',
-                'url' => route('sitter-services.index')
+                'url' => route('profile.services.index'),
             ],
             [
                 'title' => 'Wybierz kategorię',
-                'icon' => '➕'
-            ]
+                'icon' => '➕',
+            ],
         ];
 
         return view('livewire.services.category-selector', [
-            'categories' => $this->getCategories()
+            'categories' => $this->getCategories(),
         ])->layout('components.dashboard-layout', compact('breadcrumbs'));
     }
 }

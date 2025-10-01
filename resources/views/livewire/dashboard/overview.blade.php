@@ -197,7 +197,7 @@
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Moje Zwierzęta</h2>
-                    <a href="{{ route('pets.index') }}" class="text-primary-600 hover:text-primary-700 text-sm font-medium">
+                    <a href="{{ route('profile.pets.index') }}" class="text-primary-600 hover:text-primary-700 text-sm font-medium">
                         Zobacz wszystkie →
                     </a>
                 </div>
@@ -303,7 +303,7 @@
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Aktywne Zlecenia</h2>
-                    <a href="{{ route('bookings') }}" class="text-primary-600 hover:text-primary-700 text-sm font-medium">
+                    <a href="{{ route('profile.bookings') }}" class="text-primary-600 hover:text-primary-700 text-sm font-medium">
                         Zobacz wszystkie →
                     </a>
                 </div>
@@ -403,14 +403,14 @@
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Szybkie Akcje</h3>
 
                 <div class="space-y-3">
-                    <a href="{{ route('pets.create') }}"
+                    <a href="{{ route('profile.pets.create') }}"
                        class="flex items-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors duration-200">
                         <span class="text-purple-600 dark:text-purple-400 mr-3">🐕</span>
                         <span class="text-sm font-medium text-purple-700 dark:text-purple-300">Dodaj zwierzę</span>
                     </a>
 
                     @if(auth()->user()->isSitter())
-                        <a href="{{ route('sitter-services.create') }}"
+                        <a href="{{ route('profile.services.create') }}"
                            class="flex items-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors duration-200">
                             <span class="text-green-600 dark:text-green-400 mr-3">💼</span>
                             <span class="text-sm font-medium text-green-700 dark:text-green-300">Dodaj usługę</span>

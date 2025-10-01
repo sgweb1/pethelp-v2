@@ -11,10 +11,10 @@ class EventFactory extends Factory
     public function definition(): array
     {
         $startsAt = $this->faker->dateTimeBetween('now', '+3 months');
-        $endsAt = $this->faker->dateTimeBetween($startsAt, $startsAt->format('Y-m-d H:i:s') . ' +8 hours');
+        $endsAt = $this->faker->dateTimeBetween($startsAt, $startsAt->format('Y-m-d H:i:s').' +8 hours');
 
         return [
-            'user_id' => User::factory(),
+            'organizer_id' => User::factory(),
             'event_type_id' => EventType::factory(),
             'title' => $this->faker->randomElement([
                 'Spacer z psami w parku',
@@ -48,7 +48,7 @@ class EventFactory extends Factory
     public function upcoming(): static
     {
         $startsAt = $this->faker->dateTimeBetween('+1 day', '+2 months');
-        $endsAt = $this->faker->dateTimeBetween($startsAt, $startsAt->format('Y-m-d H:i:s') . ' +6 hours');
+        $endsAt = $this->faker->dateTimeBetween($startsAt, $startsAt->format('Y-m-d H:i:s').' +6 hours');
 
         return $this->state(fn () => [
             'starts_at' => $startsAt,

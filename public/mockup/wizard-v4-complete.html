@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pet Sitter Wizard V4 - Complete Mockup (Mobile First)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        .gradient-hero {
+            background: linear-gradient(135deg, #10b981 0%, #14b8a6 50%, #06b6d4 100%);
+        }
+
+        .gradient-button {
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+        }
+
+        .gradient-button:hover {
+            background: linear-gradient(135deg, #059669, #0284c7);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .stagger-1 { animation-delay: 0.1s; opacity: 0; }
+        .stagger-2 { animation-delay: 0.2s; opacity: 0; }
+        .stagger-3 { animation-delay: 0.3s; opacity: 0; }
+        .stagger-4 { animation-delay: 0.4s; opacity: 0; }
+
+        /* Custom checkbox tiles */
+        .checkbox-tile {
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-tile.selected {
+            background: linear-gradient(135deg, #ecfdf5, #f0fdfa);
+            border-color: #10b981;
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.1);
+        }
+
+        .checkbox-tile:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 antialiased">
+
+    <div x-data="{
+        currentStep: 1,
+        totalSteps: 12,
+
+        // Step 1 data
+        motivation: '',
+
+        // Step 2 data
+        petExperience: [],
+        yearsOfExperience: '',
+        experienceDescription: '',
+
+        // Step 3 data
+        animalTypes: [],
+        animalSizes: [],
+
+        // Step 4 data
+        serviceTypes: [],
+        specialServices: [],
+
+        // Methods
+        nextStep() {
+            if (this.currentStep < this.totalSteps) {
+                this.currentStep++;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        },
+
+        prevStep() {
+            if (this.currentStep > 1) {
+                this.currentStep--;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        },
+
+        goToStep(step) {
+            this.currentStep = step;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+
+        toggleItem(array, item) {
+            const index = this[array].indexOf(item);
+            if (index > -1) {
+                this[array].splice(index, 1);
+            } else {
+                this[array].push(item);
+            }
+        },
+
+        isSelected(array, item) {
+            return this[array].includes(item);
+        },
+
+        get progress() {
+            return Math.round((this.currentStep / this.totalSteps) * 100);
+        },
+
+        get motivationValid() {
+            return this.motivation.length >= 100 && this.motivation.length <= 500;
+        }
+    }" class="min-h-screen pb-20">
+
+        <!-- Fixed Top Progress Bar -->
+        <div class="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
+            <div class="max-w-2xl mx-auto px-4 py-4">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-gray-700">
+                        Krok <span x-text="currentStep"></span> z <span x-text="totalSteps"></span>
+                    </span>
+                    <span class="text-sm font-medium text-emerald-600" x-text="`${progress}%`"></span>
+                </div>
+                <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div class="h-full gradient-button transition-all duration-500 ease-out"
+                         :style="`width: ${progress}%`"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="pt-24">
+
+            <!-- ==================== STEP 1: MOTYWACJA ==================== -->
+            <div x-show="currentStep === 1" x-transition>
+                <!-- Hero Section -->
+                <div class="gradient-hero text-white px-4 py-8 sm:py-12 mb-6">
+                    <div class="max-w-2xl mx-auto text-center">
+                        <div class="text-5xl sm:text-6xl mb-4">👋</div>
+                        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 leading-tight">
+                            Cześć! Dlaczego chcesz zostać pet sitterem?
+                        </h1>
+                        <p class="text-emerald-50 text-sm sm:text-base">
+                            Poznajmy Cię lepiej - opowiedz nam o swojej motywacji
+                        </p>
+                    </div>
+                </div>
+
+                <div class="max-w-2xl mx-auto px-4 space-y-6">
+                    <!-- AI Assistant Card -->
+                    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                        <div class="gradient-hero p-4 sm:p-6 text-white">
+                            <div class="flex items-start space-x-3">
+                                <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center flex-shrink-0 text-2xl">
+                                    🤖
+                                </div>
+                                <div class="flex-1">
+                                    <h2 class="text-lg sm:text-xl font-bold mb-1">AI Assistant</h2>
+                                    <p class="text-emerald-50 text-xs sm:text-sm">
+                                        Pomożemy Ci stworzyć przekonujący opis
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-4 sm:p-6 space-y-4">
+                            <div class="space-y-3">
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 text-emerald-600 font-bold text-sm">1</div>
+                                    <div class="flex-1">
+                                        <h4 class="font-semibold text-gray-900 text-sm sm:text-base mb-1">Proces rejestracji</h4>
+                                        <p class="text-xs sm:text-sm text-gray-600">12 prostych kroków, każdy zajmie tylko chwilę</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-6 h-6 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0 text-teal-600 font-bold text-sm">2</div>
+                                    <div class="flex-1">
+                                        <h4 class="font-semibold text-gray-900 text-sm sm:text-base mb-1">Szacowany czas</h4>
+                                        <p class="text-xs sm:text-sm text-gray-600">15-20 minut na ukończenie całej rejestracji</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-6 h-6 rounded-full bg-cyan-100 flex items-center justify-center flex-shrink-0 text-cyan-600 font-bold text-sm">3</div>
+                                    <div class="flex-1">
+                                        <h4 class="font-semibold text-gray-900 text-sm sm:text-base mb-1">Co będzie potrzebne</h4>
+                                        <p class="text-xs sm:text-sm text-gray-600">Zdjęcie profilowe, podstawowe dane i opis doświadczenia</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button @click="motivation = 'Kocham zwierzęta od dziecka i od zawsze marzyłam o pracy, która łączy moją pasję z pomaganiem innym. Jako pet sitter mogę zapewnić profesjonalną opiekę pupilom, gdy ich właściciele potrzebują wsparcia.'"
+                                class="w-full gradient-button text-white font-semibold py-3 px-6 rounded-xl transition-all transform hover:scale-105 text-sm sm:text-base">
+                                ✨ Wygeneruj opis z AI
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Main Form -->
+                    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6">
+                        <label class="block mb-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-semibold text-gray-900 text-sm sm:text-base">
+                                    Twoja motywacja <span class="text-red-500">*</span>
+                                </span>
+                                <span class="text-xs sm:text-sm"
+                                      :class="motivationValid ? 'text-emerald-600 font-semibold' : 'text-gray-400'"
+                                      x-text="`${motivation.length}/500`"></span>
+                            </div>
+
+                            <textarea x-model="motivation" rows="6" maxlength="500"
+                                placeholder="Np. Kocham zwierzęta od dziecka i chciałabym pomóc właścicielom..."
+                                class="w-full px-4 py-3 text-sm sm:text-base border-2 border-gray-200 rounded-xl resize-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all"
+                                :class="motivationValid ? 'border-emerald-500' : ''"></textarea>
+                        </label>
+
+                        <div class="mb-4">
+                            <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                                <div class="h-full rounded-full transition-all duration-500"
+                                     :class="motivationValid ? 'bg-gradient-to-r from-emerald-400 to-emerald-600' : 'bg-gray-300'"
+                                     :style="`width: ${Math.min((motivation.length / 100) * 100, 100)}%`"></div>
+                            </div>
+                            <p class="text-xs sm:text-sm mt-2" :class="motivationValid ? 'text-emerald-600' : 'text-gray-500'">
+                                <span x-show="motivationValid">✓ Świetnie! Twój opis spełnia wymagania</span>
+                                <span x-show="!motivationValid && motivation.length < 100">
+                                    Minimum 100 znaków (jeszcze <span x-text="100 - motivation.length"></span>)
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Wskazówki -->
+                    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6">
+                        <h3 class="font-bold text-gray-900 mb-3 flex items-center text-sm sm:text-base">
+                            <span class="text-xl sm:text-2xl mr-2">💡</span>
+                            Co warto zawrzeć w opisie?
+                        </h3>
+
+                        <div class="space-y-3">
+                            <div class="flex items-start space-x-3 p-3 bg-blue-50 rounded-xl border border-blue-100">
+                                <span class="text-lg sm:text-xl">🐾</span>
+                                <div class="flex-1">
+                                    <h4 class="font-medium text-gray-900 text-xs sm:text-sm mb-1">Twoja pasja</h4>
+                                    <p class="text-xs text-gray-600">Napisz dlaczego kochasz zwierzęta</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start space-x-3 p-3 bg-purple-50 rounded-xl border border-purple-100">
+                                <span class="text-lg sm:text-xl">⭐</span>
+                                <div class="flex-1">
+                                    <h4 class="font-medium text-gray-900 text-xs sm:text-sm mb-1">Doświadczenie</h4>
+                                    <p class="text-xs text-gray-600">Wspomnij o wcześniejszej opiece</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start space-x-3 p-3 bg-emerald-50 rounded-xl border border-emerald-100">
+                                <span class="text-lg sm:text-xl">❤️</span>
+                                <div class="flex-1">
+                                    <h4 class="font-medium text-gray-900 text-xs sm:text-sm mb-1">Cel</h4>
+                                    <p class="text-xs text-gray-600">Jak chcesz pomagać właścicielom</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== STEP 2: DOŚWIADCZENIE ==================== -->
+            <div x-show="currentStep === 2" x-transition>
+                <div class="gradient-hero text-white px-4 py-8 sm:py-12 mb-6">
+                    <div class="max-w-2xl mx-auto text-center">
+                        <div class="text-5xl sm:text-6xl mb-4">⭐</div>
+                        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 leading-tight">
+                            Jakie masz doświadczenie z zwierzętami?
+                        </h1>
+                        <p class="text-emerald-50 text-sm sm:text-base">
+                            Pomóż nam lepiej zrozumieć Twoje umiejętności i wiedzę
+                        </p>
+                    </div>
+                </div>
+
+                <div class="max-w-2xl mx-auto px-4 space-y-6">
+                    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6">
+                        <h3 class="font-semibold text-gray-900 mb-4 text-sm sm:text-base">
+                            Rodzaje doświadczenia <span class="text-red-500">*</span>
+                        </h3>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <template x-for="exp in [
+                                {id: 'own_pets', icon: '🏠', name: 'Własne zwierzęta'},
+                                {id: 'family_pets', icon: '👨‍👩‍👧‍👦', name: 'Zwierzęta rodziny'},
+                                {id: 'volunteering', icon: '❤️', name: 'Wolontariat'},
+                                {id: 'professional', icon: '💼', name: 'Praca zawodowa'},
+                                {id: 'training', icon: '📚', name: 'Kursy/szkolenia'},
+                                {id: 'veterinary', icon: '⚕️', name: 'Doświadczenie wet.'}
+                            ]" :key="exp.id">
+                                <label @click="toggleItem('petExperience', exp.id)"
+                                       class="checkbox-tile flex items-center space-x-3 p-4 border-2 border-gray-200 rounded-xl cursor-pointer"
+                                       :class="isSelected('petExperience', exp.id) ? 'selected' : ''">
+                                    <span class="text-2xl" x-text="exp.icon"></span>
+                                    <span class="flex-1 font-medium text-sm" x-text="exp.name"></span>
+                                    <span x-show="isSelected('petExperience', exp.id)" class="text-emerald-500 text-xl">✓</span>
+                                </label>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6">
+                        <label class="block">
+                            <span class="font-semibold text-gray-900 mb-2 block text-sm sm:text-base">
+                                Ile lat doświadczenia? <span class="text-red-500">*</span>
+                            </span>
+                            <select x-model="yearsOfExperience"
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 text-sm sm:text-base">
+                                <option value="">Wybierz zakres...</option>
+                                <option value="less_than_1">Mniej niż 1 rok</option>
+                                <option value="1_to_3">1-3 lata</option>
+                                <option value="3_to_5">3-5 lat</option>
+                                <option value="5_to_10">5-10 lat</option>
+                                <option value="more_than_10">Więcej niż 10 lat</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6">
+                        <label class="block">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-semibold text-gray-900 text-sm sm:text-base">
+                                    Opisz swoje doświadczenie <span class="text-red-500">*</span>
+                                </span>
+                                <span class="text-xs sm:text-sm text-gray-400" x-text="`${experienceDescription.length}/1000`"></span>
+                            </div>
+                            <textarea x-model="experienceDescription" rows="6" maxlength="1000"
+                                placeholder="Np. Mam 5 lat doświadczenia w opiece nad psami różnych ras..."
+                                class="w-full px-4 py-3 text-sm sm:text-base border-2 border-gray-200 rounded-xl resize-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all"></textarea>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== STEP 3: RODZAJE ZWIERZĄT ==================== -->
+            <div x-show="currentStep === 3" x-transition>
+                <div class="gradient-hero text-white px-4 py-8 sm:py-12 mb-6">
+                    <div class="max-w-2xl mx-auto text-center">
+                        <div class="text-5xl sm:text-6xl mb-4">🐾</div>
+                        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 leading-tight">
+                            Jakimi zwierzętami chcesz się zajmować?
+                        </h1>
+                        <p class="text-emerald-50 text-sm sm:text-base">
+                            Wybierz rodzaje i rozmiary zwierząt
+                        </p>
+                    </div>
+                </div>
+
+                <div class="max-w-2xl mx-auto px-4 space-y-6">
+                    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6">
+                        <h3 class="font-semibold text-gray-900 mb-4 text-sm sm:text-base">
+                            Rodzaje zwierząt <span class="text-red-500">*</span>
+                        </h3>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            <template x-for="animal in [
+                                {id: 'dogs', icon: '🐕', name: 'Psy'},
+                                {id: 'cats', icon: '🐱', name: 'Koty'},
+                                {id: 'birds', icon: '🐦', name: 'Ptaki'},
+                                {id: 'rabbits', icon: '🐰', name: 'Króliki'},
+                                {id: 'hamsters', icon: '🐹', name: 'Gryzonie'},
+                                {id: 'fish', icon: '🐠', name: 'Ryby'},
+                                {id: 'reptiles', icon: '🦎', name: 'Gady'},
+                                {id: 'other', icon: '🦔', name: 'Inne'}
+                            ]" :key="animal.id">
+                                <label @click="toggleItem('animalTypes', animal.id)"
+                                       class="checkbox-tile flex flex-col items-center justify-center p-4 border-2 border-gray-200 rounded-xl cursor-pointer text-center"
+                                       :class="isSelected('animalTypes', animal.id) ? 'selected' : ''">
+                                    <span class="text-3xl mb-2" x-text="animal.icon"></span>
+                                    <span class="font-medium text-xs sm:text-sm" x-text="animal.name"></span>
+                                    <span x-show="isSelected('animalTypes', animal.id)" class="text-emerald-500 text-xl mt-1">✓</span>
+                                </label>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div x-show="animalTypes.includes('dogs') || animalTypes.includes('cats')"
+                         class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6">
+                        <h3 class="font-semibold text-gray-900 mb-4 text-sm sm:text-base">
+                            Rozmiary zwierząt <span class="text-red-500">*</span>
+                        </h3>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <template x-for="size in [
+                                {id: 'small', icon: '🐕‍🦺', name: 'Małe', desc: 'do 10kg'},
+                                {id: 'medium', icon: '🐕', name: 'Średnie', desc: '10-25kg'},
+                                {id: 'large', icon: '🐕‍🦮', name: 'Duże', desc: '25kg+'}
+                            ]" :key="size.id">
+                                <label @click="toggleItem('animalSizes', size.id)"
+                                       class="checkbox-tile flex flex-col items-center justify-center p-4 border-2 border-gray-200 rounded-xl cursor-pointer text-center"
+                                       :class="isSelected('animalSizes', size.id) ? 'selected' : ''">
+                                    <span class="text-3xl mb-2" x-text="size.icon"></span>
+                                    <span class="font-semibold text-sm" x-text="size.name"></span>
+                                    <span class="text-xs text-gray-500" x-text="size.desc"></span>
+                                    <span x-show="isSelected('animalSizes', size.id)" class="text-emerald-500 text-xl mt-1">✓</span>
+                                </label>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== STEP 4: USŁUGI ==================== -->
+            <div x-show="currentStep === 4" x-transition>
+                <div class="gradient-hero text-white px-4 py-8 sm:py-12 mb-6">
+                    <div class="max-w-2xl mx-auto text-center">
+                        <div class="text-5xl sm:text-6xl mb-4">💼</div>
+                        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 leading-tight">
+                            Jakie usługi chcesz oferować?
+                        </h1>
+                        <p class="text-emerald-50 text-sm sm:text-base">
+                            Wybierz rodzaje opieki, które możesz zapewnić
+                        </p>
+                    </div>
+                </div>
+
+                <div class="max-w-2xl mx-auto px-4 space-y-6">
+                    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6">
+                        <h3 class="font-semibold text-gray-900 mb-4 text-sm sm:text-base">Podstawowe usługi</h3>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <template x-for="service in [
+                                {id: 'dog_walking', icon: '🚶‍♂️', name: 'Spacery z psami', desc: 'Regularne spacery'},
+                                {id: 'pet_sitting', icon: '🏠', name: 'Opieka w domu', desc: 'U właściciela'},
+                                {id: 'pet_boarding', icon: '🏡', name: 'Opieka u opiekuna', desc: 'W Twoim domu'},
+                                {id: 'overnight_care', icon: '🌙', name: 'Opieka nocna', desc: 'Nocowanie u klienta'}
+                            ]" :key="service.id">
+                                <label @click="toggleItem('serviceTypes', service.id)"
+                                       class="checkbox-tile flex items-start space-x-3 p-4 border-2 border-gray-200 rounded-xl cursor-pointer"
+                                       :class="isSelected('serviceTypes', service.id) ? 'selected' : ''">
+                                    <span class="text-2xl flex-shrink-0" x-text="service.icon"></span>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="font-semibold text-sm" x-text="service.name"></div>
+                                        <div class="text-xs text-gray-500" x-text="service.desc"></div>
+                                    </div>
+                                    <span x-show="isSelected('serviceTypes', service.id)" class="text-emerald-500 text-xl">✓</span>
+                                </label>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6">
+                        <h3 class="font-semibold text-gray-900 mb-4 text-sm sm:text-base">Usługi dodatkowe</h3>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            <template x-for="service in [
+                                {id: 'grooming', icon: '✂️', name: 'Pielęgnacja'},
+                                {id: 'training', icon: '🎯', name: 'Szkolenie'},
+                                {id: 'transport', icon: '🚗', name: 'Transport'},
+                                {id: 'vet_visits', icon: '🏥', name: 'Wizyty wet.'},
+                                {id: 'feeding', icon: '🍽️', name: 'Karmienie'},
+                                {id: 'medication', icon: '💊', name: 'Podawanie leków'}
+                            ]" :key="service.id">
+                                <label @click="toggleItem('specialServices', service.id)"
+                                       class="checkbox-tile flex flex-col items-center justify-center p-3 border-2 border-gray-200 rounded-xl cursor-pointer text-center"
+                                       :class="isSelected('specialServices', service.id) ? 'selected' : ''">
+                                    <span class="text-2xl mb-1" x-text="service.icon"></span>
+                                    <span class="font-medium text-xs" x-text="service.name"></span>
+                                    <span x-show="isSelected('specialServices', service.id)" class="text-emerald-500 text-lg mt-1">✓</span>
+                                </label>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== STEPS 5-12: PLACEHOLDERS ==================== -->
+            <template x-for="step in [5, 6, 7, 8, 9, 10, 11, 12]" :key="step">
+                <div x-show="currentStep === step" x-transition>
+                    <div class="gradient-hero text-white px-4 py-8 sm:py-12 mb-6">
+                        <div class="max-w-2xl mx-auto text-center">
+                            <div class="text-5xl sm:text-6xl mb-4">📝</div>
+                            <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 leading-tight">
+                                Krok <span x-text="step"></span>
+                            </h1>
+                            <p class="text-emerald-50 text-sm sm:text-base">
+                                Treść tego kroku będzie dodana wkrótce
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="max-w-2xl mx-auto px-4">
+                        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 text-center">
+                            <div class="text-6xl mb-4">🚧</div>
+                            <h3 class="text-xl font-bold mb-2">W budowie</h3>
+                            <p class="text-gray-600">Ten krok zostanie wkrótce zaprojektowany</p>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+        </div>
+
+        <!-- Fixed Bottom Navigation -->
+        <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40">
+            <div class="max-w-2xl mx-auto px-4 py-4">
+                <div class="flex items-center justify-between space-x-3">
+                    <button @click="prevStep()"
+                            :disabled="currentStep === 1"
+                            class="px-4 sm:px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed">
+                        ← Wstecz
+                    </button>
+
+                    <button @click="nextStep()"
+                            :disabled="currentStep === totalSteps"
+                            class="flex-1 sm:flex-initial sm:px-8 py-3 gradient-button text-white rounded-xl font-semibold transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base">
+                        <span x-show="currentStep < totalSteps">Dalej →</span>
+                        <span x-show="currentStep === totalSteps">Zakończ ✓</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Step Navigation (Desktop) -->
+        <div class="hidden lg:block fixed left-4 top-1/2 -translate-y-1/2 z-30">
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-3">
+                <template x-for="step in Array.from({length: totalSteps}, (_, i) => i + 1)" :key="step">
+                    <button @click="goToStep(step)"
+                            class="w-8 h-8 rounded-full flex items-center justify-center mb-2 transition-all text-xs font-semibold"
+                            :class="currentStep === step ? 'bg-emerald-500 text-white' : currentStep > step ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'"
+                            x-text="step"></button>
+                </template>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

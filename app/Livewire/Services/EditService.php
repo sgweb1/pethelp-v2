@@ -3,22 +3,30 @@
 namespace App\Livewire\Services;
 
 use App\Models\Service;
-use App\Models\ServiceCategory;
-use App\Models\PetType;
 use Livewire\Component;
 
 class EditService extends Component
 {
     public Service $service;
+
     public $title;
+
     public $description;
+
     public $pet_types = [];
+
     public $pet_sizes = [];
+
     public $max_pets;
+
     public $home_service = false;
+
     public $sitter_home = false;
+
     public $price_per_hour;
+
     public $price_per_day;
+
     public $price_per_week;
 
     protected $rules = [
@@ -88,7 +96,7 @@ class EditService extends Component
             'hamster' => 'Chomiki',
             'fish' => 'Ryby',
             'reptile' => 'Gady',
-            'other' => 'Inne'
+            'other' => 'Inne',
         ];
     }
 
@@ -97,7 +105,7 @@ class EditService extends Component
         return [
             'small' => 'Małe (do 10kg)',
             'medium' => 'Średnie (10-25kg)',
-            'large' => 'Duże (powyżej 25kg)'
+            'large' => 'Duże (powyżej 25kg)',
         ];
     }
 
@@ -106,14 +114,16 @@ class EditService extends Component
         $this->validate();
 
         // Check if at least one service type is selected
-        if (!$this->home_service && !$this->sitter_home) {
+        if (! $this->home_service && ! $this->sitter_home) {
             $this->addError('service_type', 'Wybierz przynajmniej jeden typ usługi.');
+
             return;
         }
 
         // Check if at least one price is set
-        if (!$this->price_per_hour && !$this->price_per_day && !$this->price_per_week) {
+        if (! $this->price_per_hour && ! $this->price_per_day && ! $this->price_per_week) {
             $this->addError('pricing', 'Ustaw przynajmniej jedną cenę.');
+
             return;
         }
 
@@ -132,10 +142,11 @@ class EditService extends Component
             ]);
 
             session()->flash('success', 'Usługa została pomyślnie zaktualizowana.');
+
             return redirect()->route('services.index');
 
         } catch (\Exception $e) {
-            \Log::error('Error updating service: ' . $e->getMessage());
+            \Log::error('Error updating service: '.$e->getMessage());
             session()->flash('error', 'Wystąpił błąd podczas aktualizacji usługi. Spróbuj ponownie.');
         }
     }
@@ -146,22 +157,22 @@ class EditService extends Component
             [
                 'title' => 'Panel',
                 'icon' => '🏠',
-                'url' => route('dashboard')
+                'url' => route('profile.dashboard'),
             ],
             [
                 'title' => 'Pet Sitter',
                 'icon' => '🐕',
-                'url' => route('dashboard')
+                'url' => route('profile.dashboard'),
             ],
             [
                 'title' => 'Moje usługi',
                 'icon' => '🐾',
-                'url' => route('sitter-services.index')
+                'url' => route('profile.services.index'),
             ],
             [
-                'title' => 'Edytuj: ' . $this->service->title,
-                'icon' => '✏️'
-            ]
+                'title' => 'Edytuj: '.$this->service->title,
+                'icon' => '✏️',
+            ],
         ];
 
         return view('livewire.services.edit-service')->layout('components.dashboard-layout', compact('breadcrumbs'));

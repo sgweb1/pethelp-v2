@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         // Check if this is a fresh installation
-        $isFreshInstallation = !Schema::hasTable('advertisement_categories');
+        $isFreshInstallation = ! Schema::hasTable('advertisement_categories');
 
         if ($isFreshInstallation) {
             // Fresh installation - create everything from scratch
@@ -144,6 +144,7 @@ return new class extends Migration
             $table->string('category_icon')->nullable();
             $table->string('category_color')->nullable();
             $table->decimal('price_from', 10, 2)->nullable();
+            $table->decimal('price_to', 10, 2)->nullable();
             $table->string('currency', 3)->default('PLN');
             $table->enum('status', ['draft', 'published', 'suspended', 'expired'])->default('draft');
             $table->boolean('is_featured')->default(false);
@@ -180,35 +181,35 @@ return new class extends Migration
     // Ensure methods for existing installations
     private function ensureAdvertisementCategoriesTable(): void
     {
-        if (!Schema::hasTable('advertisement_categories')) {
+        if (! Schema::hasTable('advertisement_categories')) {
             $this->createAdvertisementCategoriesTable();
         }
     }
 
     private function ensureAdvertisementsTable(): void
     {
-        if (!Schema::hasTable('advertisements')) {
+        if (! Schema::hasTable('advertisements')) {
             $this->createAdvertisementsTable();
         }
     }
 
     private function ensureAdvertisementImagesTable(): void
     {
-        if (!Schema::hasTable('advertisement_images')) {
+        if (! Schema::hasTable('advertisement_images')) {
             $this->createAdvertisementImagesTable();
         }
     }
 
     private function ensureProfessionalServicesTable(): void
     {
-        if (!Schema::hasTable('professional_services')) {
+        if (! Schema::hasTable('professional_services')) {
             $this->createProfessionalServicesTable();
         }
     }
 
     private function ensureMapItemsTable(): void
     {
-        if (!Schema::hasTable('map_items')) {
+        if (! Schema::hasTable('map_items')) {
             $this->createMapItemsTable();
         }
     }
@@ -231,10 +232,10 @@ return new class extends Migration
         Schema::table('map_items', function (Blueprint $table) {
             // Add indexes if they don't exist (Laravel will skip if they exist)
             try {
-                if (!$this->indexExists('map_items', 'idx_bounds_filter')) {
+                if (! $this->indexExists('map_items', 'idx_bounds_filter')) {
                     $table->index(['latitude', 'longitude', 'status', 'content_type'], 'idx_bounds_filter');
                 }
-                if (!$this->indexExists('map_items', 'map_items_search_index')) {
+                if (! $this->indexExists('map_items', 'map_items_search_index')) {
                     $table->fullText(['title', 'description_short', 'category_name'], 'map_items_search_index');
                 }
             } catch (\Exception $e) {
@@ -246,6 +247,7 @@ return new class extends Migration
     private function indexExists(string $table, string $index): bool
     {
         $indexes = DB::select("SHOW INDEX FROM {$table} WHERE Key_name = ?", [$index]);
+
         return count($indexes) > 0;
     }
 };

@@ -12,8 +12,8 @@ use Illuminate\Support\Facades\Auth;
  * Umożliwia szybkie logowanie się jako różni użytkownicy podczas testowania.
  * Dostępny tylko w środowisku lokalnym dla bezpieczeństwa.
  *
- * @package App\Http\Controllers
  * @author Claude AI Assistant
+ *
  * @since 1.0.0
  */
 class QuickLoginController extends Controller
@@ -45,7 +45,7 @@ class QuickLoginController extends Controller
             'owner' => $this->getOwnerUsers(),
             'sitter' => $this->getSitterUsers(),
             'admin' => $this->getAdminUsers(),
-            'regular' => $this->getRegularUsers()
+            'regular' => $this->getRegularUsers(),
         ];
 
         return $users;
@@ -54,14 +54,14 @@ class QuickLoginController extends Controller
     /**
      * Szybkie logowanie się jako wybrany użytkownik.
      *
-     * @param int $userId ID użytkownika do zalogowania
+     * @param  int  $userId  ID użytkownika do zalogowania
      * @return RedirectResponse Przekierowanie do dashboardu
      */
     public function loginAs(int $userId): RedirectResponse
     {
         $user = User::find($userId);
 
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('login')
                 ->with('error', 'Użytkownik nie został znaleziony.');
         }
@@ -72,19 +72,17 @@ class QuickLoginController extends Controller
         $redirectRoute = $this->getRedirectRoute($user);
 
         return redirect($redirectRoute)
-            ->with('success', 'Zalogowano jako: ' . $user->name . ' (' . $user->email . ')');
+            ->with('success', 'Zalogowano jako: '.$user->name.' ('.$user->email.')');
     }
 
     /**
      * Logowanie jako pierwszy dostępny właściciel zwierząt.
-     *
-     * @return RedirectResponse
      */
     public function loginAsOwner(): RedirectResponse
     {
         $owner = User::whereHas('pets')->first();
 
-        if (!$owner) {
+        if (! $owner) {
             // Stwórz testowego właściciela jeśli nie ma żadnego
             $owner = $this->createTestOwner();
         }
@@ -94,14 +92,12 @@ class QuickLoginController extends Controller
 
     /**
      * Logowanie jako pierwszy dostępny opiekun (sitter).
-     *
-     * @return RedirectResponse
      */
     public function loginAsSitter(): RedirectResponse
     {
         $sitter = User::whereHas('services')->first();
 
-        if (!$sitter) {
+        if (! $sitter) {
             // Stwórz testowego opiekuna jeśli nie ma żadnego
             $sitter = $this->createTestSitter();
         }
@@ -111,14 +107,12 @@ class QuickLoginController extends Controller
 
     /**
      * Logowanie jako pierwszy dostępny użytkownik.
-     *
-     * @return RedirectResponse
      */
     public function loginAsUser(): RedirectResponse
     {
         $user = User::first();
 
-        if (!$user) {
+        if (! $user) {
             // Stwórz testowego użytkownika jeśli nie ma żadnego
             $user = $this->createTestUser();
         }
@@ -143,7 +137,7 @@ class QuickLoginController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'pets_count' => $user->pets->count(),
-                    'description' => 'Właściciel ' . $user->pets->count() . ' zwierząt'
+                    'description' => 'Właściciel '.$user->pets->count().' zwierząt',
                 ];
             });
     }
@@ -165,7 +159,7 @@ class QuickLoginController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'services_count' => $user->services->count(),
-                    'description' => 'Opiekun z ' . $user->services->count() . ' usługami'
+                    'description' => 'Opiekun z '.$user->services->count().' usługami',
                 ];
             });
     }
@@ -186,7 +180,7 @@ class QuickLoginController extends Controller
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
-                    'description' => 'Administrator/Test'
+                    'description' => 'Administrator/Test',
                 ];
             });
     }
@@ -207,7 +201,7 @@ class QuickLoginController extends Controller
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
-                    'description' => 'Zwykły użytkownik'
+                    'description' => 'Zwykły użytkownik',
                 ];
             });
     }
@@ -215,23 +209,23 @@ class QuickLoginController extends Controller
     /**
      * Określa odpowiedni route dla przekierowania po logowaniu.
      *
-     * @param User $user Zalogowany użytkownik
+     * @param  User  $user  Zalogowany użytkownik
      * @return string Route do przekierowania
      */
     private function getRedirectRoute(User $user): string
     {
         // Jeśli ma usługi - idź do panelu opiekuna
         if ($user->services()->count() > 0) {
-            return '/dashboard';
+            return route('profile.dashboard');
         }
 
         // Jeśli ma zwierzęta - idź do panelu właściciela
         if ($user->pets()->count() > 0) {
-            return '/dashboard';
+            return route('profile.dashboard');
         }
 
         // Domyślnie dashboard
-        return '/dashboard';
+        return route('profile.dashboard');
     }
 
     /**
@@ -241,22 +235,27 @@ class QuickLoginController extends Controller
      */
     private function createTestOwner(): User
     {
-        $user = User::create([
-            'name' => 'Jan Testowy',
-            'email' => 'test-owner@pethelp.local',
-            'password' => bcrypt('password'),
-            'email_verified_at' => now()
-        ]);
+        $user = User::firstOrCreate(
+            ['email' => 'test-owner@pethelp.local'],
+            [
+                'name' => 'Jan Testowy',
+                'password' => bcrypt('password'),
+                'email_verified_at' => now(),
+            ]
+        );
 
-        // Dodaj testowego psa
-        $user->pets()->create([
-            'name' => 'Burek',
-            'pet_type_id' => 1, // Zakładając że 1 = pies
-            'breed' => 'Mieszaniec',
-            'age' => 3,
-            'weight' => 25.5,
-            'description' => 'Przyjazny i energiczny pies testowy'
-        ]);
+        // Dodaj testowego psa jeśli nie istnieje
+        if (! $user->pets()->where('name', 'Burek')->exists()) {
+            $user->pets()->create([
+                'name' => 'Burek',
+                'pet_type_id' => 1, // Zakładając że 1 = pies
+                'breed' => 'Mieszaniec',
+                'age' => 3,
+                'size' => 'medium',
+                'gender' => 'male',
+                'description' => 'Przyjazny i energiczny pies testowy',
+            ]);
+        }
 
         return $user;
     }
@@ -268,22 +267,33 @@ class QuickLoginController extends Controller
      */
     private function createTestSitter(): User
     {
-        $user = User::create([
-            'name' => 'Anna Testowa',
-            'email' => 'test-sitter@pethelp.local',
-            'password' => bcrypt('password'),
-            'email_verified_at' => now()
-        ]);
+        $user = User::firstOrCreate(
+            ['email' => 'test-sitter@pethelp.local'],
+            [
+                'name' => 'Anna Testowa',
+                'password' => bcrypt('password'),
+                'email_verified_at' => now(),
+            ]
+        );
 
-        // Dodaj testową usługę
-        $user->services()->create([
-            'category' => 'walking',
-            'title' => 'Spacery z psami - TEST',
-            'description' => 'Testowa usługa spacerów z psami',
-            'base_price' => 25.00,
-            'city' => 'Warszawa',
-            'is_active' => true
-        ]);
+        // Dodaj testową usługę jeśli nie istnieje
+        if (! $user->services()->where('title', 'Spacery z psami - TEST')->exists()) {
+            // Znajdź kategorię "spacery" lub użyj pierwszej dostępnej
+            $walkingCategory = \App\Models\ServiceCategory::where('slug', 'spacery')->first()
+                ?? \App\Models\ServiceCategory::first();
+
+            if ($walkingCategory) {
+                $user->services()->create([
+                    'category_id' => $walkingCategory->id,
+                    'title' => 'Spacery z psami - TEST',
+                    'slug' => 'spacery-z-psami-test',
+                    'description' => 'Testowa usługa spacerów z psami',
+                    'price_per_hour' => 25.00,
+                    'city' => 'Warszawa',
+                    'is_active' => true,
+                ]);
+            }
+        }
 
         return $user;
     }
@@ -295,11 +305,13 @@ class QuickLoginController extends Controller
      */
     private function createTestUser(): User
     {
-        return User::create([
-            'name' => 'Użytkownik Testowy',
-            'email' => 'test-user@pethelp.local',
-            'password' => bcrypt('password'),
-            'email_verified_at' => now()
-        ]);
+        return User::firstOrCreate(
+            ['email' => 'test-user@pethelp.local'],
+            [
+                'name' => 'Użytkownik Testowy',
+                'password' => bcrypt('password'),
+                'email_verified_at' => now(),
+            ]
+        );
     }
 }

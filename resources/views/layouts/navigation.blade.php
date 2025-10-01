@@ -5,7 +5,7 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
+                    <a href="{{ route('profile.dashboard') }}">
                         <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
                     </a>
                 </div>
@@ -13,7 +13,7 @@
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <!-- Menu dla wszystkich -->
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                    <x-nav-link :href="route('profile.dashboard')" :active="request()->routeIs('profile.dashboard')">
                         Dashboard
                     </x-nav-link>
                     <x-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile*')">
@@ -28,7 +28,7 @@
                     <x-nav-link :href="route('advertisements.index')" :active="request()->routeIs('advertisements*')">
                         Ogłoszenia
                     </x-nav-link>
-                    <x-nav-link :href="route('reviews')" :active="request()->routeIs('reviews*')">
+                    <x-nav-link :href="route('profile.reviews')" :active="request()->routeIs('profile.reviews*')">
                         Opinie
                     </x-nav-link>
 
@@ -37,10 +37,10 @@
                         <div class="border-l border-gray-300 mx-4 h-6 self-center"></div>
 
                         <!-- Menu tylko dla pet sitterów -->
-                        <x-nav-link :href="route('sitter-services.index')" :active="request()->routeIs('sitter-services*')">
+                        <x-nav-link :href="route('profile.services.index')" :active="request()->routeIs('sitter-services*')">
                             Oferta
                         </x-nav-link>
-                        <x-nav-link :href="route('bookings')" :active="request()->routeIs('bookings*')" class="relative">
+                        <x-nav-link :href="route('profile.bookings')" :active="request()->routeIs('profile.bookings*')" class="relative">
                             Zlecenia
                             @php
                                 $newBookingsCount = Auth::user()->newBookingsCount ?? 0;
@@ -61,7 +61,7 @@
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <!-- Notifications Icon -->
-                <a href="{{ route('notifications') }}" class="relative p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:text-gray-500 transition duration-150 ease-in-out mr-3">
+                <a href="{{ route('profile.notifications') }}" class="relative p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:text-gray-500 transition duration-150 ease-in-out mr-3">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                     </svg>
@@ -73,7 +73,7 @@
                 </a>
 
                 <!-- Messages Icon -->
-                <a href="{{ route('chat') }}" class="relative p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:text-gray-500 transition duration-150 ease-in-out mr-3">
+                <a href="{{ route('profile.chat.index') }}" class="relative p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:text-gray-500 transition duration-150 ease-in-out mr-3">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                     </svg>
@@ -135,7 +135,7 @@
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
             <!-- Menu dla wszystkich -->
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+            <x-responsive-nav-link :href="route('profile.dashboard')" :active="request()->routeIs('profile.dashboard')">
                 Dashboard
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile*')">
@@ -150,7 +150,7 @@
             <x-responsive-nav-link :href="route('advertisements.index')" :active="request()->routeIs('advertisements*')">
                 Ogłoszenia
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('reviews')" :active="request()->routeIs('reviews*')">
+            <x-responsive-nav-link :href="route('profile.reviews')" :active="request()->routeIs('profile.reviews*')">
                 Opinie
             </x-responsive-nav-link>
 
@@ -159,10 +159,10 @@
                 <div class="border-t border-gray-200 my-2"></div>
 
                 <!-- Menu tylko dla pet sitterów -->
-                <x-responsive-nav-link :href="route('sitter-services.index')" :active="request()->routeIs('sitter-services*')">
+                <x-responsive-nav-link :href="route('profile.services.index')" :active="request()->routeIs('sitter-services*')">
                     Oferta
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('bookings')" :active="request()->routeIs('bookings*')" class="relative">
+                <x-responsive-nav-link :href="route('profile.bookings')" :active="request()->routeIs('profile.bookings*')" class="relative">
                     Zlecenia
                     @php
                         $newBookingsCount = Auth::user()->newBookingsCount ?? 0;

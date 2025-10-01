@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Location extends Model
 {
@@ -20,15 +20,17 @@ class Location extends Model
     }
 
     protected $fillable = [
-        'user_id',
         'name',
-        'street',
+        'description',
+        'address',
+        'latitude',
+        'longitude',
         'city',
         'postal_code',
         'country',
-        'latitude',
-        'longitude',
-        'is_primary',
+        'facilities',
+        'max_capacity',
+        'is_active',
     ];
 
     public function user(): BelongsTo
@@ -49,7 +51,7 @@ class Location extends Model
     // Calculate distance to another location
     public function distanceTo(float $lat, float $lng): float
     {
-        if (!$this->latitude || !$this->longitude) {
+        if (! $this->latitude || ! $this->longitude) {
             return 0;
         }
 
@@ -75,7 +77,7 @@ class Location extends Model
         $url = "https://nominatim.openstreetmap.org/search?format=json&limit=1&q={$address}";
 
         $response = @file_get_contents($url);
-        if (!$response) {
+        if (! $response) {
             return null;
         }
 
@@ -94,7 +96,7 @@ class Location extends Model
     {
         $coordinates = self::geocodeAddress($this->full_address);
 
-        if (!$coordinates) {
+        if (! $coordinates) {
             return false;
         }
 

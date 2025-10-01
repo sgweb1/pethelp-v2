@@ -2,10 +2,10 @@
 
 namespace App\Livewire\Dashboard\Gallery;
 
-use App\Models\Photo;
 use App\Models\Pet;
-use Livewire\Component;
+use App\Models\Photo;
 use Livewire\Attributes\Computed;
+use Livewire\Component;
 use Livewire\WithPagination;
 
 class GalleryIndex extends Component
@@ -13,13 +13,21 @@ class GalleryIndex extends Component
     use WithPagination;
 
     public string $search = '';
+
     public string $filterAlbum = '';
+
     public string $filterPet = '';
+
     public string $sortBy = 'created_at';
+
     public string $sortDirection = 'desc';
+
     public string $viewMode = 'grid'; // grid or list
+
     public bool $showUploadModal = false;
+
     public bool $showDeleteModal = false;
+
     public ?Photo $photoToDelete = null;
 
     protected $queryString = [
@@ -65,9 +73,9 @@ class GalleryIndex extends Component
             ->with(['pet'])
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('title', 'like', '%' . $this->search . '%')
-                      ->orWhere('description', 'like', '%' . $this->search . '%')
-                      ->orWhere('file_name', 'like', '%' . $this->search . '%');
+                    $q->where('title', 'like', '%'.$this->search.'%')
+                        ->orWhere('description', 'like', '%'.$this->search.'%')
+                        ->orWhere('file_name', 'like', '%'.$this->search.'%');
                 });
             })
             ->when($this->filterAlbum, function ($query) {
@@ -124,7 +132,7 @@ class GalleryIndex extends Component
     public function toggleFeatured(Photo $photo): void
     {
         if ($photo->user_id === auth()->id()) {
-            $photo->update(['is_featured' => !$photo->is_featured]);
+            $photo->update(['is_featured' => ! $photo->is_featured]);
             $this->dispatch('photo-updated');
         }
     }
@@ -132,7 +140,7 @@ class GalleryIndex extends Component
     public function togglePublic(Photo $photo): void
     {
         if ($photo->user_id === auth()->id()) {
-            $photo->update(['is_public' => !$photo->is_public]);
+            $photo->update(['is_public' => ! $photo->is_public]);
             $this->dispatch('photo-updated');
         }
     }
@@ -177,19 +185,19 @@ class GalleryIndex extends Component
             [
                 'title' => 'Panel',
                 'icon' => '🏠',
-                'url' => route('dashboard')
+                'url' => route('profile.dashboard'),
             ],
             [
                 'title' => 'Galeria zdjęć',
-                'icon' => '📸'
-            ]
+                'icon' => '📸',
+            ],
         ];
 
         return view('livewire.dashboard.gallery.gallery-index')
             ->layout('components.dashboard-layout', [
                 'title' => 'Galeria Zdjęć',
                 'activeSection' => 'gallery',
-                'breadcrumbs' => $breadcrumbs
+                'breadcrumbs' => $breadcrumbs,
             ]);
     }
 }

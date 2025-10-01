@@ -7,7 +7,7 @@
                 <p class="text-gray-600 dark:text-gray-400 mt-1">Zarządzaj swoimi pupilami</p>
             </div>
             <div class="mt-4 sm:mt-0">
-                <a href="{{ route('pets.create') }}"
+                <a href="{{ route('profile.pets.create') }}"
                    class="inline-flex items-center px-4 py-2 bg-primary-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-primary-700 focus:bg-primary-700 active:bg-primary-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition ease-in-out duration-150">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -162,7 +162,7 @@
 
                     <!-- Actions -->
                     <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
-                        <a href="{{ route('pets.edit', $pet) }}"
+                        <a href="{{ route('profile.pets.edit', $pet) }}"
                            class="text-primary-600 hover:text-primary-700 text-sm font-medium">
                             Edytuj
                         </a>
@@ -179,7 +179,7 @@
                     <div class="text-6xl mb-4">🐕</div>
                     <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Brak zwierząt</h3>
                     <p class="text-gray-600 dark:text-gray-400 mb-6">Dodaj swojego pierwszego pupila do platformy</p>
-                    <a href="{{ route('pets.create') }}"
+                    <a href="{{ route('profile.pets.create') }}"
                        class="inline-flex items-center px-4 py-2 bg-primary-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-primary-700 transition ease-in-out duration-150">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>

@@ -8,8 +8,8 @@
         [
             'name' => 'Dashboard',
             'icon' => '📊',
-            'route' => 'dashboard',
-            'active' => request()->routeIs('dashboard'),
+            'route' => 'profile.dashboard',
+            'active' => request()->routeIs('profile.dashboard'),
             'description' => 'Przegląd ogólny'
         ],
         [
@@ -22,10 +22,18 @@
         [
             'name' => 'Wiadomości',
             'icon' => '💬',
-            'route' => 'chat',
-            'active' => request()->routeIs('chat*'),
+            'route' => 'profile.chat.index',
+            'active' => request()->routeIs('profile.chat*'),
             'description' => 'Komunikacja',
             'badge' => $user->getUnreadMessagesCount()
+        ],
+        [
+            'name' => 'Powiadomienia',
+            'icon' => '🔔',
+            'route' => 'profile.notifications',
+            'active' => request()->routeIs('profile.notifications*'),
+            'description' => 'Centrum powiadomień',
+            'badge' => $user->getUnreadNotificationsCount()
         ],
         [
             'name' => 'Usługi',
@@ -35,7 +43,7 @@
             'description' => 'Wyszukaj usługi profesjonalne',
             'badge' => $user->professionalServices()->count(),
             'show_add_button' => true,
-            'add_route' => 'professional-services.create',
+            'add_route' => 'profile.professional-services.create',
             'add_tooltip' => 'Dodaj usługę profesjonalną'
         ],
         [
@@ -46,7 +54,7 @@
             'description' => 'Wydarzenia społeczności',
             'badge' => $user->events()->count(),
             'show_add_button' => true,
-            'add_route' => 'events.create',
+            'add_route' => 'profile.events.create',
             'add_tooltip' => 'Dodaj wydarzenie'
         ],
         [
@@ -57,14 +65,14 @@
             'description' => 'Marketplace zwierząt',
             'badge' => $user->advertisements()->count(),
             'show_add_button' => true,
-            'add_route' => 'advertisements.create',
+            'add_route' => 'profile.advertisements.create',
             'add_tooltip' => 'Dodaj ogłoszenie'
         ],
         [
             'name' => 'Opinie',
             'icon' => '⭐',
-            'route' => 'reviews',
-            'active' => request()->routeIs('reviews*'),
+            'route' => 'profile.reviews',
+            'active' => request()->routeIs('profile.reviews*'),
             'description' => 'Opinie i oceny'
         ]
     ];
@@ -76,26 +84,26 @@
             [
                 'name' => 'Oferta',
                 'icon' => '🛠️',
-                'route' => 'sitter-services.index',
+                'route' => 'profile.services.index',
                 'active' => request()->routeIs('sitter-services.*'),
                 'description' => 'Zarządzaj usługami',
                 'badge' => $user->services()->count(),
                 'show_add_button' => true,
-                'add_route' => 'sitter-services.create',
+                'add_route' => 'profile.services.create',
                 'add_tooltip' => 'Dodaj usługę'
             ],
             [
                 'name' => 'Zlecenia',
                 'icon' => '📋',
-                'route' => 'bookings',
-                'active' => request()->routeIs('bookings*'),
+                'route' => 'profile.bookings',
+                'active' => request()->routeIs('profile.bookings*'),
                 'description' => 'Zarządzaj rezerwacjami',
                 'badge' => $user->sitterBookings()->whereIn('status', ['pending'])->count()
             ],
             [
                 'name' => 'Kalendarz',
                 'icon' => '📅',
-                'route' => 'availability.calendar',
+                'route' => 'profile.availability',
                 'active' => request()->routeIs('availability.*'),
                 'description' => 'Dostępność'
             ]

@@ -65,7 +65,7 @@
         <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
             <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
                 <span>Ostatnia aktywność: {{ now()->diffForHumans() }}</span>
-                <a href="{{ route('dashboard') }}" class="text-primary-600 hover:text-primary-500 dark:text-primary-400">
+                <a href="{{ route('profile.dashboard') }}" class="text-primary-600 hover:text-primary-500 dark:text-primary-400">
                     Odśwież →
                 </a>
             </div>

@@ -12,6 +12,7 @@ use Livewire\WithPagination;
 class Dashboard extends Component
 {
     public string $statusFilter = 'all';
+
     use HasSubscriptionChecks, WithPagination;
 
     public function updatedStatusFilter()
@@ -26,16 +27,22 @@ class Dashboard extends Component
         $userInfo = $this->getUserSubscriptionInfo();
 
         $recentPayments = Payment::where(function ($query) use ($user) {
-                // Płatności związane z booking (pet sitter services)
-                $query->whereHas('booking', function ($bookingQuery) use ($user) {
-                    $bookingQuery->where('owner_id', $user->id)
-                                 ->orWhere('sitter_id', $user->id);
-                });
+            // Płatności związane z booking (pet sitter services)
+            $query->whereHas('booking', function ($bookingQuery) use ($user) {
+                $bookingQuery->where('owner_id', $user->id)
+                    ->orWhere('sitter_id', $user->id);
+            });
+        })
+            ->orWhere(function ($query) use ($user) {
+                // Płatności subskrypcyjne - nowoczesny sposób z user_id
+                $query->whereNull('booking_id')
+                    ->where('user_id', $user->id);
             })
             ->orWhere(function ($query) use ($user) {
-                // Płatności subskrypcyjne (bez booking)
+                // Legacy płatności subskrypcyjne (stary sposób dla kompatybilności)
                 $query->whereNull('booking_id')
-                      ->whereJsonContains('gateway_response->user_id', $user->id);
+                    ->whereNull('user_id')
+                    ->whereJsonContains('gateway_response->user_id', $user->id);
             })
             ->when($this->statusFilter !== 'all', function ($query) {
                 $query->where('status', $this->statusFilter);
@@ -50,12 +57,12 @@ class Dashboard extends Component
             [
                 'title' => 'Panel',
                 'icon' => '🏠',
-                'url' => route('dashboard')
+                'url' => route('profile.dashboard'),
             ],
             [
                 'title' => 'Subskrypcje',
-                'icon' => '💳'
-            ]
+                'icon' => '💳',
+            ],
         ];
 
         return view('livewire.subscription.dashboard', [
@@ -70,22 +77,24 @@ class Dashboard extends Component
     {
         $subscription = auth()->user()->activeSubscription;
 
-        if (!$subscription || !$subscription->canBeCancelled()) {
+        if (! $subscription || ! $subscription->canBeCancelled()) {
             session()->flash('error', 'Nie można anulować tej subskrypcji.');
+
             return;
         }
 
         $subscription->cancel();
 
-        session()->flash('success', 'Subskrypcja została anulowana. Zachowasz dostęp do funkcji premium do ' . $subscription->ends_at->format('d.m.Y') . '.');
+        session()->flash('success', 'Subskrypcja została anulowana. Zachowasz dostęp do funkcji premium do '.$subscription->ends_at->format('d.m.Y').'.');
     }
 
     public function resumeSubscription()
     {
         $subscription = auth()->user()->activeSubscription;
 
-        if (!$subscription || !$subscription->canBeResumed()) {
+        if (! $subscription || ! $subscription->canBeResumed()) {
             session()->flash('error', 'Nie można wznowić tej subskrypcji.');
+
             return;
         }
 
@@ -97,7 +106,6 @@ class Dashboard extends Component
     /**
      * Regeneruje fakturę dla płatności subskrypcyjnej.
      *
-     * @param int $paymentId
      * @return void
      */
     public function regenerateInvoice(int $paymentId)
@@ -106,13 +114,14 @@ class Dashboard extends Component
 
         // Znajdź płatność należącą do użytkownika
         $payment = Payment::whereNull('booking_id') // Tylko płatności subskrypcyjne
-                         ->whereJsonContains('gateway_response->user_id', $user->id)
-                         ->where('id', $paymentId)
-                         ->where('status', 'completed')
-                         ->first();
+            ->whereJsonContains('gateway_response->user_id', $user->id)
+            ->where('id', $paymentId)
+            ->where('status', 'completed')
+            ->first();
 
-        if (!$payment) {
+        if (! $payment) {
             session()->flash('error', 'Nie można odnaleźć płatności lub brak dostępu.');
+
             return;
         }
 
@@ -127,11 +136,13 @@ class Dashboard extends Component
                 $plan = SubscriptionPlan::find($planId);
             } else {
                 session()->flash('error', 'Brak informacji o planie w płatności.');
+
                 return;
             }
 
-            if (!$plan) {
+            if (! $plan) {
                 session()->flash('error', 'Plan subskrypcji nie został znaleziony.');
+
                 return;
             }
 
@@ -147,14 +158,14 @@ class Dashboard extends Component
                 if (is_array($errorMessage)) {
                     $errorMessage = json_encode($errorMessage, JSON_UNESCAPED_UNICODE);
                 }
-                session()->flash('error', 'Nie udało się wygenerować faktury: ' . $errorMessage);
+                session()->flash('error', 'Nie udało się wygenerować faktury: '.$errorMessage);
             }
 
         } catch (\Exception $e) {
             \Log::error('Błąd regeneracji faktury', [
                 'payment_id' => $paymentId,
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             session()->flash('error', 'Wystąpił błąd podczas generowania faktury.');

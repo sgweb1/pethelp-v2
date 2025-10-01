@@ -100,7 +100,7 @@ new #[Layout('layouts.app')] class extends Component {
                         Profil
                     </x-ui.button>
 
-                    <x-ui.button variant="warm" size="sm" href="{{ route('pets.create') }}">
+                    <x-ui.button variant="warm" size="sm" href="{{ route('profile.pets.create') }}">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>
@@ -175,7 +175,7 @@ new #[Layout('layouts.app')] class extends Component {
                             </div>
                             <h3 class="text-lg font-medium text-gray-900 mb-2">Brak zwierząt</h3>
                             <p class="text-gray-600 mb-4">Dodaj profil swojego pupila, aby rozpocząć.</p>
-                            <x-ui.button variant="primary" size="sm" href="{{ route('pets.create') }}">
+                            <x-ui.button variant="primary" size="sm" href="{{ route('profile.pets.create') }}">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                 </svg>

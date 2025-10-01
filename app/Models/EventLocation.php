@@ -55,7 +55,7 @@ class EventLocation extends Model
         $user = auth()->user();
 
         // Organizer can always see full address
-        if ($this->event->user_id === $user->id) {
+        if ($this->event->organizer_id === $user->id) {
             return true;
         }
 

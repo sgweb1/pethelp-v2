@@ -2,18 +2,17 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use App\Models\User;
-use App\Models\UserProfile;
+use App\Models\Booking;
+use App\Models\Conversation;
+use App\Models\Location;
+use App\Models\Message;
 use App\Models\Pet;
+use App\Models\Review;
 use App\Models\Service;
 use App\Models\ServiceCategory;
-use App\Models\Location;
-use App\Models\Booking;
-use App\Models\Review;
-use App\Models\Conversation;
-use App\Models\Message;
+use App\Models\User;
+use App\Models\UserProfile;
+use Illuminate\Database\Seeder;
 
 class ExtendedTestDataSeeder extends Seeder
 {
@@ -54,7 +53,7 @@ class ExtendedTestDataSeeder extends Seeder
                         'price_per_day' => 200,
                         'pet_types' => ['dog', 'cat'],
                         'pet_sizes' => ['small', 'medium', 'large'],
-                        'service_types' => ['home_service', 'sitter_home']
+                        'service_types' => ['home_service', 'sitter_home'],
                     ],
                     [
                         'category' => 'karmienie',
@@ -64,9 +63,9 @@ class ExtendedTestDataSeeder extends Seeder
                         'price_per_day' => null,
                         'pet_types' => ['dog', 'cat', 'rabbit'],
                         'pet_sizes' => ['small', 'medium', 'large'],
-                        'service_types' => ['home_service']
-                    ]
-                ]
+                        'service_types' => ['home_service'],
+                    ],
+                ],
             ],
             [
                 'name' => 'Piotr Zieliński',
@@ -85,7 +84,7 @@ class ExtendedTestDataSeeder extends Seeder
                         'price_per_day' => null,
                         'pet_types' => ['dog'],
                         'pet_sizes' => ['small', 'medium', 'large'],
-                        'service_types' => ['home_service']
+                        'service_types' => ['home_service'],
                     ],
                     [
                         'category' => 'opieka-u-opiekuna',
@@ -95,10 +94,10 @@ class ExtendedTestDataSeeder extends Seeder
                         'price_per_day' => 120,
                         'pet_types' => ['dog'],
                         'pet_sizes' => ['medium', 'large'],
-                        'service_types' => ['sitter_home']
-                    ]
-                ]
-            ]
+                        'service_types' => ['sitter_home'],
+                    ],
+                ],
+            ],
         ];
 
         foreach ($extendedSitters as $sitterData) {
@@ -115,8 +114,8 @@ class ExtendedTestDataSeeder extends Seeder
                 'pets' => [
                     ['name' => 'Bruno', 'type' => 'dog', 'breed' => 'Rottweiler', 'gender' => 'male', 'size' => 'large'],
                     ['name' => 'Coco', 'type' => 'cat', 'breed' => 'Brytyjski krótkowłosy', 'gender' => 'female', 'size' => 'medium'],
-                    ['name' => 'Fluffy', 'type' => 'rabbit', 'breed' => 'Angora', 'gender' => 'female', 'size' => 'small']
-                ]
+                    ['name' => 'Fluffy', 'type' => 'rabbit', 'breed' => 'Angora', 'gender' => 'female', 'size' => 'small'],
+                ],
             ],
             [
                 'name' => 'Michał Kowalczyk',
@@ -125,8 +124,8 @@ class ExtendedTestDataSeeder extends Seeder
                 'city' => 'Katowice',
                 'pets' => [
                     ['name' => 'Zeus', 'type' => 'dog', 'breed' => 'Owczarek niemiecki', 'gender' => 'male', 'size' => 'large'],
-                    ['name' => 'Lola', 'type' => 'dog', 'breed' => 'Chihuahua', 'gender' => 'female', 'size' => 'small']
-                ]
+                    ['name' => 'Lola', 'type' => 'dog', 'breed' => 'Chihuahua', 'gender' => 'female', 'size' => 'small'],
+                ],
             ],
             [
                 'name' => 'Natalia Sikora',
@@ -136,9 +135,9 @@ class ExtendedTestDataSeeder extends Seeder
                 'pets' => [
                     ['name' => 'Whiskers', 'type' => 'cat', 'breed' => 'Maine Coon', 'gender' => 'male', 'size' => 'large'],
                     ['name' => 'Mittens', 'type' => 'cat', 'breed' => 'Perski', 'gender' => 'female', 'size' => 'medium'],
-                    ['name' => 'Rio', 'type' => 'bird', 'breed' => 'Ara', 'gender' => 'male', 'size' => 'medium']
-                ]
-            ]
+                    ['name' => 'Rio', 'type' => 'bird', 'breed' => 'Ara', 'gender' => 'male', 'size' => 'medium'],
+                ],
+            ],
         ];
 
         foreach ($extendedOwners as $ownerData) {
@@ -154,20 +153,20 @@ class ExtendedTestDataSeeder extends Seeder
         // Sprawdzamy czy użytkownik już istnieje
         $user = User::where('email', $sitterData['email'])->first();
 
-        if (!$user) {
+        if (! $user) {
             // Tworzymy użytkownika
             $user = User::create([
                 'name' => $sitterData['name'],
                 'email' => $sitterData['email'],
                 'email_verified_at' => now(),
-                'password' => bcrypt('password')
+                'password' => bcrypt('password'),
             ]);
         }
 
         // Tworzymy profil użytkownika jako sitter
         $profile = UserProfile::where('user_id', $user->id)->first();
 
-        if (!$profile) {
+        if (! $profile) {
             $nameParts = explode(' ', $sitterData['name']);
             $firstName = $nameParts[0];
             $lastName = isset($nameParts[1]) ? $nameParts[1] : '';
@@ -187,7 +186,7 @@ class ExtendedTestDataSeeder extends Seeder
         // Sprawdzamy czy lokalizacja już istnieje
         $location = Location::where('user_id', $user->id)->first();
 
-        if (!$location) {
+        if (! $location) {
             // Tworzymy lokalizację
             Location::create([
                 'user_id' => $user->id,
@@ -198,7 +197,7 @@ class ExtendedTestDataSeeder extends Seeder
                 'country' => 'Polska',
                 'latitude' => $sitterData['latitude'],
                 'longitude' => $sitterData['longitude'],
-                'is_active' => true
+                'is_active' => true,
             ]);
         }
 
@@ -212,7 +211,7 @@ class ExtendedTestDataSeeder extends Seeder
                     ->where('title', $serviceData['title'])
                     ->first();
 
-                if (!$existingService) {
+                if (! $existingService) {
                     Service::create([
                         'sitter_id' => $user->id,
                         'category_id' => $category->id,
@@ -226,7 +225,7 @@ class ExtendedTestDataSeeder extends Seeder
                         'home_service' => in_array('home_service', $serviceData['service_types']),
                         'sitter_home' => in_array('sitter_home', $serviceData['service_types']),
                         'max_pets' => 3,
-                        'is_active' => true
+                        'is_active' => true,
                     ]);
                 }
             }
@@ -240,19 +239,19 @@ class ExtendedTestDataSeeder extends Seeder
     {
         $user = User::where('email', $ownerData['email'])->first();
 
-        if (!$user) {
+        if (! $user) {
             $user = User::create([
                 'name' => $ownerData['name'],
                 'email' => $ownerData['email'],
                 'email_verified_at' => now(),
-                'password' => bcrypt('password')
+                'password' => bcrypt('password'),
             ]);
         }
 
         // Tworzymy profil właściciela
         $profile = UserProfile::where('user_id', $user->id)->first();
 
-        if (!$profile) {
+        if (! $profile) {
             $nameParts = explode(' ', $ownerData['name']);
             $firstName = $nameParts[0];
             $lastName = isset($nameParts[1]) ? $nameParts[1] : '';
@@ -263,7 +262,7 @@ class ExtendedTestDataSeeder extends Seeder
                 'first_name' => $firstName,
                 'last_name' => $lastName,
                 'phone' => $ownerData['phone'],
-                'bio' => 'Kochający właściciel zwierząt z ' . $ownerData['city'] . '.',
+                'bio' => 'Kochający właściciel zwierząt z '.$ownerData['city'].'.',
                 'is_verified' => true,
                 'verified_at' => now(),
             ]);
@@ -286,15 +285,15 @@ class ExtendedTestDataSeeder extends Seeder
             'cat' => 2,
             'bird' => 3,
             'rabbit' => 4,
-            'other' => 5
+            'other' => 5,
         ];
 
         foreach ($pets as $petData) {
             $existingPet = Pet::where('owner_id', $user->id)
-                              ->where('name', $petData['name'])
-                              ->first();
+                ->where('name', $petData['name'])
+                ->first();
 
-            if (!$existingPet) {
+            if (! $existingPet) {
                 Pet::create([
                     'owner_id' => $user->id,
                     'name' => $petData['name'],
@@ -305,7 +304,7 @@ class ExtendedTestDataSeeder extends Seeder
                     'gender' => $petData['gender'],
                     'description' => 'Wspaniały pupil, bardzo przyjazny i energiczny.',
                     'special_needs' => null,
-                    'is_active' => true
+                    'is_active' => true,
                 ]);
             }
         }
@@ -316,11 +315,12 @@ class ExtendedTestDataSeeder extends Seeder
      */
     private function createBookingsAndInteractions(): void
     {
-        $owners = User::whereHas('profile', fn($q) => $q->where('role', 'owner'))->get();
-        $sitters = User::whereHas('profile', fn($q) => $q->where('role', 'sitter'))->get();
+        $owners = User::whereHas('profile', fn ($q) => $q->where('role', 'owner'))->get();
+        $sitters = User::whereHas('profile', fn ($q) => $q->where('role', 'sitter'))->get();
 
         if ($owners->isEmpty() || $sitters->isEmpty()) {
             $this->command->warn('Brak właścicieli lub opiekunów do tworzenia zleceń.');
+
             return;
         }
 
@@ -330,7 +330,9 @@ class ExtendedTestDataSeeder extends Seeder
         foreach ($owners as $owner) {
             $ownerPets = Pet::where('owner_id', $owner->id)->get();
 
-            if ($ownerPets->isEmpty()) continue;
+            if ($ownerPets->isEmpty()) {
+                continue;
+            }
 
             // Tworzymy 2-4 zlecenia dla każdego właściciela
             $bookingCount = rand(2, 4);
@@ -339,7 +341,9 @@ class ExtendedTestDataSeeder extends Seeder
                 $sitter = $sitters->random();
                 $sitterServices = Service::where('sitter_id', $sitter->id)->get();
 
-                if ($sitterServices->isEmpty()) continue;
+                if ($sitterServices->isEmpty()) {
+                    continue;
+                }
 
                 $service = $sitterServices->random();
                 $pet = $ownerPets->random();
@@ -347,7 +351,7 @@ class ExtendedTestDataSeeder extends Seeder
 
                 // Data rozpoczęcia - ostatnie 3 miesiące lub przyszłość
                 $startDate = fake()->dateTimeBetween('-3 months', '+2 months');
-                $endDate = (clone $startDate)->modify('+' . rand(1, 7) . ' days');
+                $endDate = (clone $startDate)->modify('+'.rand(1, 7).' days');
 
                 // Obliczamy cenę
                 $days = $startDate->diff($endDate)->days;
@@ -386,7 +390,7 @@ class ExtendedTestDataSeeder extends Seeder
             // Sprawdzamy czy recenzja już istnieje dla tego zlecenia
             $existingReview = Review::where('booking_id', $booking->id)->first();
 
-            if (!$existingReview && rand(1, 100) <= 80) {
+            if (! $existingReview && rand(1, 100) <= 80) {
                 // Losowo decydujemy, czy to właściciel ocenia opiekuna czy odwrotnie
                 $isOwnerReviewing = rand(0, 1);
 
@@ -415,6 +419,9 @@ class ExtendedTestDataSeeder extends Seeder
         foreach ($bookings->take(10) as $booking) { // Tylko pierwsze 10 dla testów
             // Sprawdzamy czy istnieje konwersacja lub tworzymy prostą
             $conversation = Conversation::create([
+                'user_one_id' => $booking->owner_id,
+                'user_two_id' => $booking->sitter_id,
+                'booking_id' => $booking->id,
                 'subject' => "Zlecenie #{$booking->id}",
                 'last_message_at' => now(),
             ]);

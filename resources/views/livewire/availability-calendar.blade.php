@@ -1,4 +1,4 @@
-<div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+<div>
     <!-- Compact Calendar Header -->
     <div class="flex items-center justify-between mb-3">
         <div class="flex items-center space-x-2">
@@ -74,7 +74,7 @@
                     $dayAvailabilities = $this->availability_for_month->filter(function($availability) use ($dateKey) {
                         return $availability->available_date && $availability->available_date->format('Y-m-d') === $dateKey;
                     });
-                    $isPast = $day->isPast();
+                    $isPast = $day->isPast() && !$day->isToday(); // Dzisiejsza data zawsze dostępna
                     $isToday = $day->isToday();
                     $hasAvailability = $dayAvailabilities->isNotEmpty();
                     $allAvailable = $dayAvailabilities->where('is_available', true)->isNotEmpty();

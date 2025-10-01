@@ -25,7 +25,7 @@
                         <p class="text-blue-800 text-sm">Skontaktuj się z opiekunem przed rezerwacją</p>
                     </div>
                 </div>
-                <a href="{{ route('chat') }}?user={{ $service->sitter->id }}"
+                <a href="{{ route('profile.chat.index') }}?user={{ $service->sitter->id }}"
                    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
                     Napisz wiadomość
                 </a>
@@ -84,7 +84,7 @@
                         @error('pet_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     @else
                         <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                            <p class="text-yellow-800">Nie masz jeszcze dodanych zwierząt. <a href="{{ route('dashboard') }}" class="underline">Dodaj zwierzę</a> aby móc dokonać rezerwacji.</p>
+                            <p class="text-yellow-800">Nie masz jeszcze dodanych zwierząt. <a href="{{ route('profile.dashboard') }}" class="underline">Dodaj zwierzę</a> aby móc dokonać rezerwacji.</p>
                         </div>
                     @endif
                 </div>

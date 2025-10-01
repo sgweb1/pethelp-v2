@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Carbon\Carbon;
 
 /**
  * Model reprezentujący dostępność czasową opiekuna.
@@ -13,8 +13,8 @@ use Carbon\Carbon;
  * Zarządza slotami czasowymi kiedy opiekun jest dostępny do świadczenia usług.
  * Obsługuje zarówno jednorazowe terminy jak i powtarzające się wzorce dostępności.
  *
- * @package App\Models
  * @author Claude AI Assistant
+ *
  * @since 1.0.0
  *
  * @property int $id Unikalny identyfikator dostępności
@@ -34,7 +34,6 @@ use Carbon\Carbon;
  * @property string|null $notes Dodatkowe notatki
  * @property \Carbon\Carbon $created_at Data utworzenia
  * @property \Carbon\Carbon $updated_at Data ostatniej aktualizacji
- *
  * @property-read \App\Models\User $sitter Użytkownik/opiekun
  * @property-read \App\Models\Service|null $service Powiązana usługa
  * @property-read string $time_range Przedział czasowy (np. "09:00 - 17:00")
@@ -135,7 +134,7 @@ class Availability extends Model
 
     public function getTimeRangeAttribute(): string
     {
-        return $this->start_time->format('H:i') . ' - ' . $this->end_time->format('H:i');
+        return $this->start_time->format('H:i').' - '.$this->end_time->format('H:i');
     }
 
     public function scopeForTimeSlot($query, $timeSlot)
@@ -150,20 +149,21 @@ class Availability extends Model
 
     public function getTimeSlotLabelAttribute(): string
     {
-        return match($this->time_slot) {
+        return match ($this->time_slot) {
             'morning' => 'Rano',
             'afternoon' => 'Popołudnie',
             'evening' => 'Wieczorem',
             'overnight' => 'Nocleg',
             'all_day' => 'Cały dzień',
             'vacation' => 'Urlop',
+            'custom' => 'Własny czas',
             default => 'Nieokreślony'
         };
     }
 
     public function getServiceTypeLabelAttribute(): string
     {
-        return match($this->service_type) {
+        return match ($this->service_type) {
             'home_service' => 'U klienta',
             'sitter_home' => 'U opiekuna',
             'walking' => 'Spacer',

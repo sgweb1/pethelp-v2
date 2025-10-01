@@ -1,0 +1,33 @@
+{
+  "title": "Podstawowe informacje",
+  "description": "Zbierz podstawowe dane o sobie jako opiekunie zwierząt",
+  "suggestions": [
+    "Wprowadź swoje prawdziwe dane - budują zaufanie klientów",
+    "Dobrej jakości zdjęcie profilowe zwiększa szanse na rezerwacje o 70%",
+    "Numer telefonu z aktywnym WhatsApp ułatwia komunikację"
+  ],
+  "tips": [
+    {
+      "type": "info",
+      "content": "Pełne dane kontaktowe są obowiązkowe dla bezpieczeństwa klientów"
+    },
+    {
+      "type": "warning",
+      "content": "Nie używaj zdjęć z internetu - system weryfikuje autentyczność"
+    },
+    {
+      "type": "success",
+      "content": "Dokładny adres pomoże klientom z Twojej okolicy Cię znaleźć"
+    }
+  ],
+  "validation_rules": {
+    "name": "Imię i nazwisko (minimum 5 znaków)",
+    "phone": "Numer telefonu w formacie polskim",
+    "email": "Aktywny adres email",
+    "photo": "Zdjęcie profilowe (JPG/PNG, max 2MB)"
+  },
+  "completion_criteria": {
+    "required_fields": ["name", "phone", "email", "address"],
+    "optional_fields": ["photo", "bio_short"]
+  }
+}

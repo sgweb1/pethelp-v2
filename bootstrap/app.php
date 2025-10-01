@@ -39,6 +39,8 @@ return Application::configure(basePath: dirname(__DIR__))
                 'livewire/upload-file',
                 'api/js-logs',
                 'payu/notify', // PayU webhook endpoint
+                'api/ai/*', // AI Assistant API endpoints
+                'api/location/*', // Location & Population Estimation API endpoints
             ]
         );
 

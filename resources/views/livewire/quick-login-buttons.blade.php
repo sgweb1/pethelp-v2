@@ -16,38 +16,38 @@
     {{-- Podstawowe przyciski --}}
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3">
         <a href="/quick-login-owner"
-           class="inline-flex flex-col items-center justify-center px-3 py-2 text-xs font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-800 dark:text-blue-200 dark:hover:bg-blue-700 rounded-md transition-colors">
-            <span class="flex items-center">
+           class="inline-flex flex-col items-center justify-center px-3 py-3 text-xs font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 dark:bg-blue-800 dark:text-blue-200 dark:hover:bg-blue-700 rounded-md transition-colors min-h-[70px]">
+            <span class="flex items-center mb-1">
                 👤 <strong class="ml-1">Właściciel</strong>
             </span>
             @if($users['owners']->count() > 0)
-                <span class="text-xs opacity-75 mt-1">{{ $users['owners']->first()['email'] }}</span>
+                <span class="text-xs opacity-75 text-center w-full truncate px-1" title="{{ $users['owners']->first()['email'] }}">{{ $users['owners']->first()['email'] }}</span>
             @else
-                <span class="text-xs opacity-75 mt-1">Stworzy testowego</span>
+                <span class="text-xs opacity-75 text-center">Stworzy testowego</span>
             @endif
         </a>
 
         <a href="/quick-login-sitter"
-           class="inline-flex flex-col items-center justify-center px-3 py-2 text-xs font-medium text-green-700 bg-green-100 hover:bg-green-200 dark:bg-green-800 dark:text-green-200 dark:hover:bg-green-700 rounded-md transition-colors">
-            <span class="flex items-center">
+           class="inline-flex flex-col items-center justify-center px-3 py-3 text-xs font-medium text-green-700 bg-green-100 hover:bg-green-200 dark:bg-green-800 dark:text-green-200 dark:hover:bg-green-700 rounded-md transition-colors min-h-[70px]">
+            <span class="flex items-center mb-1">
                 🐕 <strong class="ml-1">Pet Sitter</strong>
             </span>
             @if($users['sitters']->count() > 0)
-                <span class="text-xs opacity-75 mt-1">{{ $users['sitters']->first()['email'] }}</span>
+                <span class="text-xs opacity-75 text-center w-full truncate px-1" title="{{ $users['sitters']->first()['email'] }}">{{ $users['sitters']->first()['email'] }}</span>
             @else
-                <span class="text-xs opacity-75 mt-1">Stworzy testowego</span>
+                <span class="text-xs opacity-75 text-center">Stworzy testowego</span>
             @endif
         </a>
 
         <a href="/quick-login"
-           class="inline-flex flex-col items-center justify-center px-3 py-2 text-xs font-medium text-purple-700 bg-purple-100 hover:bg-purple-200 dark:bg-purple-800 dark:text-purple-200 dark:hover:bg-purple-700 rounded-md transition-colors">
-            <span class="flex items-center">
+           class="inline-flex flex-col items-center justify-center px-3 py-3 text-xs font-medium text-purple-700 bg-purple-100 hover:bg-purple-200 dark:bg-purple-800 dark:text-purple-200 dark:hover:bg-purple-700 rounded-md transition-colors min-h-[70px]">
+            <span class="flex items-center mb-1">
                 ⭐ <strong class="ml-1">Użytkownik</strong>
             </span>
             @if($users['regular']->count() > 0)
-                <span class="text-xs opacity-75 mt-1">{{ $users['regular']->first()['email'] }}</span>
+                <span class="text-xs opacity-75 text-center w-full truncate px-1" title="{{ $users['regular']->first()['email'] }}">{{ $users['regular']->first()['email'] }}</span>
             @else
-                <span class="text-xs opacity-75 mt-1">Stworzy testowego</span>
+                <span class="text-xs opacity-75 text-center">Stworzy testowego</span>
             @endif
         </a>
     </div>

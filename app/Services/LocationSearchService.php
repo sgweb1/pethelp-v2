@@ -6,28 +6,44 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Serwis wyszukiwania lokalizacji z obsługą lokalnego Nominatim.
+ *
+ * Zapewnia elastyczny system geocodingu z automatycznym fallback-iem
+ * z lokalnej instancji Nominatim na zewnętrzne API w przypadku awarii.
+ *
+ * @package App\Services
+ * @author Claude AI Assistant
+ * @since 1.0.0
+ */
 class LocationSearchService
 {
-    private const NOMINATIM_BASE_URL = 'https://nominatim.openstreetmap.org';
-
+    private const EXTERNAL_NOMINATIM_URL = 'https://nominatim.openstreetmap.org';
     private const CACHE_TTL = 86400; // 24 hours
-
     private const REQUEST_DELAY = 1000; // 1 second delay between requests (Nominatim policy)
+    private const LOCAL_REQUEST_DELAY = 100; // Faster for local instance
 
+    /**
+     * Wyszukuje lokalizacje z obsługą lokalnego Nominatim i fallback-u.
+     *
+     * @param string $query Zapytanie wyszukiwania
+     * @param int $limit Maksymalna liczba wyników
+     * @return array Lista znalezionych lokalizacji
+     */
     public function searchLocations(string $query, int $limit = 10): array
     {
         if (strlen($query) < 2) {
             return [];
         }
 
-        // Disable cache for testing environment
-        if (config('app.env') === 'local') {
+        // Używaj cache-u z wyjątkiem środowiska testowego
+        if (config('app.env') === 'testing') {
             return $this->performLocationSearch($query, $limit);
         }
 
-        $cacheKey = 'location_search_'.md5($query.$limit);
+        $cacheKey = 'location_search_'.md5($query.$limit.$this->getNominatimUrl());
 
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($query, $limit) {
+        return Cache::remember($cacheKey, $this->getCacheTtl(), function () use ($query, $limit) {
             return $this->performLocationSearch($query, $limit);
         });
     }
@@ -125,62 +141,61 @@ class LocationSearchService
         return $matches;
     }
 
+    /**
+     * Wykonuje wyszukiwanie lokalizacji z automatycznym fallback-iem.
+     *
+     * @param string $query Zapytanie wyszukiwania
+     * @param int $limit Maksymalna liczba wyników
+     * @return array Lista znalezionych lokalizacji
+     */
     private function performLocationSearch(string $query, int $limit): array
     {
-        try {
-            // Direct search - bez expansion logic (simplified approach)
-            // Add delay to respect Nominatim usage policy
-            usleep(self::REQUEST_DELAY * 1000);
+        $allResults = [];
 
-            $response = Http::timeout(10)
-                ->withHeaders([
-                    'User-Agent' => 'PetHelp/1.0 (contact@pethelp.test)',
-                ])
-                ->get(self::NOMINATIM_BASE_URL.'/search', [
-                    'q' => $query,
-                    'format' => 'json',
-                    'addressdetails' => 1,
-                    'limit' => $limit,
-                    'countrycodes' => 'pl', // Focus on Poland
-                    'dedupe' => 1,
-                    'extratags' => 1,
-                ]);
+        // Spróbuj najpierw lokalnego Nominatim
+        if ($this->isLocalNominatimEnabled()) {
+            try {
+                $allResults = $this->searchWithLocalNominatim($query, $limit);
 
-            $allResults = [];
-            if ($response->successful()) {
-                $allResults = $this->formatLocationResults($response->json());
-            } else {
-                Log::warning('Nominatim API request failed', [
-                    'query' => $query,
-                    'status' => $response->status(),
-                    'response' => $response->body(),
-                ]);
-            }
-
-            // Remove duplicates and limit results
-            $uniqueResults = [];
-            $seen = [];
-            foreach ($allResults as $result) {
-                $key = $result['lat'].'_'.$result['lon'];
-                if (! isset($seen[$key])) {
-                    $seen[$key] = true;
-                    $uniqueResults[] = $result;
-                    if (count($uniqueResults) >= $limit) {
-                        break;
-                    }
+                if (!empty($allResults)) {
+                    Log::info('Local Nominatim search successful', [
+                        'query' => $query,
+                        'results_count' => count($allResults),
+                        'source' => 'local_nominatim'
+                    ]);
+                    return $this->deduplicateResults($allResults, $limit);
                 }
+            } catch (\Exception $e) {
+                Log::warning('Local Nominatim failed, trying fallback', [
+                    'query' => $query,
+                    'error' => $e->getMessage(),
+                    'fallback' => 'external_nominatim'
+                ]);
             }
-
-            return $uniqueResults;
-
-        } catch (\Exception $e) {
-            Log::error('Location search failed', [
-                'query' => $query,
-                'error' => $e->getMessage(),
-            ]);
-
-            return [];
         }
+
+        // Fallback do zewnętrznego Nominatim
+        if ($this->isFallbackEnabled()) {
+            try {
+                $allResults = $this->searchWithExternalNominatim($query, $limit);
+
+                if (!empty($allResults)) {
+                    Log::info('External Nominatim search successful', [
+                        'query' => $query,
+                        'results_count' => count($allResults),
+                        'source' => 'external_nominatim'
+                    ]);
+                }
+            } catch (\Exception $e) {
+                Log::error('Both local and external Nominatim failed', [
+                    'query' => $query,
+                    'error' => $e->getMessage(),
+                ]);
+                return [];
+            }
+        }
+
+        return $this->deduplicateResults($allResults, $limit);
     }
 
     private function formatLocationResults(array $rawResults): array
@@ -350,15 +365,115 @@ class LocationSearchService
 
     private function extractCity(array $address): string
     {
-        $cityFields = ['city', 'town', 'municipality', 'village', 'hamlet'];
+        // Pierwsza próba - standardowe pola Nominatim w kolejności priorytetów dla Polski
+        $primaryFields = [
+            'city',           // Główne miasta
+            'town',           // Mniejsze miasta
+            'municipality',   // Gminy miejskie
+            'village',        // Wsie
+            'hamlet'          // Przysiółki
+        ];
 
-        foreach ($cityFields as $field) {
-            if (! empty($address[$field])) {
-                return $address[$field];
+        foreach ($primaryFields as $field) {
+            if (!empty($address[$field])) {
+                $cityName = trim($address[$field]);
+
+                // Walidacja - sprawdź czy to nie jest przypadkowy tekst
+                if ($this->isValidCityName($cityName)) {
+                    Log::info("🏙️ City extracted from field '{$field}': {$cityName}");
+                    return $cityName;
+                }
             }
         }
 
+        // Druga próba - alternatywne pola dla Polski
+        $alternativeFields = [
+            'suburb',         // Dzielnice (mogą być używane jako miasta w małych obszarach)
+            'neighbourhood',  // Osiedla
+            'quarter',        // Kwartały
+            'city_district'   // Dzielnice miejskie
+        ];
+
+        foreach ($alternativeFields as $field) {
+            if (!empty($address[$field])) {
+                $cityName = trim($address[$field]);
+
+                if ($this->isValidCityName($cityName)) {
+                    Log::info("🏘️ City extracted from alternative field '{$field}': {$cityName}");
+                    return $cityName;
+                }
+            }
+        }
+
+        // Trzecia próba - ekstraktuj z display_name jeśli nic nie znaleziono
+        if (!empty($address['display_name'])) {
+            $extractedCity = $this->extractCityFromDisplayName($address['display_name']);
+            if ($extractedCity) {
+                Log::info("📍 City extracted from display_name: {$extractedCity}");
+                return $extractedCity;
+            }
+        }
+
+        Log::warning('⚠️ No valid city found in address data', ['address_keys' => array_keys($address)]);
         return '';
+    }
+
+    /**
+     * Waliduje czy nazwa miasta jest poprawna
+     */
+    private function isValidCityName(string $name): bool
+    {
+        if (strlen($name) < 2) {
+            return false;
+        }
+
+        // Odrzuć oczywiste nie-miasta
+        $invalidPatterns = [
+            '/^[0-9\-\s]+$/',           // Same cyfry, myślniki, spacje
+            '/^(ul\.|al\.|pl\.|os\.)/i', // Prefiksy ulic
+            '/^(województwo|powiat|gmina)\s/i', // Prefiksy administracyjne
+            '/^\d{2}-\d{3}$/',          // Kody pocztowe
+        ];
+
+        foreach ($invalidPatterns as $pattern) {
+            if (preg_match($pattern, $name)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Ekstraktuje miasto z display_name jako ostatnia deska ratunku
+     */
+    private function extractCityFromDisplayName(string $displayName): ?string
+    {
+        // Podziel na części przez przecinki
+        $parts = array_map('trim', explode(',', $displayName));
+
+        // Usuń części które na pewno nie są miastami
+        $filteredParts = array_filter($parts, function($part) {
+            return $this->isValidCityName($part) &&
+                   !preg_match('/^(województwo|powiat|gmina|woj\.)/i', $part) &&
+                   strlen($part) > 2 &&
+                   strlen($part) < 50; // Nazwy miast nie powinny być bardzo długie
+        });
+
+        // Weź pierwszą sensowną część (często jest to miasto)
+        if (!empty($filteredParts)) {
+            $cityCandidate = reset($filteredParts);
+
+            // Dodatkowa walidacja - usuń prefiksy
+            $cityCandidate = preg_replace('/^(ul\.|al\.|pl\.|os\.)\s*/i', '', $cityCandidate);
+            $cityCandidate = trim($cityCandidate);
+
+            if ($this->isValidCityName($cityCandidate)) {
+                return $cityCandidate;
+            }
+        }
+
+        return null;
     }
 
     private function extractDistrict(array $address): string
@@ -405,43 +520,6 @@ class LocationSearchService
         });
     }
 
-    private function performReverseGeocode(float $lat, float $lon): ?array
-    {
-        try {
-            // Add delay to respect Nominatim usage policy
-            usleep(self::REQUEST_DELAY * 1000);
-
-            $response = Http::timeout(10)
-                ->withHeaders([
-                    'User-Agent' => 'PetHelp/1.0 (contact@pethelp.test)',
-                ])
-                ->get(self::NOMINATIM_BASE_URL.'/reverse', [
-                    'lat' => $lat,
-                    'lon' => $lon,
-                    'format' => 'json',
-                    'addressdetails' => 1,
-                    'zoom' => 18,
-                ]);
-
-            if ($response->successful()) {
-                $result = $response->json();
-                if (! empty($result)) {
-                    return $this->formatLocationResults([$result])[0] ?? null;
-                }
-            }
-
-            return null;
-
-        } catch (\Exception $e) {
-            Log::error('Reverse geocoding failed', [
-                'lat' => $lat,
-                'lon' => $lon,
-                'error' => $e->getMessage(),
-            ]);
-
-            return null;
-        }
-    }
 
     public function getCoordinates(string $query): ?array
     {
@@ -463,5 +541,242 @@ class LocationSearchService
                 'type' => $this->determineLocationType($result),
             ];
         });
+    }
+
+    // ===== NOWE METODY DLA LOKALNEGO NOMINATIM =====
+
+    /**
+     * Sprawdza czy lokalny Nominatim jest włączony.
+     *
+     * @return bool
+     */
+    private function isLocalNominatimEnabled(): bool
+    {
+        return config('app.nominatim_local_enabled', false) === true;
+    }
+
+    /**
+     * Sprawdza czy fallback do zewnętrznego API jest włączony.
+     *
+     * @return bool
+     */
+    private function isFallbackEnabled(): bool
+    {
+        return config('app.nominatim_fallback_enabled', true) === true;
+    }
+
+    /**
+     * Zwraca URL do Nominatim API (lokalny lub zewnętrzny).
+     *
+     * @return string
+     */
+    private function getNominatimUrl(): string
+    {
+        if ($this->isLocalNominatimEnabled()) {
+            return config('app.nominatim_local_url', 'http://localhost:8080');
+        }
+
+        return self::EXTERNAL_NOMINATIM_URL;
+    }
+
+    /**
+     * Zwraca TTL cache-u.
+     *
+     * @return int
+     */
+    private function getCacheTtl(): int
+    {
+        return config('app.nominatim_cache_ttl', self::CACHE_TTL);
+    }
+
+    /**
+     * Zwraca opóźnienie między requestami.
+     *
+     * @return int Opóźnienie w mikrosekundach
+     */
+    private function getRequestDelay(): int
+    {
+        if ($this->isLocalNominatimEnabled()) {
+            return config('app.nominatim_rate_limit_delay', self::LOCAL_REQUEST_DELAY) * 1000;
+        }
+
+        return self::REQUEST_DELAY * 1000;
+    }
+
+    /**
+     * Wyszukuje lokalizacje używając lokalnego Nominatim.
+     *
+     * @param string $query Zapytanie wyszukiwania
+     * @param int $limit Maksymalna liczba wyników
+     * @return array Lista znalezionych lokalizacji
+     * @throws \Exception
+     */
+    private function searchWithLocalNominatim(string $query, int $limit): array
+    {
+        $localUrl = config('app.nominatim_local_url', 'http://localhost:8080');
+
+        // Sprawdź czy lokalny Nominatim jest dostępny
+        if (!$this->isLocalNominatimHealthy()) {
+            throw new \Exception('Local Nominatim is not healthy');
+        }
+
+        // Dodaj opóźnienie (krótsze dla lokalnego)
+        usleep($this->getRequestDelay());
+
+        $response = Http::timeout(30) // Dłuższy timeout dla lokalnego
+            ->withHeaders([
+                'User-Agent' => 'PetHelp/1.0 (contact@pethelp.test)',
+            ])
+            ->get($localUrl . '/search', [
+                'q' => $query,
+                'format' => 'json',
+                'addressdetails' => 1,
+                'limit' => $limit,
+                'countrycodes' => 'pl', // Focus na Polskę
+                'dedupe' => 1,
+                'extratags' => 1,
+            ]);
+
+        if (!$response->successful()) {
+            throw new \Exception("Local Nominatim request failed: {$response->status()} - {$response->body()}");
+        }
+
+        return $this->formatLocationResults($response->json());
+    }
+
+    /**
+     * Wyszukuje lokalizacje używając zewnętrznego Nominatim.
+     *
+     * @param string $query Zapytanie wyszukiwania
+     * @param int $limit Maksymalna liczba wyników
+     * @return array Lista znalezionych lokalizacji
+     * @throws \Exception
+     */
+    private function searchWithExternalNominatim(string $query, int $limit): array
+    {
+        // Dodaj opóźnienie (zgodnie z polityką użytkowania)
+        usleep($this->getRequestDelay());
+
+        $response = Http::timeout(10)
+            ->withHeaders([
+                'User-Agent' => 'PetHelp/1.0 (contact@pethelp.test)',
+            ])
+            ->get(self::EXTERNAL_NOMINATIM_URL . '/search', [
+                'q' => $query,
+                'format' => 'json',
+                'addressdetails' => 1,
+                'limit' => $limit,
+                'countrycodes' => 'pl', // Focus na Polskę
+                'dedupe' => 1,
+                'extratags' => 1,
+            ]);
+
+        if (!$response->successful()) {
+            throw new \Exception("External Nominatim request failed: {$response->status()} - {$response->body()}");
+        }
+
+        return $this->formatLocationResults($response->json());
+    }
+
+    /**
+     * Sprawdza health lokalnego Nominatim.
+     *
+     * @return bool
+     */
+    private function isLocalNominatimHealthy(): bool
+    {
+        try {
+            $localUrl = config('app.nominatim_local_url', 'http://localhost:8080');
+
+            $response = Http::timeout(5)->get($localUrl . '/status');
+
+            return $response->successful();
+        } catch (\Exception $e) {
+            Log::debug('Local Nominatim health check failed', [
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
+    }
+
+    /**
+     * Usuwa duplikaty z wyników wyszukiwania.
+     *
+     * @param array $results Lista wyników
+     * @param int $limit Maksymalna liczba wyników
+     * @return array Unikalne wyniki
+     */
+    private function deduplicateResults(array $results, int $limit): array
+    {
+        $uniqueResults = [];
+        $seen = [];
+
+        foreach ($results as $result) {
+            $key = $result['lat'] . '_' . $result['lon'];
+            if (!isset($seen[$key])) {
+                $seen[$key] = true;
+                $uniqueResults[] = $result;
+                if (count($uniqueResults) >= $limit) {
+                    break;
+                }
+            }
+        }
+
+        return $uniqueResults;
+    }
+
+    /**
+     * Aktualizuje performReverseGeocode do obsługi lokalnego Nominatim.
+     *
+     * @param float $lat Szerokość geograficzna
+     * @param float $lon Długość geograficzna
+     * @return array|null Szczegóły lokalizacji
+     */
+    private function performReverseGeocode(float $lat, float $lon): ?array
+    {
+        try {
+            $nominatimUrl = $this->getNominatimUrl();
+
+            // Sprawdź czy lokalny Nominatim jest dostępny (jeśli jest włączony)
+            if ($this->isLocalNominatimEnabled() && !$this->isLocalNominatimHealthy()) {
+                if (!$this->isFallbackEnabled()) {
+                    return null;
+                }
+                $nominatimUrl = self::EXTERNAL_NOMINATIM_URL;
+            }
+
+            // Dodaj opóźnienie
+            usleep($this->getRequestDelay());
+
+            $response = Http::timeout(10)
+                ->withHeaders([
+                    'User-Agent' => 'PetHelp/1.0 (contact@pethelp.test)',
+                ])
+                ->get($nominatimUrl . '/reverse', [
+                    'lat' => $lat,
+                    'lon' => $lon,
+                    'format' => 'json',
+                    'addressdetails' => 1,
+                    'zoom' => 18,
+                ]);
+
+            if ($response->successful()) {
+                $result = $response->json();
+                if (!empty($result)) {
+                    return $this->formatLocationResults([$result])[0] ?? null;
+                }
+            }
+
+            return null;
+
+        } catch (\Exception $e) {
+            Log::error('Reverse geocoding failed', [
+                'lat' => $lat,
+                'lon' => $lon,
+                'error' => $e->getMessage(),
+            ]);
+
+            return null;
+        }
     }
 }

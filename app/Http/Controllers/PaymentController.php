@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Payment;
 use App\Models\SubscriptionPlan;
-use App\Services\PayUService;
+use App\Services\PayURestService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,24 +13,22 @@ use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
 {
-    protected $payuService;
+    protected PayURestService $payuService;
 
-    public function __construct()
+    public function __construct(PayURestService $payuService)
     {
-        // Wybierz serwis w zależności od konfiguracji API
-        $this->payuService = config('payu.api_type') === 'classic'
-            ? app(\App\Services\PayUClassicService::class)
-            : app(\App\Services\PayURestService::class); // Używamy REST API
+        $this->payuService = $payuService;
     }
 
     public function createSubscriptionPayment(Request $request, SubscriptionPlan $plan): JsonResponse|RedirectResponse
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Wymagane logowanie'], 401);
             }
+
             return redirect()->route('login');
         }
 
@@ -40,6 +38,7 @@ class PaymentController extends Controller
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Już posiadasz ten plan'], 400);
             }
+
             return redirect()->route('subscription.dashboard')
                 ->with('info', 'Już posiadasz ten plan subskrypcji.');
         }
@@ -68,16 +67,18 @@ class PaymentController extends Controller
         $signature = $request->header('OpenPayu-Signature');
         $body = $request->getContent();
 
-        if (!$signature || !$body) {
+        if (! $signature || ! $body) {
             Log::warning('PayU notification missing signature or body');
+
             return response()->json(['error' => 'Invalid request'], 400);
         }
 
         try {
             $data = json_decode($body, true);
 
-            if (!$data) {
+            if (! $data) {
                 Log::warning('PayU notification invalid JSON');
+
                 return response()->json(['error' => 'Invalid JSON'], 400);
             }
 
@@ -86,6 +87,7 @@ class PaymentController extends Controller
 
             if ($success) {
                 Log::info('PayU notification processed successfully', ['order_id' => $data['order']['orderId'] ?? null]);
+
                 return response()->json(['status' => 'OK']);
             }
 
@@ -93,6 +95,7 @@ class PaymentController extends Controller
 
         } catch (\Exception $e) {
             Log::error('PayU notification error', ['error' => $e->getMessage()]);
+
             return response()->json(['error' => 'Server error'], 500);
         }
     }
@@ -112,8 +115,8 @@ class PaymentController extends Controller
                 $this->payuService->handleNotification([
                     'order' => [
                         'orderId' => $orderId,
-                        'status' => 'COMPLETED'
-                    ]
+                        'status' => 'COMPLETED',
+                    ],
                 ]);
 
                 $payment->refresh();
@@ -176,7 +179,7 @@ class PaymentController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Plan podstawowy został aktywowany',
-                'subscription_id' => $subscription->id
+                'subscription_id' => $subscription->id,
             ]);
         }
 

@@ -34,27 +34,10 @@
         <input
             type="text"
             x-model="searchQuery"
-            @focus="setTimeout(() => {
-                const input = $event.target;
-                const length = input.value.length;
-                input.setSelectionRange(length, length);
-                if (suggestions.length > 0 && input.value.length >= 2) {
-                    showSuggestions = true;
-                }
-            }, 0)"
-            @click="setTimeout(() => {
-                const input = $event.target;
-                const length = input.value.length;
-                input.setSelectionRange(length, length);
-            }, 0)"
+            @focus="handleFocus"
+            @click="handleClick"
             @input="handleInputManual"
-            @keyup="setTimeout(() => {
-                const input = $event.target;
-                if (document.activeElement === input) {
-                    const length = input.value.length;
-                    input.setSelectionRange(length, length);
-                }
-            }, 0)"
+            @keyup="handleKeyup"
             @keydown.escape="closeSuggestions"
             @keydown.arrow-down.prevent="navigateDown"
             @keydown.arrow-up.prevent="navigateUp"
@@ -187,16 +170,19 @@ function addressSearch() {
             const forceCursorToEnd = () => {
                 const input = this.$refs.addressInput;
                 if (input && document.activeElement === input) {
-                    // Multiple attempts with different timings
-                    setTimeout(() => {
+                    // Multiple attempts for reliability using requestAnimationFrame
+                    requestAnimationFrame(() => {
                         const length = input.value.length;
                         input.setSelectionRange(length, length);
-                    }, 0);
+                    });
 
-                    setTimeout(() => {
-                        const length = input.value.length;
-                        input.setSelectionRange(length, length);
-                    }, 10);
+                    // Backup attempt
+                    requestAnimationFrame(() => {
+                        setTimeout(() => {
+                            const length = input.value.length;
+                            input.setSelectionRange(length, length);
+                        }, 10);
+                    });
 
                     this.$nextTick(() => {
                         const length = input.value.length;
@@ -223,6 +209,46 @@ function addressSearch() {
             });
         },
 
+        // ===== NOWE METODY OBSŁUGI EVENTÓW BEZ SETTIMEOUT =====
+
+        /**
+         * Obsługuje fokus na polu input - zastępuje setTimeout w @focus.
+         */
+        handleFocus(event) {
+            const input = event.target;
+            // Użyj requestAnimationFrame zamiast setTimeout
+            requestAnimationFrame(() => {
+                const length = input.value.length;
+                input.setSelectionRange(length, length);
+                if (this.suggestions.length > 0 && input.value.length >= 2) {
+                    this.showSuggestions = true;
+                }
+            });
+        },
+
+        /**
+         * Obsługuje klik na polu input - zastępuje setTimeout w @click.
+         */
+        handleClick(event) {
+            const input = event.target;
+            requestAnimationFrame(() => {
+                const length = input.value.length;
+                input.setSelectionRange(length, length);
+            });
+        },
+
+        /**
+         * Obsługuje keyup na polu input - zastępuje setTimeout w @keyup.
+         */
+        handleKeyup(event) {
+            const input = event.target;
+            if (document.activeElement === input) {
+                requestAnimationFrame(() => {
+                    const length = input.value.length;
+                    input.setSelectionRange(length, length);
+                });
+            }
+        },
 
         handleInputManual(event) {
             const currentValue = event.target.value;
@@ -236,13 +262,13 @@ function addressSearch() {
                 this.$wire.set(this.wireModelName, currentValue, false); // false = don't trigger updates
             }
 
-            // Force cursor to end IMMEDIATELY
-            setTimeout(() => {
+            // Force cursor to end IMMEDIATELY using requestAnimationFrame
+            requestAnimationFrame(() => {
                 if (document.activeElement === input) {
                     const length = input.value.length;
                     input.setSelectionRange(length, length);
                 }
-            }, 0);
+            });
 
             // Only trigger search if the value actually changed
             if (currentValue !== this.lastSearchQuery) {
@@ -260,11 +286,11 @@ function addressSearch() {
                 this.lastSearchQuery = currentValue;
                 this.searchQuery = currentValue; // Sync with Alpine
 
-                // Set cursor to end after typing - use multiple techniques for reliability
-                setTimeout(() => {
+                // Set cursor to end after typing - use requestAnimationFrame for reliability
+                requestAnimationFrame(() => {
                     const length = input.value.length;
                     input.setSelectionRange(length, length);
-                }, 0);
+                });
 
                 this.$nextTick(() => {
                     const length = input.value.length;

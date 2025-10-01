@@ -48,6 +48,9 @@ Thumbs.db
 *.temp
 nul
 
+# Backups
+/backup
+
 # Project Management - ProjeQtOr files
 PROJECT_EXPORT_PROJEQTOR.md
 PROJEQTOR_INTEGRATION_PLAN.md

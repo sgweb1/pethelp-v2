@@ -14,17 +14,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | PayU API Type
-    |--------------------------------------------------------------------------
-    |
-    | Choose between 'rest' (REST API) or 'classic' (Classic API)
-    | Classic API is simpler for basic implementations.
-    |
-    */
-    'api_type' => env('PAYU_API_TYPE', 'rest'),
-
-    /*
-    |--------------------------------------------------------------------------
     | PayU API Configuration
     |--------------------------------------------------------------------------
     |
@@ -52,29 +41,16 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | PayU Classic API URLs
-    |--------------------------------------------------------------------------
-    |
-    | Classic API endpoints (alternative to REST API).
-    |
-    */
-    'classic_api_url' => [
-        'sandbox' => 'https://secure.snd.payu.com/',
-        'secure' => 'https://secure.payu.com/',
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
     | PayU Notification Configuration
     |--------------------------------------------------------------------------
     |
     | Configuration for handling PayU notifications (IPN).
     |
     */
-    'notify_url' => env('APP_URL') . '/api/payu/notify',
-    'continue_url' => env('APP_URL') . '/subscription/payment/success',
-    'cancel_url' => env('APP_URL') . '/subscription/payment/cancel',
-    'error_url' => env('APP_URL') . '/subscription/payment/cancel',
+    'notify_url' => env('APP_URL').'/api/payu/notify',
+    'continue_url' => env('APP_URL').'/subscription/payment/success',
+    'cancel_url' => env('APP_URL').'/subscription/payment/cancel',
+    'error_url' => env('APP_URL').'/subscription/payment/cancel',
 
     /*
     |--------------------------------------------------------------------------

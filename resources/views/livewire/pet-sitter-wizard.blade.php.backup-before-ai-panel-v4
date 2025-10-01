@@ -1,0 +1,846 @@
+<div class="pet-sitter-wizard">
+{{-- Pet Sitter Registration Wizard - Airbnb Inspired Design --}}
+
+    @if(!$isActive)
+        {{-- Trigger Button (when wizard is not active) --}}
+        <div class="wizard-trigger-container">
+            {{-- Hero Section - Become Pet Sitter Call to Action --}}
+            <div class="bg-gradient-to-r from-emerald-500 via-teal-600 to-cyan-600 rounded-2xl p-8 text-white shadow-xl">
+                <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                        <div class="flex items-center mb-4">
+                            <div class="text-4xl mr-4">🐾</div>
+                            <div>
+                                <h2 class="text-2xl font-bold mb-2">Zostań Pet Sitterem!</h2>
+                                <p class="text-emerald-100 text-lg">Zarabiaj pomagając właścicielom zwierząt</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 mr-3 text-emerald-200" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="text-sm">Elastyczne godziny</span>
+                            </div>
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 mr-3 text-emerald-200" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="text-sm">Dodatkowy dochód</span>
+                            </div>
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 mr-3 text-emerald-200" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="text-sm">Praca z pupilami</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <button wire:click="activateWizard"
+                                    class="inline-flex items-center px-8 py-4 bg-white text-emerald-600 font-semibold rounded-xl hover:bg-emerald-50 transform hover:scale-105 transition-all duration-200 shadow-lg">
+                                <span class="mr-2">Rozpocznij rejestrację</span>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                                </svg>
+                            </button>
+                            <p class="text-emerald-100 text-sm">Tylko 5-10 minut • Bezpłatna rejestracja</p>
+                        </div>
+                    </div>
+
+                    <div class="hidden md:block">
+                        <div class="text-6xl opacity-20">🐕‍🦺</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Global Loading States for activation --}}
+        <div wire:loading.flex wire:target="activateWizard"
+             class="fixed inset-0 z-50 items-center justify-center bg-white bg-opacity-75 backdrop-blur-sm">
+            <div class="text-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+                <p class="text-gray-600">Ładowanie...</p>
+            </div>
+        </div>
+    @else
+        {{-- Fullscreen Wizard Container V4 --}}
+        <div class="fixed inset-0 z-50 bg-gray-50"
+             x-data="petSitterWizard()"
+             x-init="init()"
+             @ai-debug.window="console.log('🧪 AI Debug:', $event.detail); alert('AI Debug: ' + $event.detail)"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0">
+
+            {{-- Fixed Top Progress Bar --}}
+            <div class="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
+                <div class="max-w-7xl mx-auto px-4 py-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center space-x-4">
+                            <button wire:click="deactivateWizard"
+                                    class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors duration-200 rounded-full hover:bg-gray-100">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                            <span class="text-sm font-medium text-gray-700">
+                                Krok {{ $currentStep }} z {{ $maxSteps }}
+                            </span>
+                        </div>
+                        <span class="text-sm font-medium text-emerald-600">{{ $progressPercentage }}%</span>
+                    </div>
+                    <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 transition-all duration-500 ease-out"
+                             style="width: {{ $progressPercentage }}%"></div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Floating AI Panel Toggle Button --}}
+            <button @click="$wire.showAIPanel = !$wire.showAIPanel"
+                    class="fixed bottom-24 right-4 w-14 h-14 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-full shadow-xl z-40 flex items-center justify-center hover:scale-110 transition-transform"
+                    :class="$wire.showAIPanel ? 'bg-red-500' : ''">
+                <span class="text-2xl" x-text="$wire.showAIPanel ? '✕' : '🤖'"></span>
+            </button>
+
+            {{-- Main Content Area V4 --}}
+            <div class="pt-24 pb-32 overflow-y-auto" style="height: calc(100vh - 88px - 72px);">
+                <main>
+                    {{-- Step-by-step content --}}
+                    @include('livewire.pet-sitter-wizard.steps.step-' . (int)$currentStep)
+                </main>
+            </div>
+
+
+                    {{-- Universal AI Slide-out Panel (Desktop & Mobile) - dla kroków 1, 2, 5, 6, 9 i 10 --}}
+                    <div x-show="$wire.showAIPanel && ($wire.currentStep <= 2 || $wire.currentStep == 5 || $wire.currentStep == 6 || $wire.currentStep == 9 || $wire.currentStep == 10)"
+                         x-transition:enter="transition ease-out duration-300"
+                         x-transition:enter-start="opacity-0 transform translate-x-full"
+                         x-transition:enter-end="opacity-100 transform translate-x-0"
+                         x-transition:leave="transition ease-in duration-200"
+                         x-transition:leave-start="opacity-100 transform translate-x-0"
+                         x-transition:leave-end="opacity-0 transform translate-x-full"
+                         class="fixed top-0 right-0 bottom-0 w-80 bg-gradient-to-b from-gray-50 to-purple-50 shadow-2xl z-30 overflow-y-auto border-l border-gray-200">
+
+                        {{-- Panel Header --}}
+                        <div class="flex items-center justify-between p-4 border-b border-gray-200">
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mr-3">
+                                    <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                <h4 class="text-sm font-medium text-gray-900">AI Assistant & Wskazówki</h4>
+                            </div>
+                            <button @click="$wire.showAIPanel = false"
+                                    class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors duration-200 rounded-full hover:bg-gray-100">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        {{-- Panel Content --}}
+                        <div class="p-4 space-y-4"
+                             x-data="{
+                                 locationData: {},
+                                 refreshLocationData() {
+                                     if (window.WizardState) {
+                                         const populationText = window.WizardState.get('location.populationText');
+                                         const businessMetricsFormatted = window.WizardState.get('location.businessMetricsFormatted');
+                                         const estimationNotes = window.WizardState.get('location.estimationNotes');
+
+                                         // console.log('🔍 Debug WizardState data:', {
+                                         //     populationText,
+                                         //     businessMetricsFormatted,
+                                         //     estimationNotes
+                                         // });
+
+                                         this.locationData = {
+                                             populationText: populationText || 'Obliczanie...',
+                                             businessMetricsFormatted: businessMetricsFormatted || {},
+                                             estimationNotes: estimationNotes || 'Estymacja fallback oparta na statystykach GUS'
+                                         };
+                                     }
+                                 }
+                             }"
+                             x-init="refreshLocationData(); setInterval(() => refreshLocationData(), 1000)">
+                            {{-- Krok 5 i 7 - Specjalna zawartość dla lokalizacji --}}
+                            @if($currentStep == 5 || $currentStep == 7)
+                                {{-- Location Analytics Card --}}
+                                <div class="bg-white rounded-lg p-4 shadow-sm border border-emerald-200">
+                                    <div class="mb-4">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <h5 class="text-xs font-medium text-gray-800 flex items-center">
+                                                <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-2"></span>
+                                                📍 Analiza lokalizacji
+                                            </h5>
+                                            <button
+                                                @click="
+                                                    console.log('🔄 Refresh button clicked in step:', $wire.currentStep);
+                                                    if (window.wizardStep5) {
+                                                        console.log('🔄 Calling wizardStep5.manualRefreshEstimation()');
+                                                        window.wizardStep5.manualRefreshEstimation();
+                                                    } else {
+                                                        console.warn('⚠️ wizardStep5 not available, attempting fallback');
+                                                        // Fallback - try to trigger estimation directly
+                                                        if (window.WizardState) {
+                                                            const lat = window.WizardState.get('location.latitude') || 52.2297;
+                                                            const lng = window.WizardState.get('location.longitude') || 21.0122;
+                                                            const radius = window.WizardState.get('location.serviceRadius') || 10;
+                                                            console.log('🔄 Fallback estimation with coords:', {lat, lng, radius});
+
+                                                            // Immediate population estimation fallback
+                                                            const areaKm2 = Math.PI * Math.pow(radius, 2);
+                                                            const densityPerKm2 = 1200;
+                                                            const estimatedPopulation = Math.round(areaKm2 * densityPerKm2);
+                                                            const averageHouseholdSize = 2.3;
+                                                            const petOwnershipRate = 0.38;
+                                                            const households = Math.round(estimatedPopulation / averageHouseholdSize);
+                                                            const petOwningHouseholds = Math.round(households * petOwnershipRate);
+                                                            const potentialClients = Math.round(petOwningHouseholds * 0.15);
+
+                                                            // Update WizardState directly
+                                                            window.WizardState.update('location.populationText', estimatedPopulation >= 1000 ? (estimatedPopulation / 1000).toFixed(1) + 'k osób' : estimatedPopulation + ' osób');
+                                                            window.WizardState.update('location.businessMetricsFormatted', {
+                                                                households: households.toLocaleString('pl-PL'),
+                                                                petOwningHouseholds: petOwningHouseholds.toLocaleString('pl-PL'),
+                                                                potentialClients: potentialClients.toLocaleString('pl-PL')
+                                                            });
+                                                            window.WizardState.update('location.estimationNotes', 'Estymacja fallback oparta na statystykach GUS');
+                                                            console.log('✅ Fallback estimation completed');
+                                                        }
+                                                    }
+                                                "
+                                                class="p-1 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 rounded-full transition-colors duration-200"
+                                                title="Odśwież analizę lokalizacji">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <div id="sidebar-population-stats" class="space-y-2 text-xs text-gray-600">
+                                            <div class="flex items-center justify-between p-2 bg-emerald-50 rounded">
+                                                <span>👥 Populacja:</span>
+                                                <span class="font-medium" x-text="locationData.populationText || 'Obliczanie...'"></span>
+                                            </div>
+                                            <div class="flex items-center justify-between p-2 bg-blue-50 rounded">
+                                                <span>🏠 Gospodarstwa:</span>
+                                                <span class="font-medium" x-text="locationData.businessMetricsFormatted?.households || '-'"></span>
+                                            </div>
+                                            <div class="flex items-center justify-between p-2 bg-yellow-50 rounded">
+                                                <span>🐕 Z zwierzętami:</span>
+                                                <span class="font-medium" x-text="locationData.businessMetricsFormatted?.petOwningHouseholds || '-'"></span>
+                                            </div>
+                                            <div class="flex items-center justify-between p-2 bg-purple-50 rounded">
+                                                <span>🎯 Potencjalni klienci:</span>
+                                                <span class="font-medium" x-text="locationData.businessMetricsFormatted?.potentialClients || '-'"></span>
+                                            </div>
+                                        </div>
+
+                                        {{-- Notes section --}}
+                                        <div class="mt-3 pt-2 border-t border-emerald-100">
+                                            <p class="text-xs text-gray-500 italic" x-text="locationData.estimationNotes || 'Estymacja fallback oparta na statystykach GUS'"></p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Location Tips Card --}}
+                                <div class="bg-white rounded-lg p-4 shadow-sm border border-blue-200">
+                                    <div class="mb-4">
+                                        <h5 class="text-xs font-medium text-gray-800 mb-2 flex items-center">
+                                            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></span>
+                                            💡 Wskazówki dotyczące lokalizacji
+                                        </h5>
+                                        <ul class="space-y-1 text-xs text-gray-600">
+                                            <li class="flex items-start">
+                                                <span class="text-blue-400 mr-2">•</span>
+                                                Wprowadź dokładny adres - klienci będą mogli Cię łatwiej znaleźć
+                                            </li>
+                                            <li class="flex items-start">
+                                                <span class="text-blue-400 mr-2">•</span>
+                                                Promień 10-15 km to optymalna odległość dla większości usług
+                                            </li>
+                                            <li class="flex items-start">
+                                                <span class="text-blue-400 mr-2">•</span>
+                                                Większy promień = więcej klientów, ale dłuższe dojazdy
+                                            </li>
+                                            <li class="flex items-start">
+                                                <span class="text-blue-400 mr-2">•</span>
+                                                Sprawdź na mapie czy obszar obejmuje parki i dzielnice mieszkalne
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                {{-- Business Insights Card --}}
+                                <div class="bg-white rounded-lg p-4 shadow-sm border border-green-200">
+                                    <div class="mb-4">
+                                        <h5 class="text-xs font-medium text-gray-800 mb-2 flex items-center">
+                                            <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></span>
+                                            📊 Insights biznesowe
+                                        </h5>
+                                        <ul class="space-y-1 text-xs text-gray-600">
+                                            <li class="flex items-start">
+                                                <span class="text-green-400 mr-2">•</span>
+                                                Centrum miasta: wysokie ceny, więcej konkurencji
+                                            </li>
+                                            <li class="flex items-start">
+                                                <span class="text-green-400 mr-2">•</span>
+                                                Przedmieścia: stabilni klienci, mniejsza konkurencja
+                                            </li>
+                                            <li class="flex items-start">
+                                                <span class="text-green-400 mr-2">•</span>
+                                                Osiedla mieszkaniowe: najlepszy stosunek klientów do konkurencji
+                                            </li>
+                                            <li class="flex items-start">
+                                                <span class="text-green-400 mr-2">•</span>
+                                                Bliskość parków zwiększa zapotrzebowanie na wyprowadzanie
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            @elseif($currentStep <= 2)
+                                {{-- Combined AI Assistant & Tips Card for steps 1 and 2 --}}
+                                <div class="bg-white rounded-lg p-4 shadow-sm border border-purple-200">
+                                {{-- Podstawowe informacje --}}
+                                <div class="mb-4">
+                                    <h5 class="text-xs font-medium text-gray-800 mb-2 flex items-center">
+                                        <span class="w-1.5 h-1.5 bg-purple-500 rounded-full mr-2"></span>
+                                        Podstawowe informacje
+                                    </h5>
+                                    <ul class="space-y-1 text-xs text-gray-600">
+                                        <li class="flex items-start">
+                                            <span class="text-purple-400 mr-2">•</span>
+                                            Użyj prawdziwego imienia - buduje zaufanie klientów
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-purple-400 mr-2">•</span>
+                                            Dodaj krótkie, przyjazne przedstawienie się
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-purple-400 mr-2">•</span>
+                                            Unikaj pseudonimów - klienci preferują prawdziwe osoby
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                {{-- AI Suggestions --}}
+                                @if(!empty($aiSuggestions['items']))
+                                    <div class="mb-4">
+                                        <h5 class="text-xs font-medium text-gray-800 mb-2 flex items-center">
+                                            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></span>
+                                            {{ $aiSuggestions['title'] ?? 'Sugestie AI' }}
+                                        </h5>
+                                        <ul class="space-y-1">
+                                            @foreach($aiSuggestions['items'] as $suggestion)
+                                                <li class="flex items-start">
+                                                    <span class="text-blue-400 mr-2 text-xs">•</span>
+                                                    <span class="text-xs text-gray-600">{{ is_string($suggestion) ? $suggestion : (is_array($suggestion) ? implode(', ', $suggestion) : 'Sugestia niedostępna') }}</span>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @endif
+
+                                {{-- Ogólne wskazówki --}}
+                                <div class="mb-4">
+                                    <h5 class="text-xs font-medium text-gray-800 mb-2 flex items-center">
+                                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></span>
+                                        💡 Ogólne wskazówki
+                                    </h5>
+                                    <ul class="space-y-1 text-xs text-gray-600">
+                                        <li class="flex items-start">
+                                            <span class="text-green-400 mr-2">•</span>
+                                            Bądź szczery i autentyczny
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-green-400 mr-2">•</span>
+                                            Podkreśl swoje doświadczenie
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-green-400 mr-2">•</span>
+                                            Wspomnij o swojej motywacji
+                                        </li>
+                                    </ul>
+                                </div>
+                            @endif
+
+                                {{-- Step-specific hints dla kroku 1 --}}
+                                @if($currentStep == 1)
+                                    <div class="mb-4">
+                                        <h5 class="text-xs font-medium text-gray-800 mb-2 flex items-center">
+                                            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-2"></span>
+                                            📝 Krok 1 - Motywacja
+                                        </h5>
+                                        <ul class="space-y-1 text-xs text-gray-600">
+                                            <li class="flex items-start">
+                                                <span class="text-emerald-400 mr-2">•</span>
+                                                Napisz minimum 50 znaków
+                                            </li>
+                                            <li class="flex items-start">
+                                                <span class="text-emerald-400 mr-2">•</span>
+                                                Używaj pierwszej osoby
+                                            </li>
+                                            <li class="flex items-start">
+                                                <span class="text-emerald-400 mr-2">•</span>
+                                                Skorzystaj z AI Assistant
+                                            </li>
+                                            <li class="flex items-start">
+                                                <span class="text-emerald-400 mr-2">•</span>
+                                                Opisz swoją pasję do zwierząt
+                                            </li>
+                                        </ul>
+                                    </div>
+                                @endif
+
+                                {{-- Step-specific hints dla kroku 2 --}}
+                                @if($currentStep == 2)
+                                    <div class="mb-4">
+                                        <h5 class="text-xs font-medium text-gray-800 mb-2 flex items-center">
+                                            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></span>
+                                            🐕‍🦺 Krok 2 - Doświadczenie z zwierzętami
+                                        </h5>
+                                        <ul class="space-y-1 text-xs text-gray-600">
+                                            <li class="flex items-start">
+                                                <span class="text-blue-400 mr-2">•</span>
+                                                Wybierz wszystkie pasujące rodzaje doświadczenia
+                                            </li>
+                                            <li class="flex items-start">
+                                                <span class="text-blue-400 mr-2">•</span>
+                                                Podaj realną liczbę lat praktyki
+                                            </li>
+                                            <li class="flex items-start">
+                                                <span class="text-blue-400 mr-2">•</span>
+                                                Opisz szczegółowo swoje doświadczenie (min. 100 znaków)
+                                            </li>
+                                            <li class="flex items-start">
+                                                <span class="text-blue-400 mr-2">•</span>
+                                                Wspomnieć o konkretnych umiejętnościach i sytuacjach
+                                            </li>
+                                            <li class="flex items-start">
+                                                <span class="text-blue-400 mr-2">•</span>
+                                                Dodaj certyfikaty lub kursy jeśli masz
+                                            </li>
+                                            <li class="flex items-start">
+                                                <span class="text-blue-400 mr-2">•</span>
+                                                Używaj AI Assistant do poprawy tekstu
+                                            </li>
+                                        </ul>
+                                    </div>
+                                @endif
+
+                                {{-- Step-specific hints dla kroku 6 --}}
+                                @if($currentStep == 6)
+                                    <div class="mb-4">
+                                        <h5 class="text-xs font-medium text-gray-800 mb-3 flex items-center">
+                                            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-2"></span>
+                                            🚀 Szybka konfiguracja dostępności
+                                        </h5>
+                                        <div class="space-y-2">
+                                            <button
+                                                onclick="window.setWeekdaysOnly && window.setWeekdaysOnly()"
+                                                class="w-full px-3 py-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-blue-800 text-xs font-medium transition-colors duration-200 flex items-center justify-center">
+                                                <span class="mr-2">📅</span>
+                                                Dni robocze (Pn-Pt, 9-17)
+                                            </button>
+                                            <button
+                                                onclick="window.setFullWeek && window.setFullWeek()"
+                                                class="w-full px-3 py-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-blue-800 text-xs font-medium transition-colors duration-200 flex items-center justify-center">
+                                                <span class="mr-2">🗓️</span>
+                                                Cały tydzień (9-17)
+                                            </button>
+                                            <button
+                                                onclick="window.setWeekendsOnly && window.setWeekendsOnly()"
+                                                class="w-full px-3 py-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-blue-800 text-xs font-medium transition-colors duration-200 flex items-center justify-center">
+                                                <span class="mr-2">🎉</span>
+                                                Tylko weekendy (10-16)
+                                            </button>
+                                            <button
+                                                onclick="window.setFlexibleSchedule && window.setFlexibleSchedule()"
+                                                class="w-full px-3 py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg text-emerald-800 text-xs font-medium transition-colors duration-200 flex items-center justify-center">
+                                                <span class="mr-2">⏰</span>
+                                                Elastyczny harmonogram
+                                            </button>
+                                        </div>
+                                        <ul class="space-y-1 text-xs text-gray-600 mt-3">
+                                            <li class="flex items-start">
+                                                <span class="text-emerald-400 mr-2">•</span>
+                                                Wybierz szablon lub ustaw własny harmonogram
+                                            </li>
+                                            <li class="flex items-start">
+                                                <span class="text-emerald-400 mr-2">•</span>
+                                                Elastyczny harmonogram zwiększa szanse na zlecenia
+                                            </li>
+                                            <li class="flex items-start">
+                                                <span class="text-emerald-400 mr-2">•</span>
+                                                Możesz zawsze zmienić dostępność w profilu
+                                            </li>
+                                        </ul>
+                                    </div>
+                                @endif
+
+                                {{-- Step-specific hints dla kroku 9 - Weryfikacja --}}
+                                @if($currentStep == 9)
+                                    <div class="mb-4">
+                                        <h5 class="text-xs font-medium text-gray-800 mb-3 flex items-center">
+                                            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></span>
+                                            🛡️ Proces weryfikacji
+                                        </h5>
+                                        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-3 mb-3">
+                                            <div class="flex items-center gap-2 mb-2">
+                                                <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                                                    <span class="text-white text-xs">📄</span>
+                                                </div>
+                                                <span class="text-xs font-semibold text-gray-800">Dokument tożsamości</span>
+                                            </div>
+                                            <ul class="space-y-1 text-xs text-gray-600">
+                                                <li class="flex items-start">
+                                                    <span class="text-blue-400 mr-2">•</span>
+                                                    Możesz zasłonić numer PESEL na dokumencie
+                                                </li>
+                                                <li class="flex items-start">
+                                                    <span class="text-blue-400 mr-2">•</span>
+                                                    Akceptujemy dowód osobisty lub paszport
+                                                </li>
+                                                <li class="flex items-start">
+                                                    <span class="text-blue-400 mr-2">•</span>
+                                                    Dokument musi być ważny i czytelny
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                        <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-3 mb-3">
+                                            <div class="flex items-center gap-2 mb-2">
+                                                <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                                                    <span class="text-white text-xs">✓</span>
+                                                </div>
+                                                <span class="text-xs font-semibold text-gray-800">Oświadczenie o niekaralności</span>
+                                            </div>
+                                            <ul class="space-y-1 text-xs text-gray-600">
+                                                <li class="flex items-start">
+                                                    <span class="text-green-400 mr-2">•</span>
+                                                    Wystarczy zaznaczyć checkbox - nie potrzebujemy dokumentu
+                                                </li>
+                                                <li class="flex items-start">
+                                                    <span class="text-green-400 mr-2">•</span>
+                                                    To opcjonalne, ale znacznie zwiększa zaufanie
+                                                </li>
+                                                <li class="flex items-start">
+                                                    <span class="text-green-400 mr-2">•</span>
+                                                    Oświadczenie jest prawnie wiążące
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                        <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-3">
+                                            <div class="flex items-center gap-2 mb-2">
+                                                <div class="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
+                                                    <span class="text-white text-xs">👥</span>
+                                                </div>
+                                                <span class="text-xs font-semibold text-gray-800">Referencje</span>
+                                            </div>
+                                            <ul class="space-y-1 text-xs text-gray-600">
+                                                <li class="flex items-start">
+                                                    <span class="text-purple-400 mr-2">•</span>
+                                                    Dodaj osoby, które mogą potwierdzić Twoje doświadczenie
+                                                </li>
+                                                <li class="flex items-start">
+                                                    <span class="text-purple-400 mr-2">•</span>
+                                                    Mogą to być poprzedni klienci lub znajomi
+                                                </li>
+                                                <li class="flex items-start">
+                                                    <span class="text-purple-400 mr-2">•</span>
+                                                    Maksymalnie 3 referencje
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <h5 class="text-xs font-medium text-gray-800 mb-2 flex items-center">
+                                            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-2"></span>
+                                            ⭐ Korzyści z weryfikacji
+                                        </h5>
+                                        <div class="space-y-2">
+                                            <div class="flex items-center gap-2 bg-emerald-50 rounded-lg p-2">
+                                                <span class="text-lg">📈</span>
+                                                <span class="text-xs text-gray-700"><strong>+200%</strong> więcej zapytań</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 bg-blue-50 rounded-lg p-2">
+                                                <span class="text-lg">🤝</span>
+                                                <span class="text-xs text-gray-700">Buduje <strong>zaufanie</strong></span>
+                                            </div>
+                                            <div class="flex items-center gap-2 bg-purple-50 rounded-lg p-2">
+                                                <span class="text-lg">✨</span>
+                                                <span class="text-xs text-gray-700">Specjalna <strong>odznaka</strong></span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-lg p-3 border border-yellow-200">
+                                        <div class="flex items-start gap-2">
+                                            <span class="text-lg">⏱️</span>
+                                            <div>
+                                                <p class="text-xs font-semibold text-gray-800 mb-1">Czas weryfikacji</p>
+                                                <p class="text-xs text-gray-600">Zazwyczaj <strong>24-48 godzin</strong> od momentu przesłania dokumentów</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Twoje dokumenty - podsumowanie --}}
+                                    <div class="mb-4"
+                                         x-data="{
+                                             hasIdentityDocument: false,
+                                             hasCriminalRecordDeclaration: false,
+                                             referencesCount: 0,
+                                             hasReferences: false,
+                                             hasAnyDocuments: false,
+                                             refreshDocuments() {
+                                                 if (window.WizardState) {
+                                                     this.hasIdentityDocument = !!window.WizardState.get('verification.identityDocument');
+                                                     this.hasCriminalRecordDeclaration = window.WizardState.get('verification.hasCriminalRecordDeclaration') || false;
+                                                     const references = window.WizardState.get('verification.references') || [];
+                                                     this.referencesCount = references.length;
+                                                     this.hasReferences = this.referencesCount > 0;
+                                                     this.hasAnyDocuments = this.hasIdentityDocument || this.hasCriminalRecordDeclaration || this.hasReferences;
+                                                 }
+                                             }
+                                         }"
+                                         x-init="refreshDocuments(); setInterval(() => refreshDocuments(), 1000)"
+                                         x-show="hasAnyDocuments"
+                                         x-transition:enter="transition ease-out duration-300"
+                                         x-transition:enter-start="opacity-0 transform scale-95"
+                                         x-transition:enter-end="opacity-100 transform scale-100">
+                                        <h5 class="text-xs font-medium text-gray-800 mb-2 flex items-center">
+                                            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-2"></span>
+                                            ✅ Twoje dokumenty
+                                        </h5>
+                                        <div class="bg-gradient-to-br from-emerald-50 to-green-50 rounded-lg p-3 border border-emerald-200">
+                                            <div class="space-y-2">
+                                                <div x-show="hasIdentityDocument" class="flex items-center gap-2 text-xs text-emerald-800">
+                                                    <span class="text-emerald-600">✓</span>
+                                                    <span>Dowód osobisty przesłany</span>
+                                                </div>
+                                                <div x-show="hasCriminalRecordDeclaration" class="flex items-center gap-2 text-xs text-emerald-800">
+                                                    <span class="text-emerald-600">✓</span>
+                                                    <span>Oświadczenie o niekaralności złożone</span>
+                                                </div>
+                                                <div x-show="hasReferences" class="flex items-center gap-2 text-xs text-emerald-800">
+                                                    <span class="text-emerald-600">✓</span>
+                                                    <span x-text="`${referencesCount} ${referencesCount === 1 ? 'referencja' : referencesCount < 5 ? 'referencje' : 'referencji'}`"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+
+                                {{-- Step-specific hints dla kroku 10 - Cennik --}}
+                                @if($currentStep == 10)
+                                    <div class="mb-4">
+                                        <h5 class="text-xs font-medium text-gray-800 mb-3 flex items-center">
+                                            <span class="w-1.5 h-1.5 bg-purple-500 rounded-full mr-2"></span>
+                                            💰 Strategie cenowe
+                                        </h5>
+                                        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-3 mb-3">
+                                            <div class="flex items-center gap-2 mb-2">
+                                                <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                                                    <span class="text-white text-xs">💎</span>
+                                                </div>
+                                                <span class="text-xs font-semibold text-gray-800">Premium</span>
+                                            </div>
+                                            <ul class="space-y-1 text-xs text-gray-600">
+                                                <li class="flex items-start">
+                                                    <span class="text-blue-400 mr-2">•</span>
+                                                    Dla doświadczonych opiekunów z certyfikatami
+                                                </li>
+                                                <li class="flex items-start">
+                                                    <span class="text-blue-400 mr-2">•</span>
+                                                    Wyższe ceny = mniej klientów, ale wyższy zarobek
+                                                </li>
+                                                <li class="flex items-start">
+                                                    <span class="text-blue-400 mr-2">•</span>
+                                                    Idealne dla dużych miast
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                        <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-3 mb-3">
+                                            <div class="flex items-center gap-2 mb-2">
+                                                <div class="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
+                                                    <span class="text-white text-xs">🎯</span>
+                                                </div>
+                                                <span class="text-xs font-semibold text-gray-800">Konkurencyjna</span>
+                                            </div>
+                                            <ul class="space-y-1 text-xs text-gray-600">
+                                                <li class="flex items-start">
+                                                    <span class="text-purple-400 mr-2">•</span>
+                                                    Najbardziej popularna - zalecana na start
+                                                </li>
+                                                <li class="flex items-start">
+                                                    <span class="text-purple-400 mr-2">•</span>
+                                                    Ceny na poziomie rynkowym
+                                                </li>
+                                                <li class="flex items-start">
+                                                    <span class="text-purple-400 mr-2">•</span>
+                                                    Najlepszy stosunek klientów do zarobku
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                        <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-3">
+                                            <div class="flex items-center gap-2 mb-2">
+                                                <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                                                    <span class="text-white text-xs">🌱</span>
+                                                </div>
+                                                <span class="text-xs font-semibold text-gray-800">Budżetowa</span>
+                                            </div>
+                                            <ul class="space-y-1 text-xs text-gray-600">
+                                                <li class="flex items-start">
+                                                    <span class="text-green-400 mr-2">•</span>
+                                                    Niższe ceny = więcej klientów na start
+                                                </li>
+                                                <li class="flex items-start">
+                                                    <span class="text-green-400 mr-2">•</span>
+                                                    Idealne do budowania reputacji
+                                                </li>
+                                                <li class="flex items-start">
+                                                    <span class="text-green-400 mr-2">•</span>
+                                                    Możesz podnieść ceny gdy zbierzesz opinie
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <h5 class="text-xs font-medium text-gray-800 mb-2 flex items-center">
+                                            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-2"></span>
+                                            💡 Wskazówki cenowe
+                                        </h5>
+                                        <div class="space-y-2">
+                                            <div class="flex items-start gap-2 bg-yellow-50 rounded-lg p-2 border border-yellow-200">
+                                                <span class="text-lg">📊</span>
+                                                <div>
+                                                    <p class="text-xs font-semibold text-gray-800">Analiza konkurencji</p>
+                                                    <p class="text-xs text-gray-600">Sprawdź ceny innych opiekunów w Twojej okolicy</p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-start gap-2 bg-blue-50 rounded-lg p-2 border border-blue-200">
+                                                <span class="text-lg">⏰</span>
+                                                <div>
+                                                    <p class="text-xs font-semibold text-gray-800">Uwzględnij czas dojazdu</p>
+                                                    <p class="text-xs text-gray-600">Możesz zwiększyć ceny dla dalszych lokalizacji</p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-start gap-2 bg-purple-50 rounded-lg p-2 border border-purple-200">
+                                                <span class="text-lg">🎁</span>
+                                                <div>
+                                                    <p class="text-xs font-semibold text-gray-800">Pakiety rabatowe</p>
+                                                    <p class="text-xs text-gray-600">Zaproponuj niższe ceny przy regularnej współpracy</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-gradient-to-br from-orange-50 to-red-50 rounded-lg p-3 border border-orange-200">
+                                        <div class="flex items-start gap-2">
+                                            <span class="text-lg">⚠️</span>
+                                            <div>
+                                                <p class="text-xs font-semibold text-gray-800 mb-1">Ważne!</p>
+                                                <p class="text-xs text-gray-600">Możesz <strong>zawsze zmienić ceny</strong> w swoim profilu. Nie musisz teraz ustawiać idealnych stawek.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+                        </div>
+                    </div>
+
+                    {{-- Fixed Bottom Footer Navigation --}}
+                    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40">
+                        <div class="max-w-2xl mx-auto px-4 py-4">
+                            <div class="flex items-center justify-between space-x-3">
+                            {{-- Back Button (if not first step) --}}
+                            @if($currentStep > 1)
+                                <button wire:click="previousStep"
+                                        @click="animateButtonClick($el)"
+                                        :disabled="isTransitioning"
+                                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                    </svg>
+                                    <span wire:loading.remove wire:target="previousStep">Wstecz</span>
+                                    <span wire:loading wire:target="previousStep" class="flex items-center">
+                                        Ładowanie...
+                                    </span>
+                                </button>
+                            @endif
+
+                            {{-- Main Action Button - Airbnb Style --}}
+                            @if($currentStep < $maxSteps)
+                                {{-- Next Button --}}
+                                <button wire:click="nextStep"
+                                        @click="animateButtonClick($el)"
+                                        :disabled="isTransitioning"
+                                        :class="{'opacity-75 cursor-not-allowed': isTransitioning}"
+                                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-lg hover:from-emerald-700 hover:to-emerald-800 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <span wire:loading.remove wire:target="nextStep">
+                                        Dalej
+                                    </span>
+                                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                <span wire:loading wire:target="nextStep" class="flex items-center">
+                                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    @if($isValidating)
+                                        Sprawdzanie...
+                                    @elseif($isSaving)
+                                        Zapisywanie...
+                                    @else
+                                        Dalej
+                                    @endif
+                                </span>
+                            </button>
+                        @else
+                            {{-- Complete Button --}}
+                            <button wire:click="completeSitterRegistration"
+                                    @click="animateButtonClick($el)"
+                                    class="w-full h-12 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg">
+                                <span wire:loading.remove wire:target="completeSitterRegistration" class="flex items-center justify-center">
+                                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Zakończ rejestrację
+                                </span>
+                                <span wire:loading wire:target="completeSitterRegistration" class="flex items-center justify-center">
+                                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Finalizowanie...
+                                </span>
+                            </button>
+                        @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Loading States - Tylko dla określonych akcji --}}
+                    <div wire:loading.flex
+                         wire:target="nextStep,previousStep,completeSitterRegistration,editMotivationWithAI,editExperienceWithAI,generateMotivationSuggestion,generateExperienceSuggestion,deactivateWizard"
+                         class="fixed inset-0 z-50 items-center justify-center bg-white bg-opacity-75 backdrop-blur-sm">
+                        <div class="text-center">
+                            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+                            <p class="text-gray-600">Przetwarzanie...</p>
+                        </div>
+                    </div>
+        </div>
+    @endif
+</div>

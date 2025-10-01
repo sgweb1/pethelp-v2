@@ -1,0 +1,57 @@
+{
+  "title": "Wybór usług",
+  "description": "Wybierz usługi, które chcesz oferować jako opiekun zwierząt",
+  "suggestions": [
+    "Zacznij od 2-3 usług, które znasz najlepiej",
+    "Spacery z psami to najpopularniejsza usługa - 85% klientów jej szuka",
+    "Kombinacja usług dziennych i nocnych zwiększa zarobki średnio o 40%",
+    "Usługi weekendowe są o 20% lepiej płatne"
+  ],
+  "popular_services": [
+    {
+      "name": "dog_walking",
+      "label": "Wyprowadzanie psów",
+      "demand": "bardzo wysokie",
+      "difficulty": "łatwe",
+      "avg_price": "25-35 zł/h"
+    },
+    {
+      "name": "pet_sitting",
+      "label": "Opieka dzienna",
+      "demand": "wysokie",
+      "difficulty": "średnie",
+      "avg_price": "40-60 zł/dzień"
+    },
+    {
+      "name": "overnight_care",
+      "label": "Opieka nocna",
+      "demand": "średnie",
+      "difficulty": "średnie",
+      "avg_price": "80-120 zł/noc"
+    }
+  ],
+  "tips": [
+    {
+      "type": "success",
+      "content": "Oferta 3+ usług zwiększa szanse na rezerwację o 60%"
+    },
+    {
+      "type": "info",
+      "content": "Możesz dodać więcej usług później, gdy zdobędziesz doświadczenie"
+    },
+    {
+      "type": "warning",
+      "content": "Nie oferuj usług, których nie potrafisz wykonać profesjonalnie"
+    }
+  ],
+  "market_insights": {
+    "seasonal_trends": "Największe zapotrzebowanie: wakacje (czerwiec-sierpień) i święta (grudzień)",
+    "competition_level": "Średnie - dobre możliwości dla nowych opiekunów",
+    "growth_potential": "Rynek rośnie o 15% rocznie"
+  },
+  "recommendations": {
+    "beginners": ["dog_walking", "pet_feeding"],
+    "experienced": ["pet_sitting", "overnight_care", "vet_transport"],
+    "professionals": ["emergency_care", "pet_training", "grooming"]
+  }
+}

@@ -1,0 +1,144 @@
+<div class="wizard-container max-w-2xl"
+     x-data="wizardStep1()"
+     x-init="init()"
+     @ai-suggestion-applied.window="syncFromLivewire(); console.log('🎯 AI suggestion applied, syncing...', $event.detail)">
+
+    {{-- Header --}}
+    <div class="text-center mb-4 md:mb-6"
+         x-show="true"
+         x-transition:enter="transition ease-out duration-600"
+         x-transition:enter-start="opacity-0 transform translate-y-4"
+         x-transition:enter-end="opacity-100 transform translate-y-0">
+        <h1 class="wizard-step-title">Cześć! Dlaczego chcesz zostać pet sitterem?</h1>
+    </div>
+
+    {{-- Main Form --}}
+    <div class="space-y-3 md:space-y-4">
+        <div class="wizard-form-group">
+            <div class="flex items-center justify-between mb-3">
+                <label for="motivation" class="wizard-label mb-0">
+                    Twoja motywacja *
+                </label>
+                <x-ui.tooltip position="top" trigger="hover" theme="primary" size="sm">
+                    <div class="flex items-center cursor-pointer hover:scale-105 transition-transform duration-200"
+                         @click="$wire.showAIPanel = !$wire.showAIPanel">
+                        <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mr-3">
+                            <span x-html="window.SafeSVGIcons?.settings || '⚙️'" class="text-white text-sm"></span>
+                        </div>
+                        <h3 class="font-semibold text-gray-900 text-sm">AI Assistant</h3>
+                    </div>
+
+                    <x-slot name="tooltip">
+                        🤖 Otwórz AI Assistant
+                    </x-slot>
+                    <x-slot name="subtitle">
+                        Kliknij aby otworzyć panel z pomocą AI i wskazówkami
+                    </x-slot>
+                </x-ui.tooltip>
+            </div>
+            <div class="relative">
+                <textarea
+                    :value="motivation"
+                    @input.debounce.500ms="updateMotivation($event.target.value)"
+                    id="motivation"
+                    rows="5"
+                    @focus="$el.classList.add('ring-2', 'ring-emerald-500', 'border-emerald-500')"
+                    @blur="$el.classList.remove('ring-2', 'ring-emerald-500', 'border-emerald-500')"
+                    :class="getTextareaClasses()"
+                    class="w-full px-4 py-3 text-base border border-gray-300 rounded-xl resize-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-300"
+                    placeholder="Np. Kocham zwierzęta od dziecka i chciałabym pomóc właścicielom, którzy potrzebują wsparcia w opiece nad swoimi pupilami..."
+                    maxlength="500"></textarea>
+
+                {{-- Character Counter with Animation --}}
+                <div class="absolute bottom-3 right-3 flex items-center space-x-2">
+                    <span x-show="isValid"
+                          x-transition:enter="transition ease-out duration-200"
+                          x-transition:enter-start="opacity-0 scale-95"
+                          x-transition:enter-end="opacity-100 scale-100"
+                          class="text-emerald-600">
+                        <span x-html="window.SafeSVGIcons?.checkMark || '✓'" class="text-emerald-600 text-sm"></span>
+                    </span>
+                    <span class="text-xs transition-colors duration-200"
+                          :class="getProgressClasses()"
+                          x-text="`${characterCount}/500`"></span>
+                </div>
+            </div>
+
+            @error('motivation')
+                <p class="mt-2 text-sm text-red-600 flex items-center">
+                    <span x-html="window.SafeSVGIcons?.exclamation || '!'" class="w-4 h-4 mr-1 flex-shrink-0 text-red-600"></span>
+                    {{ $message }}
+                </p>
+            @enderror
+        </div>
+
+        {{-- Progress Indicator with Animation --}}
+        <div class="pt-3 border-t border-gray-100">
+            <div class="flex items-center justify-between text-sm">
+                <div class="flex items-center"
+                     :class="getValidationClasses()">
+                    <span x-html="window.SafeSVGIcons?.checkCircle || '✓'"
+                          class="w-4 h-4 mr-2 transition-colors duration-200"
+                          :class="getCheckIconClasses()"></span>
+                    <span x-text="getValidationMessage()"></span>
+                </div>
+
+                {{-- Animated Progress Bar --}}
+                <div class="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full transition-all duration-300 ease-out"
+                         :style="getProgressBarStyle()"
+                         :class="getProgressBarClasses()"></div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Motivational Tips with Stagger Animation --}}
+        <div x-show="hasStartedTyping && !isValid"
+             x-transition:enter="transition ease-out duration-300 delay-150"
+             x-transition:enter-start="opacity-0 transform translate-y-2"
+             x-transition:enter-end="opacity-100 transform translate-y-0"
+             class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <h4 class="text-sm font-medium text-blue-900 mb-2">💡 Podpowiedzi:</h4>
+            <ul class="text-sm text-blue-700 space-y-1">
+                <li x-show="true"
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 transform translate-x-2"
+                    x-transition:enter-end="opacity-100 transform translate-x-0">
+                    • Napisz o swojej pasji do zwierząt
+                </li>
+                <li x-show="true"
+                    x-transition:enter="transition ease-out duration-200 delay-75"
+                    x-transition:enter-start="opacity-0 transform translate-x-2"
+                    x-transition:enter-end="opacity-100 transform translate-x-0">
+                    • Wspomnij o wcześniejszym doświadczeniu
+                </li>
+                <li x-show="true"
+                    x-transition:enter="transition ease-out duration-200 delay-150"
+                    x-transition:enter-start="opacity-0 transform translate-x-2"
+                    x-transition:enter-end="opacity-100 transform translate-x-0">
+                    • Opisz jak chcesz pomagać właścicielom
+                </li>
+            </ul>
+        </div>
+    </div>
+
+
+    {{-- Quick Examples --}}
+    <div class="mt-4 md:mt-6 p-3 md:p-4 bg-gray-50 rounded-xl">
+        <h3 class="text-sm font-medium text-gray-900 mb-2 md:mb-3">Przykłady inspirujących odpowiedzi:</h3>
+        <div class="space-y-1 md:space-y-2">
+            <button
+                type="button"
+                @click="updateMotivation('Od dziecka otaczałam się zwierzętami i doskonale rozumiem ich potrzeby. Chciałabym pomagać właścicielom, którzy z różnych powodów nie mogą zapewnić opieki swoim pupilom, jednocześnie rozwijając swoją pasję.')"
+                class="text-left text-sm text-gray-600 hover:text-emerald-600 transition-colors cursor-pointer block w-full">
+                "Od dziecka otaczałam się zwierzętami..."
+            </button>
+            <button
+                type="button"
+                @click="updateMotivation('Mam doświadczenie w pracy z różnymi rasami psów i kotów. Widzę, jak ważna jest odpowiednia opieka dla dobrostanu zwierząt, dlatego chcę oferować profesjonalne usługi pet sittingu w mojej okolicy.')"
+                class="text-left text-sm text-gray-600 hover:text-emerald-600 transition-colors cursor-pointer block w-full">
+                "Mam doświadczenie w pracy z różnymi rasami..."
+            </button>
+        </div>
+    </div>
+</div>

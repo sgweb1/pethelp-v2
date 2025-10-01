@@ -30,11 +30,21 @@ $maxWidth = [
         prevFocusable() { return this.focusables()[this.prevFocusableIndex()] || this.lastFocusable() },
         nextFocusableIndex() { return (this.focusables().indexOf(document.activeElement) + 1) % (this.focusables().length + 1) },
         prevFocusableIndex() { return Math.max(0, this.focusables().indexOf(document.activeElement)) -1 },
+        @if($attributes->has('focusable'))
+        focusFirstElement() {
+            requestAnimationFrame(() => {
+                const first = this.firstFocusable();
+                if (first) first.focus();
+            });
+        }
+        @endif
     }"
     x-init="$watch('show', value => {
         if (value) {
             document.body.classList.add('overflow-y-hidden');
-            {{ $attributes->has('focusable') ? 'setTimeout(() => firstFocusable().focus(), 100)' : '' }}
+            @if($attributes->has('focusable'))
+            this.focusFirstElement();
+            @endif
         } else {
             document.body.classList.remove('overflow-y-hidden');
         }

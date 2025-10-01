@@ -2,7 +2,7 @@
 
 @section('header-title')
     <div class="flex items-center">
-        <a href="{{ route('sitter-services.index') }}" class="text-blue-600 hover:text-blue-700 mr-3">
+        <a href="{{ route('profile.services.index') }}" class="text-blue-600 hover:text-blue-700 mr-3">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
             </svg>
@@ -266,7 +266,7 @@
         <!-- Submit Button -->
         <div class="flex items-center justify-between pt-6">
             <a
-                href="{{ route('sitter-services.index') }}"
+                href="{{ route('profile.services.index') }}"
                 class="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium transition-colors"
             >
                 Anuluj

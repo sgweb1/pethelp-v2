@@ -47,15 +47,15 @@
                 <x-dark-mode-toggle size="sm" :show-label="false" />
 
                 @auth
-                    <x-ui.button variant="outline" size="sm" href="{{ route('dashboard') }}">
+                    <x-ui.button variant="outline" size="sm" href="{{ route('profile.dashboard') }}">
                         <x-icon name="briefcase" class="w-4 h-4 mr-2" />
                         Panel
                     </x-ui.button>
                 @else
-                    <x-ui.button variant="ghost" size="sm">
+                    <x-ui.button variant="ghost" size="sm" href="{{ route('login') }}">
                         Zaloguj się
                     </x-ui.button>
-                    <x-ui.button variant="primary" size="sm">
+                    <x-ui.button variant="primary" size="sm" href="{{ route('register') }}">
                         <x-icon name="user" class="w-4 h-4 mr-2" />
                         Zarejestruj się
                     </x-ui.button>
@@ -89,10 +89,10 @@
                 @endif
                 <div class="flex flex-col space-y-2 pt-2">
                     @auth
-                        <x-ui.button variant="outline" size="sm" fullWidth="true" href="{{ route('dashboard') }}">Panel</x-ui.button>
+                        <x-ui.button variant="outline" size="sm" fullWidth="true" href="{{ route('profile.dashboard') }}">Panel</x-ui.button>
                     @else
-                        <x-ui.button variant="ghost" size="sm" fullWidth="true">Zaloguj się</x-ui.button>
-                        <x-ui.button variant="primary" size="sm" fullWidth="true">Zarejestruj się</x-ui.button>
+                        <x-ui.button variant="ghost" size="sm" fullWidth="true" href="{{ route('login') }}">Zaloguj się</x-ui.button>
+                        <x-ui.button variant="primary" size="sm" fullWidth="true" href="{{ route('register') }}">Zarejestruj się</x-ui.button>
                     @endauth
                 </div>
             </div>

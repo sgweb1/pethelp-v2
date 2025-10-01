@@ -20,7 +20,7 @@
                 <!-- Actions -->
                 <div class="flex items-center space-x-2">
                     @if($booking)
-                        <a href="{{ route('bookings') }}"
+                        <a href="{{ route('profile.bookings') }}"
                            class="text-gray-500 hover:text-indigo-600 transition-colors"
                            title="Zobacz rezerwację">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

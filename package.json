@@ -19,6 +19,7 @@
         "vite": "^6.0.1"
     },
     "dependencies": {
+        "@svgdotjs/svg.js": "^3.2.5",
         "tail": "^2.2.6"
     },
     "version": "1.0.0",

@@ -6,12 +6,19 @@ class HomeCareServiceForm extends BaseServiceForm
 {
     // Home care specific fields
     public ?float $price_per_hour = null;
+
     public ?float $price_per_day = null;
+
     public bool $overnight_care = false;
+
     public bool $feeding_included = true;
+
     public bool $walking_included = false;
+
     public bool $play_time = true;
+
     public bool $basic_grooming = false;
+
     public ?string $special_notes = null;
 
     protected function setDefaultValues(): void
@@ -62,7 +69,7 @@ class HomeCareServiceForm extends BaseServiceForm
                 'play_time' => $this->play_time,
                 'basic_grooming' => $this->basic_grooming,
                 'special_notes' => $this->special_notes,
-            ]
+            ],
         ];
     }
 
@@ -88,11 +95,14 @@ class HomeCareServiceForm extends BaseServiceForm
     public function validateAndSave()
     {
         $baseValid = parent::validateAndSave();
-        if (!$baseValid) return false;
+        if (! $baseValid) {
+            return false;
+        }
 
         // Category specific validation
-        if (!$this->price_per_hour && !$this->price_per_day) {
+        if (! $this->price_per_hour && ! $this->price_per_day) {
             $this->addError('price', 'Musisz podać cenę za godzinę lub dzień.');
+
             return false;
         }
 
@@ -101,6 +111,6 @@ class HomeCareServiceForm extends BaseServiceForm
 
     public function render()
     {
-        return view('services.forms.home-care')->layout('components.dashboard-layout');
+        return view('domains.services.forms.home-care')->layout('components.dashboard-layout');
     }
 }

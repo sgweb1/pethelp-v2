@@ -44,8 +44,11 @@ $positionClass = $positions[$position] ?? $positions['top-right'];
         show: true,
         init() {
             if ({{ $timeout }}) {
-                setTimeout(() => this.show = false, {{ $timeout }});
+                this.autoHide();
             }
+        },
+        autoHide() {
+            setTimeout(() => this.show = false, {{ $timeout }});
         }
     }"
     x-show="show"

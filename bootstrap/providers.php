@@ -3,6 +3,7 @@
 $providers = [
     App\Providers\AppServiceProvider::class,
     App\Providers\SubscriptionServiceProvider::class,
+    App\Providers\AIServiceProvider::class,
 ];
 
 if (app()->environment('local', 'testing')) {

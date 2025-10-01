@@ -18,12 +18,12 @@ new #[Layout('layouts.app')] class extends Component {
             [
                 'title' => 'Panel',
                 'icon' => '🏠',
-                'url' => route('dashboard')
+                'url' => route('profile.dashboard')
             ],
             [
                 'title' => 'Moje pupile',
                 'icon' => '🐾',
-                'url' => route('pets.index')
+                'url' => route('profile.pets.index')
             ],
             [
                 'title' => 'Dodaj pupila',
@@ -116,12 +116,12 @@ new #[Layout('layouts.app')] class extends Component {
         ]);
 
         session()->flash('success', 'Profil zwierzęcia został utworzony pomyślnie!');
-        return $this->redirect(route('dashboard'), navigate: true);
+        return $this->redirect(route('profile.dashboard'), navigate: true);
     }
 
     public function cancel()
     {
-        return $this->redirect(route('dashboard'), navigate: true);
+        return $this->redirect(route('profile.dashboard'), navigate: true);
     }
 }; ?>
 
@@ -145,7 +145,7 @@ new #[Layout('layouts.app')] class extends Component {
                 </div>
 
                 <div class="flex gap-3">
-                    <a href="{{ route('pets.index') }}" wire:navigate class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-white/10 border border-white/20 rounded-lg hover:bg-white/20 transition-colors duration-200">
+                    <a href="{{ route('profile.pets.index') }}" wire:navigate class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-white/10 border border-white/20 rounded-lg hover:bg-white/20 transition-colors duration-200">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
                         </svg>

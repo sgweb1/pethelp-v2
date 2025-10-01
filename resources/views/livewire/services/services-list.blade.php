@@ -33,7 +33,7 @@
             </div>
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Brak usług</h3>
             <p class="text-gray-600 dark:text-gray-400 mb-4">Nie masz jeszcze żadnych dodanych usług pet sittingu.</p>
-            <a href="{{ route('sitter-services.create') }}"
+            <a href="{{ route('profile.services.create') }}"
                class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -112,7 +112,7 @@
                             </div>
 
                             <div class="flex space-x-2">
-                                <a href="{{ route('sitter-services.edit', $service) }}"
+                                <a href="{{ route('profile.services.edit', $service) }}"
                                    class="text-blue-600 hover:text-blue-700 text-sm font-medium">
                                     Edytuj
                                 </a>

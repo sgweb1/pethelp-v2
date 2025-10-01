@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         // Check if this is a fresh installation
-        $isFreshInstallation = !Schema::hasTable('conversations');
+        $isFreshInstallation = ! Schema::hasTable('conversations');
 
         if ($isFreshInstallation) {
             // Fresh installation - create everything from scratch
@@ -74,28 +74,29 @@ return new class extends Migration
             $table->timestamp('read_at')->nullable();
             $table->timestamps();
 
-            $table->index(['notifiable_type', 'notifiable_id']);
+            // morphs() już tworzy indeks na notifiable_type, notifiable_id
+            // więc nie dodajemy duplikatu
         });
     }
 
     // Ensure methods for existing installations
     private function ensureConversationsTable(): void
     {
-        if (!Schema::hasTable('conversations')) {
+        if (! Schema::hasTable('conversations')) {
             $this->createConversationsTable();
         }
     }
 
     private function ensureMessagesTable(): void
     {
-        if (!Schema::hasTable('messages')) {
+        if (! Schema::hasTable('messages')) {
             $this->createMessagesTable();
         }
     }
 
     private function ensureNotificationsTable(): void
     {
-        if (!Schema::hasTable('notifications')) {
+        if (! Schema::hasTable('notifications')) {
             $this->createNotificationsTable();
         }
     }

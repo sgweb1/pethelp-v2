@@ -15,8 +15,6 @@ use Illuminate\Support\Facades\Log;
  *
  * Obsługuje pobieranie faktur, regenerowanie i synchronizację statusów
  * z systemem InFakt.
- *
- * @package App\Http\Controllers
  */
 class InvoiceController extends Controller
 {
@@ -30,8 +28,6 @@ class InvoiceController extends Controller
     /**
      * Pobiera PDF faktury dla użytkownika.
      *
-     * @param Request $request
-     * @param Payment $payment
      * @return Response|JsonResponse
      */
     public function downloadInvoicePdf(Request $request, Payment $payment)
@@ -39,17 +35,19 @@ class InvoiceController extends Controller
         $user = Auth::user();
 
         // Sprawdź czy użytkownik ma dostęp do tej faktury
-        $gatewayResponse = $payment->gateway_response ?? [];
-        if (($gatewayResponse['user_id'] ?? null) !== $user->id) {
+        $paymentUserId = $payment->user_id ?? $payment->gateway_response['user_id'] ?? null;
+        if ($paymentUserId !== $user->id) {
             abort(403, 'Brak dostępu do tej faktury');
         }
 
+        $gatewayResponse = $payment->gateway_response ?? [];
         $invoiceId = $gatewayResponse['infakt_invoice_id'] ?? null;
 
-        if (!$invoiceId) {
+        if (! $invoiceId) {
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Faktura nie została jeszcze wygenerowana'], 404);
             }
+
             return redirect()->back()->with('error', 'Faktura nie została jeszcze wygenerowana.');
         }
 
@@ -57,16 +55,16 @@ class InvoiceController extends Controller
             // Sprawdź czy PDF jest już zapisane w gateway_response
             $pdfContent = $gatewayResponse['infakt_pdf_content'] ?? null;
 
-            if (!$pdfContent) {
+            if (! $pdfContent) {
                 // Pobierz PDF z InFakt API
-                $pdfContent = $this->inFaktService->getInvoicePdfContent($invoiceId);
+                $pdfContent = $this->inFaktService->getInvoicePdfContent((int) $invoiceId);
 
                 if ($pdfContent) {
                     // Zapisz PDF w payment dla przyszłych żądań
                     $payment->update([
                         'gateway_response' => array_merge($gatewayResponse, [
-                            'infakt_pdf_content' => $pdfContent
-                        ])
+                            'infakt_pdf_content' => $pdfContent,
+                        ]),
                     ]);
                 }
             }
@@ -80,12 +78,13 @@ class InvoiceController extends Controller
                     Log::error('Błąd dekodowania PDF', [
                         'payment_id' => $payment->id,
                         'invoice_id' => $invoiceId,
-                        'pdf_content_length' => strlen($pdfContent)
+                        'pdf_content_length' => strlen($pdfContent),
                     ]);
 
                     if ($request->expectsJson()) {
                         return response()->json(['error' => 'Błąd dekodowania PDF'], 500);
                     }
+
                     return redirect()->back()->with('error', 'Błąd dekodowania PDF.');
                 }
 
@@ -94,17 +93,18 @@ class InvoiceController extends Controller
                     Log::error('Nieprawidłowy format PDF', [
                         'payment_id' => $payment->id,
                         'invoice_id' => $invoiceId,
-                        'header' => bin2hex(substr($pdfBinary, 0, 10))
+                        'header' => bin2hex(substr($pdfBinary, 0, 10)),
                     ]);
 
                     if ($request->expectsJson()) {
                         return response()->json(['error' => 'Nieprawidłowy format PDF'], 500);
                     }
+
                     return redirect()->back()->with('error', 'Nieprawidłowy format PDF.');
                 }
 
                 // Zwróć PDF jako response
-                $filename = 'faktura-' . ($gatewayResponse['infakt_invoice_number'] ?? $invoiceId) . '.pdf';
+                $filename = 'faktura-'.($gatewayResponse['infakt_invoice_number'] ?? $invoiceId).'.pdf';
                 $isPreview = $request->query('preview', false);
 
                 Log::info('Pobieranie PDF faktury', [
@@ -112,7 +112,7 @@ class InvoiceController extends Controller
                     'invoice_id' => $invoiceId,
                     'filename' => $filename,
                     'size' => strlen($pdfBinary),
-                    'preview' => $isPreview
+                    'preview' => $isPreview,
                 ]);
 
                 $headers = [
@@ -122,10 +122,10 @@ class InvoiceController extends Controller
 
                 // Jeśli preview=true, pokaż w przeglądarce, inaczej pobierz
                 if ($isPreview) {
-                    $headers['Content-Disposition'] = 'inline; filename="' . $filename . '"';
+                    $headers['Content-Disposition'] = 'inline; filename="'.$filename.'"';
                     $headers['Cache-Control'] = 'private, max-age=3600';
                 } else {
-                    $headers['Content-Disposition'] = 'attachment; filename="' . $filename . '"';
+                    $headers['Content-Disposition'] = 'attachment; filename="'.$filename.'"';
                     $headers['Cache-Control'] = 'private, max-age=0, must-revalidate';
                     $headers['Pragma'] = 'no-cache';
                 }
@@ -136,28 +136,26 @@ class InvoiceController extends Controller
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Nie można pobrać PDF faktury'], 500);
             }
+
             return redirect()->back()->with('error', 'Nie można pobrać PDF faktury.');
 
         } catch (\Exception $e) {
             Log::error('Błąd pobierania PDF faktury', [
                 'payment_id' => $payment->id,
                 'invoice_id' => $invoiceId,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Błąd serwera'], 500);
             }
+
             return redirect()->back()->with('error', 'Wystąpił błąd podczas pobierania faktury.');
         }
     }
 
     /**
      * Regeneruje fakturę dla płatności.
-     *
-     * @param Request $request
-     * @param Payment $payment
-     * @return JsonResponse
      */
     public function regenerateInvoice(Request $request, Payment $payment): JsonResponse
     {
@@ -176,12 +174,12 @@ class InvoiceController extends Controller
         try {
             // Znajdź plan na podstawie slug
             $planSlug = $gatewayResponse['plan_slug'] ?? null;
-            if (!$planSlug) {
+            if (! $planSlug) {
                 return response()->json(['error' => 'Brak informacji o planie w płatności'], 400);
             }
 
             $plan = \App\Models\SubscriptionPlan::where('slug', $planSlug)->first();
-            if (!$plan) {
+            if (! $plan) {
                 return response()->json(['error' => 'Plan subskrypcji nie został znaleziony'], 404);
             }
 
@@ -191,35 +189,31 @@ class InvoiceController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'Faktura została wygenerowana pomyślnie',
-                    'invoice_number' => $result['invoice_number']
+                    'invoice_number' => $result['invoice_number'],
                 ]);
             }
 
             return response()->json([
                 'success' => false,
-                'error' => 'Nie udało się wygenerować faktury: ' . ($result['error'] ?? 'Nieznany błąd')
+                'error' => 'Nie udało się wygenerować faktury: '.($result['error'] ?? 'Nieznany błąd'),
             ], 500);
 
         } catch (\Exception $e) {
             Log::error('Błąd regeneracji faktury', [
                 'payment_id' => $payment->id,
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'error' => 'Wystąpił błąd serwera'
+                'error' => 'Wystąpił błąd serwera',
             ], 500);
         }
     }
 
     /**
      * Sprawdza status faktury w InFakt.
-     *
-     * @param Request $request
-     * @param Payment $payment
-     * @return JsonResponse
      */
     public function checkInvoiceStatus(Request $request, Payment $payment): JsonResponse
     {
@@ -232,17 +226,17 @@ class InvoiceController extends Controller
         }
 
         $invoiceId = $gatewayResponse['infakt_invoice_id'] ?? null;
-        if (!$invoiceId) {
+        if (! $invoiceId) {
             return response()->json(['error' => 'Faktura nie została jeszcze wygenerowana'], 404);
         }
 
         try {
-            $status = $this->inFaktService->getInvoiceStatus($invoiceId);
+            $status = $this->inFaktService->getInvoiceStatus((int) $invoiceId);
 
             if ($status) {
                 return response()->json([
                     'success' => true,
-                    'invoice' => $status
+                    'invoice' => $status,
                 ]);
             }
 
@@ -252,7 +246,7 @@ class InvoiceController extends Controller
             Log::error('Błąd sprawdzania statusu faktury', [
                 'payment_id' => $payment->id,
                 'invoice_id' => $invoiceId,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json(['error' => 'Błąd serwera'], 500);
@@ -261,9 +255,6 @@ class InvoiceController extends Controller
 
     /**
      * Webhook od InFakt dla synchronizacji statusów faktur.
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function inFaktWebhook(Request $request): JsonResponse
     {
@@ -273,7 +264,7 @@ class InvoiceController extends Controller
 
             Log::info('InFakt webhook otrzymany', [
                 'event_type' => $eventType,
-                'payload' => $payload
+                'payload' => $payload,
             ]);
 
             switch ($eventType) {
@@ -295,7 +286,7 @@ class InvoiceController extends Controller
         } catch (\Exception $e) {
             Log::error('Błąd przetwarzania webhook InFakt', [
                 'error' => $e->getMessage(),
-                'payload' => $request->all()
+                'payload' => $request->all(),
             ]);
 
             return response()->json(['error' => 'Błąd serwera'], 500);
@@ -304,13 +295,13 @@ class InvoiceController extends Controller
 
     /**
      * Obsługuje event "faktura opłacona" od InFakt.
-     *
-     * @param array $payload
      */
     protected function handleInvoicePaid(array $payload): void
     {
         $invoiceId = $payload['invoice']['id'] ?? null;
-        if (!$invoiceId) return;
+        if (! $invoiceId) {
+            return;
+        }
 
         // Znajdź płatność z tym invoice_id
         $payment = Payment::whereJsonContains('gateway_response->infakt_invoice_id', $invoiceId)->first();
@@ -319,7 +310,7 @@ class InvoiceController extends Controller
             Log::info('Synchronizacja statusu płatności z InFakt', [
                 'payment_id' => $payment->id,
                 'invoice_id' => $invoiceId,
-                'status' => 'paid'
+                'status' => 'paid',
             ]);
 
             // Możesz tutaj dodać dodatkową logikę synchronizacji
@@ -328,17 +319,17 @@ class InvoiceController extends Controller
 
     /**
      * Obsługuje event "faktura wysłana" od InFakt.
-     *
-     * @param array $payload
      */
     protected function handleInvoiceSent(array $payload): void
     {
         $invoiceId = $payload['invoice']['id'] ?? null;
-        if (!$invoiceId) return;
+        if (! $invoiceId) {
+            return;
+        }
 
         Log::info('Faktura została wysłana przez InFakt', [
             'invoice_id' => $invoiceId,
-            'sent_at' => now()->toISOString()
+            'sent_at' => now()->toISOString(),
         ]);
     }
 }

@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Builder;
 
 class Review extends Model
 {
@@ -15,7 +15,7 @@ class Review extends Model
         'rating',
         'comment',
         'is_visible',
-        'moderated_at'
+        'moderated_at',
     ];
 
     protected function casts(): array
@@ -46,9 +46,11 @@ class Review extends Model
         $query->where('is_visible', true);
     }
 
-    public function scopeForUser(Builder $query, int $userId): void
+    public function scopeForUser(Builder $query, ?int $userId): void
     {
-        $query->where('reviewee_id', $userId);
+        if ($userId) {
+            $query->where('reviewee_id', $userId);
+        }
     }
 
     public function scopeByUser(Builder $query, int $userId): void
@@ -59,9 +61,9 @@ class Review extends Model
     public function scopeForSitter(Builder $query, int $sitterId): void
     {
         $query->where('reviewee_id', $sitterId)
-              ->whereHas('booking', function($q) {
-                  $q->where('status', 'completed');
-              });
+            ->whereHas('booking', function ($q) {
+                $q->where('status', 'completed');
+            });
     }
 
     public function scopeRecent(Builder $query): void
@@ -71,12 +73,12 @@ class Review extends Model
 
     public function getStarsAttribute(): string
     {
-        return str_repeat('⭐', $this->rating) . str_repeat('☆', 5 - $this->rating);
+        return str_repeat('⭐', $this->rating).str_repeat('☆', 5 - $this->rating);
     }
 
     public function getRatingLabelAttribute(): string
     {
-        return match($this->rating) {
+        return match ($this->rating) {
             1 => 'Bardzo słaba',
             2 => 'Słaba',
             3 => 'Średnia',

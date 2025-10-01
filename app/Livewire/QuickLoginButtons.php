@@ -12,23 +12,19 @@ use Livewire\Component;
  * i wyświetla ich jako przyciski do szybkiego logowania.
  * Dostępny tylko w środowisku lokalnym.
  *
- * @package App\Livewire
  * @author Claude AI Assistant
+ *
  * @since 1.0.0
  */
 class QuickLoginButtons extends Component
 {
     /**
      * Lista aktualnych użytkowników do wyświetlenia.
-     *
-     * @var array
      */
     public array $users = [];
 
     /**
      * Czy pokazać rozszerzoną listę użytkowników.
-     *
-     * @var bool
      */
     public bool $showExpanded = false;
 
@@ -50,7 +46,7 @@ class QuickLoginButtons extends Component
      */
     public function toggleExpanded(): void
     {
-        $this->showExpanded = !$this->showExpanded;
+        $this->showExpanded = ! $this->showExpanded;
         $this->loadUsers();
     }
 
@@ -62,7 +58,7 @@ class QuickLoginButtons extends Component
         $this->users = [
             'owners' => $this->getOwners(),
             'sitters' => $this->getSitters(),
-            'regular' => $this->getRegularUsers()
+            'regular' => $this->getRegularUsers(),
         ];
     }
 
@@ -83,8 +79,8 @@ class QuickLoginButtons extends Component
                     'name' => $user->name,
                     'email' => $user->email,
                     'type' => 'owner',
-                    'description' => 'Właściciel ' . $user->pets->count() . ' zwierząt',
-                    'pets_names' => $user->pets->pluck('name')->implode(', ')
+                    'description' => 'Właściciel '.$user->pets->count().' zwierząt',
+                    'pets_names' => $user->pets->pluck('name')->implode(', '),
                 ];
             });
     }
@@ -97,7 +93,7 @@ class QuickLoginButtons extends Component
     private function getSitters()
     {
         return User::whereHas('services')
-            ->with(['services:id,user_id,category,title'])
+            ->with(['services:id,sitter_id,title'])
             ->limit($this->showExpanded ? 5 : 1)
             ->get()
             ->map(function ($user) {
@@ -106,8 +102,8 @@ class QuickLoginButtons extends Component
                     'name' => $user->name,
                     'email' => $user->email,
                     'type' => 'sitter',
-                    'description' => 'Opiekun z ' . $user->services->count() . ' usługami',
-                    'services' => $user->services->pluck('category')->unique()->implode(', ')
+                    'description' => 'Opiekun z '.$user->services->count().' usługami',
+                    'services' => $user->services->pluck('title')->unique()->implode(', '),
                 ];
             });
     }
@@ -142,14 +138,14 @@ class QuickLoginButtons extends Component
         // Nie pokazuj w środowisku produkcyjnym
         if (config('app.env') !== 'local') {
             return view('livewire.quick-login-buttons', [
-                'localEnvironment' => false
+                'localEnvironment' => false,
             ]);
         }
 
         return view('livewire.quick-login-buttons', [
             'localEnvironment' => true,
             'users' => $this->users,
-            'showExpanded' => $this->showExpanded
+            'showExpanded' => $this->showExpanded,
         ]);
     }
 }

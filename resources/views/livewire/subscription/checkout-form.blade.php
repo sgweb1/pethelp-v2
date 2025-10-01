@@ -205,18 +205,60 @@
                         </div>
 
                         <div class="space-y-2">
-                            <div class="flex justify-between">
-                                <span class="text-gray-600 dark:text-gray-400">Cena netto:</span>
-                                <span class="text-gray-900 dark:text-white">{{ number_format($plan->price / 1.23, 2, ',', ' ') }} PLN</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-600 dark:text-gray-400">VAT (23%):</span>
-                                <span class="text-gray-900 dark:text-white">{{ number_format($plan->price - ($plan->price / 1.23), 2, ',', ' ') }} PLN</span>
-                            </div>
-                            <div class="flex justify-between font-semibold text-lg border-t border-gray-200 dark:border-gray-700 pt-2">
-                                <span class="text-gray-900 dark:text-white">Razem:</span>
-                                <span class="text-gray-900 dark:text-white">{{ $plan->formatted_price }}</span>
-                            </div>
+                            @if($this->pricing['has_proration'])
+                                {{-- Pokazuj proration --}}
+                                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-3 mb-4">
+                                    <div class="flex items-center mb-2">
+                                        <svg class="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        <span class="text-sm font-medium text-blue-800 dark:text-blue-200">Odliczenie z obecnego planu</span>
+                                    </div>
+                                    <div class="text-sm text-blue-600 dark:text-blue-400">
+                                        Kredyt: {{ number_format($this->pricing['credit_amount'], 2, ',', ' ') }} PLN
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600 dark:text-gray-400">Cena podstawowa:</span>
+                                    <span class="text-gray-500 dark:text-gray-400 line-through">{{ number_format($this->pricing['original_price'], 2, ',', ' ') }} PLN</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600 dark:text-gray-400">Odliczenie:</span>
+                                    <span class="text-green-600 dark:text-green-400">-{{ number_format($this->pricing['credit_amount'], 2, ',', ' ') }} PLN</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600 dark:text-gray-400">Cena netto:</span>
+                                    <span class="text-gray-900 dark:text-white">{{ number_format($this->pricing['final_price'] / 1.23, 2, ',', ' ') }} PLN</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600 dark:text-gray-400">VAT (23%):</span>
+                                    <span class="text-gray-900 dark:text-white">{{ number_format($this->pricing['final_price'] - ($this->pricing['final_price'] / 1.23), 2, ',', ' ') }} PLN</span>
+                                </div>
+                                <div class="flex justify-between font-semibold text-xl border-t border-gray-200 dark:border-gray-700 pt-3 text-green-600 dark:text-green-400">
+                                    <span>Razem do zapłaty:</span>
+                                    <span>{{ number_format($this->pricing['final_price'], 2, ',', ' ') }} PLN</span>
+                                </div>
+                                <div class="text-center">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200">
+                                        Oszczędzasz {{ number_format($this->pricing['savings'], 2, ',', ' ') }} PLN!
+                                    </span>
+                                </div>
+                            @else
+                                {{-- Standardowa cena --}}
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Cena netto:</span>
+                                    <span class="text-gray-900 dark:text-white">{{ number_format($plan->price / 1.23, 2, ',', ' ') }} PLN</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">VAT (23%):</span>
+                                    <span class="text-gray-900 dark:text-white">{{ number_format($plan->price - ($plan->price / 1.23), 2, ',', ' ') }} PLN</span>
+                                </div>
+                                <div class="flex justify-between font-semibold text-lg border-t border-gray-200 dark:border-gray-700 pt-2">
+                                    <span class="text-gray-900 dark:text-white">Razem:</span>
+                                    <span class="text-gray-900 dark:text-white">{{ $plan->formatted_price }}</span>
+                                </div>
+                            @endif
                             <p class="text-sm text-gray-500 dark:text-gray-400">
                                 Opłata za {{ $plan->billing_period === 'yearly' ? 'rok' : 'miesiąc' }}
                             </p>

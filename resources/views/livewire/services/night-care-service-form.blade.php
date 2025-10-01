@@ -306,7 +306,7 @@
                 </div>
 
                 <div class="flex space-x-4">
-                    <a href="{{ route('sitter-services.index') }}"
+                    <a href="{{ route('profile.services.index') }}"
                        class="px-6 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                         Anuluj
                     </a>

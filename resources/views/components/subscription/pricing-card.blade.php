@@ -45,7 +45,26 @@
         <p class="text-gray-600 dark:text-gray-400 mt-2">{{ $plan->description }}</p>
 
         <div class="mt-4">
-            <span class="text-4xl font-bold text-gray-900 dark:text-white">{{ $plan->formatted_price }}</span>
+            @if(isset($plan->pricing) && $plan->pricing['has_proration'])
+                {{-- Cena z proration - pokaż oszczędności --}}
+                <div class="space-y-2">
+                    <div class="text-sm text-gray-500 dark:text-gray-400 line-through">
+                        {{ number_format($plan->pricing['original_price'], 2, ',', ' ') }} PLN
+                    </div>
+                    <div class="flex items-baseline justify-center space-x-2">
+                        <span class="text-4xl font-bold text-green-600 dark:text-green-400">{{ number_format($plan->pricing['final_price'], 2, ',', ' ') }} PLN</span>
+                        <span class="text-sm text-green-600 dark:text-green-400 font-medium">
+                            (-{{ number_format($plan->pricing['savings'], 2, ',', ' ') }} PLN)
+                        </span>
+                    </div>
+                    <div class="text-xs text-blue-600 dark:text-blue-400">
+                        Odliczenie z obecnego planu: {{ number_format($plan->pricing['credit_amount'], 2, ',', ' ') }} PLN
+                    </div>
+                </div>
+            @else
+                {{-- Standardowa cena --}}
+                <span class="text-4xl font-bold text-gray-900 dark:text-white">{{ $plan->formatted_price }}</span>
+            @endif
             <span class="text-gray-600 dark:text-gray-400">/{{ $plan->billing_period === 'yearly' ? 'rok' : 'miesiąc' }}</span>
         </div>
 

@@ -33,10 +33,12 @@ Route::get('/js-logs', [ApiJsLogController::class, 'index'])
 Route::get('/search-addresses', [AddressSearchController::class, 'search'])
     ->middleware(['throttle:120,1']); // Max 120 requests per minute
 
-// Hierarchical location search API
-Route::prefix('locations')->middleware('throttle:120,1')->group(function () {
-    Route::get('/search', [LocationController::class, 'search'])->name('api.locations.search');
-    Route::get('/reverse', [LocationController::class, 'reverseGeocode'])->name('api.locations.reverse');
+// Enhanced location search API with local Nominatim support
+Route::prefix('location')->middleware('throttle:120,1')->group(function () {
+    Route::post('/search', [LocationController::class, 'search'])->name('api.location.search');
+    Route::post('/reverse', [LocationController::class, 'reverse'])->name('api.location.reverse');
+    Route::get('/status', [LocationController::class, 'status'])->name('api.location.status');
+    Route::post('/estimate-population', [LocationController::class, 'estimatePopulation'])->name('api.location.estimate-population');
 });
 
 // 🚀 UNIFIED SEARCH API - Single endpoint for all search needs (replaces map/* endpoints)

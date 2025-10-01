@@ -1,5 +1,72 @@
 # 🚀 Instrukcja instalacji PetHelp na produkcji
 
+## 🎯 Szybki start (zalecane)
+
+### Automatyczna instalacja jednym poleceniem
+
+Najłatwiejszy sposób instalacji - użyj naszego automatycznego skryptu instalacyjnego:
+
+```bash
+# Pobierz skrypt instalacyjny
+curl -O https://raw.githubusercontent.com/sgweb1/pethelp-v2/master/install-production.sh
+
+# Nadaj uprawnienia do wykonania
+chmod +x install-production.sh
+
+# Uruchom instalację jako root
+sudo ./install-production.sh
+```
+
+**Skrypt automatycznie:**
+- ✅ Wykryje system operacyjny (Ubuntu/Debian/CentOS/RHEL)
+- ✅ Zainstaluje wszystkie wymagane zależności (PHP 8.3, MySQL, Nginx, Redis, Node.js)
+- ✅ Sklonuje repozytorium aplikacji
+- ✅ Skonfiguruje bazę danych
+- ✅ Zainstaluje certyfikat SSL (Let's Encrypt)
+- ✅ Skonfiguruje Nginx i PHP-FPM
+- ✅ Uruchomi kolejki i workery (Supervisor)
+- ✅ Skonfiguruje firewall
+
+**Wymagane informacje:**
+- Domena aplikacji (np. `pethelp.pl`)
+- Email administratora
+- Dane do bazy danych (można wygenerować automatycznie)
+- Dane PayU (opcjonalnie)
+
+---
+
+## 🔄 Aktualizacja aplikacji
+
+Do aktualizacji aplikacji użyj skryptu `update-production.sh`:
+
+```bash
+cd /var/www/pethelp
+./update-production.sh
+```
+
+**Opcje aktualizacji:**
+1. Pełna aktualizacja (kod + zależności + baza + cache)
+2. Tylko kod (git pull)
+3. Tylko zależności (composer + npm)
+4. Tylko build assetów
+5. Tylko migracje bazy danych
+6. Tylko cache Laravel
+7. Czyszczenie cache
+
+Skrypt automatycznie:
+- ✅ Utworzy backup przed aktualizacją
+- ✅ Włączy tryb maintenance
+- ✅ Wykona migracje
+- ✅ Zbuduje cache
+- ✅ Zrestartuje workery
+- ✅ Wyłączy tryb maintenance
+
+---
+
+## 📖 Instrukcja manualna (alternatywnie)
+
+Jeśli wolisz instalację manualną lub chcesz lepiej zrozumieć proces, wykonaj poniższe kroki.
+
 ## 📋 Wymagania systemowe
 
 ### Minimalne wymagania serwera:
@@ -585,18 +652,41 @@ curl -I https://twoja-domena.com
 
 ## 🔄 Aktualizacja aplikacji
 
-```bash
-# Użycie skryptu deployment
-./deploy.sh
+### Automatyczna aktualizacja (zalecane)
 
-# Lub manualne kroki:
+```bash
+cd /var/www/pethelp
+./update-production.sh
+```
+
+Skrypt zapyta o typ aktualizacji i wykona wszystkie niezbędne kroki.
+
+### Manualna aktualizacja
+
+```bash
+# Włącz tryb maintenance
 php artisan down
+
+# Pobierz najnowszy kod
 git pull origin master
+
+# Zaktualizuj zależności
 composer install --no-dev --optimize-autoloader
 npm ci && npm run build
+
+# Uruchom migracje
 php artisan migrate --force
+
+# Odbuduj cache
 php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# Restart kolejek
 php artisan queue:restart
+sudo supervisorctl restart pethelp-worker:*
+
+# Wyłącz tryb maintenance
 php artisan up
 ```
 

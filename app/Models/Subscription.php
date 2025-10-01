@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,9 +16,12 @@ class Subscription extends Model
         'subscription_plan_id',
         'status',
         'price',
+        'amount',
         'billing_period',
         'starts_at',
         'ends_at',
+        'current_period_start',
+        'current_period_end',
         'cancelled_at',
         'last_payment_at',
         'next_billing_at',
@@ -32,6 +34,8 @@ class Subscription extends Model
         'price' => 'decimal:2',
         'starts_at' => 'datetime',
         'ends_at' => 'datetime',
+        'current_period_start' => 'datetime',
+        'current_period_end' => 'datetime',
         'cancelled_at' => 'datetime',
         'last_payment_at' => 'datetime',
         'next_billing_at' => 'datetime',
@@ -40,9 +44,13 @@ class Subscription extends Model
 
     // Status constants
     const STATUS_ACTIVE = 'active';
+
     const STATUS_CANCELLED = 'cancelled';
+
     const STATUS_EXPIRED = 'expired';
+
     const STATUS_PAUSED = 'paused';
+
     const STATUS_PENDING = 'pending';
 
     // Relationships
@@ -65,15 +73,15 @@ class Subscription extends Model
     public function scopeActive($query)
     {
         return $query->where('status', self::STATUS_ACTIVE)
-                    ->where('starts_at', '<=', now())
-                    ->where('ends_at', '>', now());
+            ->where('starts_at', '<=', now())
+            ->where('ends_at', '>', now());
     }
 
     public function scopeExpired($query)
     {
-        return $query->where(function($q) {
+        return $query->where(function ($q) {
             $q->where('status', self::STATUS_EXPIRED)
-              ->orWhere('ends_at', '<=', now());
+                ->orWhere('ends_at', '<=', now());
         });
     }
 
@@ -85,7 +93,7 @@ class Subscription extends Model
     public function scopeUpForRenewal($query)
     {
         return $query->where('status', self::STATUS_ACTIVE)
-                    ->where('next_billing_at', '<=', now()->addDays(3));
+            ->where('next_billing_at', '<=', now()->addDays(3));
     }
 
     // Methods
@@ -162,12 +170,12 @@ class Subscription extends Model
 
     public function getFormattedPriceAttribute(): string
     {
-        return number_format($this->price, 2, ',', ' ') . ' PLN';
+        return number_format($this->price, 2, ',', ' ').' PLN';
     }
 
     public function getStatusLabelAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             self::STATUS_ACTIVE => 'Aktywna',
             self::STATUS_CANCELLED => 'Anulowana',
             self::STATUS_EXPIRED => 'Wygasła',
@@ -184,7 +192,7 @@ class Subscription extends Model
 
     public function canBeCancelled(): bool
     {
-        return $this->isActive() && !$this->isCancelled();
+        return $this->isActive() && ! $this->isCancelled();
     }
 
     public function canBeResumed(): bool
@@ -194,11 +202,12 @@ class Subscription extends Model
 
     public function getRemainingListingsAttribute(): ?int
     {
-        if (!$this->subscriptionPlan->max_listings) {
+        if (! $this->subscriptionPlan->max_listings) {
             return null; // Unlimited
         }
 
         $usedListings = $this->user->advertisements()->count();
+
         return max(0, $this->subscriptionPlan->max_listings - $usedListings);
     }
 
@@ -222,6 +231,8 @@ class Subscription extends Model
             'billing_period' => $plan->billing_period,
             'starts_at' => $starts_at,
             'ends_at' => $ends_at,
+            'current_period_start' => $starts_at,
+            'current_period_end' => $ends_at,
             'next_billing_at' => $next_billing_at,
             'metadata' => $metadata,
         ]);

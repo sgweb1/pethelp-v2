@@ -17,7 +17,7 @@ new #[Layout('layouts.app')] class extends Component {
             [
                 'title' => 'Panel',
                 'icon' => '🏠',
-                'url' => route('dashboard')
+                'url' => route('profile.dashboard')
             ],
             [
                 'title' => 'Moje pupile',
@@ -135,7 +135,7 @@ new #[Layout('layouts.app')] class extends Component {
                     </p>
                 </div>
 
-                <a href="{{ route('pets.create') }}" wire:navigate class="inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-colors duration-200">
+                <a href="{{ route('profile.pets.create') }}" wire:navigate class="inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-colors duration-200">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                     </svg>
@@ -176,7 +176,7 @@ new #[Layout('layouts.app')] class extends Component {
                     </svg>
                     <h3 class="text-xl font-medium text-gray-900 mb-2">Brak zwierząt</h3>
                     <p class="text-gray-600 mb-6">Dodaj profil swojego pierwszego pupila, aby rozpocząć korzystanie z PetHelp.</p>
-                    <a href="{{ route('pets.create') }}" wire:navigate class="inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-primary-600 rounded-xl hover:bg-primary-700 transition-colors duration-200">
+                    <a href="{{ route('profile.pets.create') }}" wire:navigate class="inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-primary-600 rounded-xl hover:bg-primary-700 transition-colors duration-200">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>
@@ -230,7 +230,7 @@ new #[Layout('layouts.app')] class extends Component {
 
                                     <div x-show="open" @click.away="open = false" x-transition class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
                                         <div class="py-1">
-                                            <a href="{{ route('pets.edit', $pet) }}" wire:navigate class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 block">
+                                            <a href="{{ route('profile.pets.edit', $pet) }}" wire:navigate class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 block">
                                                 Edytuj
                                             </a>
                                             <button wire:click="deletePet({{ $pet->id }})" wire:confirm="Czy na pewno chcesz usunąć profil zwierzęcia {{ $pet->name }}?" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">

@@ -84,7 +84,7 @@
         <div class="flex items-center space-x-4">
             <!-- Quick actions based on user type -->
             @if(auth()->user()->isOwner())
-                <a href="{{ route('search') }}"
+                <a href="{{ route('map.index') }}"
                    class="hidden sm:inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200">
                     <span class="mr-2">🔍</span>
                     Znajdź opiekuna
@@ -94,7 +94,7 @@
 
             <!-- Notifications -->
             <div class="relative">
-                <a href="{{ route('notifications') }}"
+                <a href="{{ route('profile.notifications') }}"
                    class="p-2 text-gray-400 hover:text-gray-500 dark:text-gray-300 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 rounded-full transition-colors duration-200">
                     <span class="sr-only">Powiadomienia</span>
                     <div class="relative">
@@ -110,7 +110,7 @@
 
             <!-- Messages -->
             <div class="relative">
-                <a href="{{ route('chat') }}"
+                <a href="{{ route('profile.chat.index') }}"
                    class="p-2 text-gray-400 hover:text-gray-500 dark:text-gray-300 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 rounded-full transition-colors duration-200">
                     <span class="sr-only">Wiadomości</span>
                     <div class="relative">
@@ -161,7 +161,7 @@
                                 </span>
                             </div>
                             @if($planName !== 'Business')
-                                <a href="{{ route('subscription.plans') }}"
+                                <a href="{{ route('profile.subscription.dashboard') }}"
                                    class="inline-flex items-center justify-center w-full px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-primary-700 dark:text-primary-300 bg-primary-100 dark:bg-primary-800 hover:bg-primary-200 dark:hover:bg-primary-700 transition-colors duration-200">
                                     Rozszerz plan
                                 </a>
@@ -174,7 +174,7 @@
                             <span class="mr-3">👤</span>
                             Mój profil
                         </a>
-                        <a href="{{ route('dashboard') }}"
+                        <a href="{{ route('profile.dashboard') }}"
                            class="group flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white">
                             <span class="mr-3">📊</span>
                             Dashboard
@@ -182,7 +182,7 @@
 
                         <!-- Opcje zarządzania subskrypcją -->
                         @if($subscription)
-                            <a href="{{ route('subscription.dashboard') }}"
+                            <a href="{{ route('profile.subscription.dashboard') }}"
                                class="group flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white">
                                 <span class="mr-3">💳</span>
                                 Płatności

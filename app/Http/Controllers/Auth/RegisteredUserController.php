@@ -20,9 +20,8 @@ class RegisteredUserController extends Controller
      */
     public function create(Request $request): View
     {
-        $role = $request->query('role', 'owner');
-
-        return view('auth.register', compact('role'));
+        // Zwracamy wrapper view który ma layout i komponent Livewire
+        return view('auth.register');
     }
 
     /**
@@ -32,14 +31,14 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Nowa rejestracja - prostsza walidacja
+        // Livewire Volt obsługuje to teraz - ten kontroler już nie jest używany do POST
+        // Pozostawiam jako fallback
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['required', 'string', 'in:owner,sitter'],
-            'first_name' => ['required', 'string', 'max:255'],
-            'last_name' => ['required', 'string', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:20'],
         ]);
 
         $user = User::create([
@@ -48,18 +47,16 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        // Utwórz podstawowy profil
         UserProfile::create([
             'user_id' => $user->id,
-            'role' => $request->role,
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'phone' => $request->phone,
+            'role' => 'owner', // domyślnie owner
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect(route('profile.dashboard', absolute: false));
     }
 }

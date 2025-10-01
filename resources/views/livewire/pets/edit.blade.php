@@ -17,12 +17,12 @@ new #[Layout('layouts.app')] class extends Component {
             [
                 'title' => 'Panel',
                 'icon' => '🏠',
-                'url' => route('dashboard')
+                'url' => route('profile.dashboard')
             ],
             [
                 'title' => 'Moje pupile',
                 'icon' => '🐾',
-                'url' => route('pets.index')
+                'url' => route('profile.pets.index')
             ],
             [
                 'title' => $this->pet->name ?? 'Edytuj pupila',
@@ -65,7 +65,7 @@ new #[Layout('layouts.app')] class extends Component {
         // Check if the pet belongs to the authenticated user
         if ($pet->user_id !== auth()->id()) {
             session()->flash('error', 'Nie masz uprawnień do edycji tego zwierzęcia.');
-            return redirect()->route('pets.index');
+            return redirect()->route('profile.pets.index');
         }
 
         $this->pet = $pet;
@@ -174,7 +174,7 @@ new #[Layout('layouts.app')] class extends Component {
         ]);
 
         session()->flash('success', 'Profil zwierzęcia został zaktualizowany pomyślnie.');
-        return redirect()->route('pets.index');
+        return redirect()->route('profile.pets.index');
     }
 }; ?>
 
@@ -197,7 +197,7 @@ new #[Layout('layouts.app')] class extends Component {
                     </p>
                 </div>
 
-                <a href="{{ route('pets.index') }}" wire:navigate class="inline-flex items-center px-4 py-2 text-sm font-medium text-white/70 hover:text-white transition-colors duration-200">
+                <a href="{{ route('profile.pets.index') }}" wire:navigate class="inline-flex items-center px-4 py-2 text-sm font-medium text-white/70 hover:text-white transition-colors duration-200">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                     </svg>
@@ -530,7 +530,7 @@ new #[Layout('layouts.app')] class extends Component {
 
                 <!-- Submit Button -->
                 <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
-                    <a href="{{ route('pets.index') }}" wire:navigate
+                    <a href="{{ route('profile.pets.index') }}" wire:navigate
                         class="px-6 py-3 text-sm font-medium text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors duration-200">
                         Anuluj
                     </a>

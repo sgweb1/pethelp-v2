@@ -1,0 +1,723 @@
+/**
+ * Pet Sitter Wizard - Component Styles
+ * Responsive design optimized for mobile-first approach
+ */
+
+.pet-sitter-wizard {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ==============================================
+   RESPONSIVE LAYOUT - MOBILE FIRST
+   ============================================== */
+
+/* Wizard container responsive adjustments */
+.wizard-container {
+    @apply w-full max-w-4xl mx-auto;
+    /* Mobile: full width with padding */
+    @apply px-4 py-6;
+    /* Tablet: more padding */
+    @apply sm:px-6 sm:py-8;
+    /* Desktop: centered with max width */
+    @apply lg:px-8 lg:py-12;
+    /* Remove any margin-top */
+    margin-top: 0 !important;
+}
+
+/* Modal responsive adjustments */
+.wizard-modal {
+    /* Mobile: full screen */
+    @apply fixed inset-0 z-50;
+    /* Tablet: with small margins */
+    @apply sm:inset-4 sm:rounded-2xl;
+    /* Desktop: centered modal */
+    @apply lg:inset-8 lg:max-w-6xl lg:mx-auto;
+}
+
+/* Wizard content area */
+.wizard-content {
+    /* Mobile: full height with scroll */
+    @apply h-full overflow-y-auto;
+    /* Tablet: max height */
+    @apply sm:max-h-[90vh];
+    /* Desktop: comfortable height */
+    @apply lg:max-h-[85vh];
+}
+
+/* ==============================================
+   WIZARD HEADER RESPONSIVE
+   ============================================== */
+
+.wizard-header {
+    /* Mobile: compact header */
+    @apply p-4 border-b border-gray-200;
+    /* Tablet: more spacious */
+    @apply sm:p-6;
+    /* Desktop: full padding */
+    @apply lg:p-8;
+}
+
+.wizard-title {
+    /* Mobile: smaller title */
+    @apply text-xl font-bold;
+    /* Tablet: medium title */
+    @apply sm:text-2xl;
+    /* Desktop: large title */
+    @apply lg:text-3xl;
+}
+
+.wizard-subtitle {
+    /* Mobile: small subtitle */
+    @apply text-sm text-gray-600 mt-1;
+    /* Tablet: medium subtitle */
+    @apply sm:text-base sm:mt-2;
+    /* Desktop: larger subtitle */
+    @apply lg:text-lg;
+}
+
+/* Progress bar responsive */
+.wizard-progress {
+    /* Mobile: full width, smaller height */
+    @apply w-full h-1.5 bg-gray-200 rounded-full mt-4;
+    /* Tablet: slightly taller */
+    @apply sm:h-2 sm:mt-6;
+    /* Desktop: full height */
+    @apply lg:h-2.5;
+}
+
+.wizard-progress-bar {
+    @apply h-full bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full transition-all duration-500 ease-out;
+}
+
+/* ==============================================
+   WIZARD STEPS RESPONSIVE
+   ============================================== */
+
+.wizard-step {
+    /* Mobile: padding and spacing */
+    @apply p-4;
+    /* Tablet: more padding */
+    @apply sm:p-6;
+    /* Desktop: full padding */
+    @apply lg:p-8;
+}
+
+.wizard-step-title {
+    /* Mobile: compact title */
+    @apply text-lg font-semibold mb-3;
+    /* Tablet: medium title */
+    @apply sm:text-xl sm:mb-4;
+    /* Desktop: large title */
+    @apply lg:text-2xl lg:mb-6;
+}
+
+.wizard-step-description {
+    /* Mobile: compact description */
+    @apply text-sm text-gray-600 mb-4;
+    /* Tablet: medium description */
+    @apply sm:text-base sm:mb-6;
+    /* Desktop: larger description */
+    @apply lg:text-lg lg:mb-8;
+}
+
+/* ==============================================
+   FORM ELEMENTS RESPONSIVE
+   ============================================== */
+
+.wizard-form-group {
+    /* Mobile: compact spacing */
+    @apply mb-4;
+    /* Tablet: more spacing */
+    @apply sm:mb-6;
+    /* Desktop: full spacing */
+    @apply lg:mb-8;
+}
+
+.wizard-label {
+    /* Mobile: compact label */
+    @apply block text-sm font-medium text-gray-700 mb-2;
+    /* Tablet: medium label */
+    @apply sm:text-base sm:mb-3;
+    /* Desktop: larger label */
+    @apply lg:text-lg;
+}
+
+.wizard-input {
+    /* Mobile: touch-friendly inputs */
+    @apply w-full px-3 py-3 text-base border border-gray-300 rounded-lg;
+    /* Tablet: slightly smaller */
+    @apply sm:px-4 sm:py-2.5 sm:text-sm;
+    /* Desktop: comfortable size */
+    @apply lg:py-3 lg:text-base;
+    /* Focus states */
+    @apply focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500;
+    /* Transitions */
+    @apply transition-all duration-200;
+}
+
+.wizard-textarea {
+    /* Extends wizard-input */
+    @apply resize-none;
+    /* Mobile: adequate height */
+    min-height: 100px;
+    /* Tablet: more height */
+    @apply sm:min-h-[120px];
+    /* Desktop: full height */
+    @apply lg:min-h-[140px];
+}
+
+.wizard-select {
+    /* Mobile: touch-friendly select */
+    @apply w-full px-3 py-3 text-base border border-gray-300 rounded-lg bg-white;
+    /* Tablet: medium size */
+    @apply sm:px-4 sm:py-2.5 sm:text-sm;
+    /* Desktop: comfortable size */
+    @apply lg:py-3 lg:text-base;
+    /* Focus states */
+    @apply focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500;
+}
+
+/* ==============================================
+   WIZARD BUTTONS RESPONSIVE
+   ============================================== */
+
+.wizard-button-group {
+    /* Mobile: stacked buttons */
+    @apply flex flex-col gap-3 mt-6;
+    /* Tablet: horizontal layout */
+    @apply sm:flex-row sm:justify-between sm:items-center sm:mt-8;
+    /* Desktop: full spacing */
+    @apply lg:mt-10;
+}
+
+.wizard-button {
+    /* Mobile: full width, touch-friendly */
+    @apply w-full px-4 py-3 text-base font-medium rounded-lg transition-all duration-200;
+    /* Tablet: auto width */
+    @apply sm:w-auto sm:px-6 sm:py-2.5 sm:text-sm;
+    /* Desktop: comfortable size */
+    @apply lg:px-8 lg:py-3 lg:text-base;
+}
+
+.wizard-button-primary {
+    @apply bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2;
+    /* Order for mobile: primary at bottom */
+    @apply order-2;
+    /* Order for tablet+: primary at right */
+    @apply sm:order-1;
+}
+
+.wizard-button-secondary {
+    @apply bg-gray-200 text-gray-700 hover:bg-gray-300 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+    /* Order for mobile: secondary at top */
+    @apply order-1;
+    /* Order for tablet+: secondary at left */
+    @apply sm:order-2;
+}
+
+/* ==============================================
+   WIZARD CARDS & SELECTION RESPONSIVE
+   ============================================== */
+
+.wizard-card-grid {
+    /* Mobile: single column */
+    @apply grid grid-cols-1 gap-3;
+    /* Tablet: two columns */
+    @apply sm:grid-cols-2 sm:gap-4;
+    /* Desktop: three columns for smaller cards */
+    @apply lg:grid-cols-3;
+}
+
+.wizard-card-grid-2 {
+    /* Mobile: single column */
+    @apply grid grid-cols-1 gap-3;
+    /* Tablet+: two columns */
+    @apply sm:grid-cols-2 sm:gap-4;
+}
+
+.wizard-selection-card {
+    /* Mobile: touch-friendly cards */
+    @apply p-4 border-2 border-gray-200 rounded-xl cursor-pointer transition-all duration-200;
+    /* Tablet: more padding */
+    @apply sm:p-5;
+    /* Desktop: full padding */
+    @apply lg:p-6;
+    /* Hover states */
+    @apply hover:border-emerald-300 hover:bg-emerald-50;
+    /* Selected state */
+    @apply data-[selected=true]:border-emerald-500 data-[selected=true]:bg-emerald-100;
+}
+
+.wizard-selection-icon {
+    /* Mobile: compact icon */
+    @apply w-6 h-6 mb-2;
+    /* Tablet: medium icon */
+    @apply sm:w-8 sm:h-8 sm:mb-3;
+    /* Desktop: larger icon */
+    @apply lg:w-10 lg:h-10 lg:mb-4;
+}
+
+.wizard-selection-title {
+    /* Mobile: compact title */
+    @apply text-sm font-medium mb-1;
+    /* Tablet: medium title */
+    @apply sm:text-base sm:mb-2;
+    /* Desktop: larger title */
+    @apply lg:text-lg;
+}
+
+.wizard-selection-description {
+    /* Mobile: small description */
+    @apply text-xs text-gray-600;
+    /* Tablet: medium description */
+    @apply sm:text-sm;
+    /* Desktop: normal description */
+    @apply lg:text-base;
+}
+
+/* ==============================================
+   PHOTO UPLOAD RESPONSIVE
+   ============================================== */
+
+.wizard-photo-upload {
+    /* Mobile: single column */
+    @apply grid grid-cols-1 gap-4;
+    /* Tablet: two columns */
+    @apply sm:grid-cols-2 sm:gap-6;
+    /* Desktop: three columns */
+    @apply lg:grid-cols-3;
+}
+
+.wizard-photo-drop-zone {
+    /* Mobile: touch-friendly drop zone */
+    @apply border-2 border-dashed border-gray-300 rounded-xl p-6 text-center;
+    /* Tablet: more padding */
+    @apply sm:p-8;
+    /* Desktop: full padding */
+    @apply lg:p-10;
+    /* Hover states */
+    @apply hover:border-emerald-400 hover:bg-emerald-50;
+    /* Min height for consistency */
+    min-height: 200px;
+    @apply sm:min-h-[240px];
+    @apply lg:min-h-[280px];
+}
+
+/* ==============================================
+   NAVIGATION & CLOSE BUTTON RESPONSIVE
+   ============================================== */
+
+.wizard-close-button {
+    /* Mobile: larger touch target */
+    @apply w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200;
+    /* Tablet: medium size */
+    @apply sm:w-8 sm:h-8;
+    /* Desktop: comfortable size */
+    @apply lg:w-10 lg:h-10;
+    /* Position */
+    @apply absolute top-4 right-4;
+    @apply sm:top-6 sm:right-6;
+    @apply lg:top-8 lg:right-8;
+}
+
+.wizard-step-navigation {
+    /* Mobile: simple dots */
+    @apply flex justify-center gap-2 mt-4;
+    /* Tablet: more spacing */
+    @apply sm:gap-3 sm:mt-6;
+    /* Desktop: full spacing */
+    @apply lg:gap-4 lg:mt-8;
+}
+
+.wizard-step-dot {
+    /* Mobile: small dots */
+    @apply w-2 h-2 rounded-full transition-all duration-200;
+    /* Tablet: medium dots */
+    @apply sm:w-2.5 sm:h-2.5;
+    /* Desktop: larger dots */
+    @apply lg:w-3 lg:h-3;
+    /* Colors */
+    @apply bg-gray-300;
+    /* Active state */
+    @apply data-[active=true]:bg-emerald-500;
+    /* Completed state */
+    @apply data-[completed=true]:bg-emerald-400;
+}
+
+/* ==============================================
+   ANIMATIONS & MICRO-INTERACTIONS
+   ============================================== */
+
+/* Smooth transitions for all interactive elements */
+.pet-sitter-wizard button,
+.pet-sitter-wizard input,
+.pet-sitter-wizard textarea,
+.pet-sitter-wizard select {
+    transition: all 0.2s ease;
+}
+
+/* Focus styles for accessibility */
+.pet-sitter-wizard button:focus,
+.pet-sitter-wizard input:focus,
+.pet-sitter-wizard textarea:focus,
+.pet-sitter-wizard select:focus {
+    outline: 2px solid theme('colors.emerald.500');
+    outline-offset: 2px;
+}
+
+/* Touch feedback for mobile */
+@media (hover: none) and (pointer: coarse) {
+    .wizard-selection-card:active,
+    .wizard-button:active {
+        transform: scale(0.98);
+        transition: transform 0.1s ease-in-out;
+    }
+}
+
+/* ==============================================
+   OPTIMIZED CHECKBOX FEEDBACK (ProductStrategyAnalyst)
+   ============================================== */
+
+/* Natychmiastowy feedback CSS dla checkbox'ów - eliminuje potrzebę czekania na Livewire */
+.wizard-checkbox-tile {
+    @apply flex items-center p-5 border rounded-xl cursor-pointer transition-all duration-200 ease-out;
+    @apply border-gray-300 hover:bg-gray-50 hover:border-gray-400;
+    transform: scale(1);
+}
+
+/* Dodatkowe style dla małych checkbox tiles */
+.wizard-checkbox-tile.small {
+    @apply p-3 relative;
+    min-height: 80px;
+}
+
+/* Hover states */
+.wizard-checkbox-tile:hover {
+    transform: scale(1.01);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Active states */
+.wizard-checkbox-tile:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease-in-out;
+}
+
+/* Stan zaznaczony - natychmiastowa zmiana kolorów */
+.wizard-checkbox-tile.selected {
+    @apply border-emerald-500 bg-emerald-50;
+    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.1);
+    transform: scale(1.02);
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wizard-checkbox-tile.selected:hover {
+    @apply bg-emerald-100 border-emerald-600;
+    transform: scale(1.03);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+
+/* Ikona checkmark - natychmiastowa animacja */
+.wizard-checkbox-icon {
+    @apply w-5 h-5 ml-auto text-emerald-600 transition-all duration-200;
+    opacity: 0;
+    transform: scale(0.8) rotate(-12deg);
+}
+
+.wizard-checkbox-tile.selected .wizard-checkbox-icon {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+    transition: all 0.15s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Emoji/ikona - delikatna animacja */
+.wizard-checkbox-emoji {
+    @apply text-2xl mr-3 transition-transform duration-200;
+}
+
+.wizard-checkbox-tile.selected .wizard-checkbox-emoji {
+    transform: scale(1.1);
+}
+
+/* Tekst - zmiana kontrastu przy zaznaczeniu */
+.wizard-checkbox-text {
+    @apply text-sm font-medium text-gray-900 transition-colors duration-200;
+}
+
+.wizard-checkbox-tile.selected .wizard-checkbox-text {
+    @apply text-emerald-900;
+}
+
+/* Opis checkbox'a - tekst pomocniczy */
+.wizard-checkbox-description {
+    @apply text-xs text-gray-600 mt-1 transition-colors duration-200;
+}
+
+.wizard-checkbox-tile.selected .wizard-checkbox-description {
+    @apply text-emerald-700;
+}
+
+/* Optimalizacje dla dotykowych urządzeń */
+@media (hover: none) and (pointer: coarse) {
+    .wizard-checkbox-tile {
+        @apply min-h-[60px] p-5;
+    }
+
+    .wizard-checkbox-tile:active {
+        transform: scale(0.96);
+        @apply bg-gray-100;
+    }
+
+    .wizard-checkbox-tile.selected:active {
+        @apply bg-emerald-200;
+        transform: scale(0.98);
+    }
+}
+
+/* Usprawnienia animacji dla słabszych urządzeń */
+@media (prefers-reduced-motion: reduce) {
+    .wizard-checkbox-tile,
+    .wizard-checkbox-icon,
+    .wizard-checkbox-emoji,
+    .wizard-checkbox-text {
+        transition: none !important;
+        transform: none !important;
+    }
+
+    .wizard-checkbox-tile:hover,
+    .wizard-checkbox-tile.selected {
+        transform: none !important;
+    }
+}
+
+/* Wsparcie dla trybu wysokiego kontrastu */
+@media (prefers-contrast: high) {
+    .wizard-checkbox-tile {
+        @apply border-2 border-gray-900;
+    }
+
+    .wizard-checkbox-tile.selected {
+        @apply border-emerald-700 bg-emerald-200;
+    }
+}
+
+/* ==============================================
+   LOADING STATES RESPONSIVE
+   ============================================== */
+
+.wizard-loading-overlay {
+    @apply absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10;
+}
+
+.wizard-loading-spinner {
+    /* Mobile: medium spinner */
+    @apply w-8 h-8 border-2 border-emerald-200 border-t-emerald-600 rounded-full animate-spin;
+    /* Desktop: larger spinner */
+    @apply lg:w-10 lg:h-10 lg:border-4;
+}
+
+/* ==============================================
+   CUSTOM SCROLLBAR RESPONSIVE
+   ============================================== */
+
+.pet-sitter-wizard ::-webkit-scrollbar {
+    /* Mobile: thinner scrollbar */
+    width: 4px;
+    /* Desktop: normal scrollbar */
+    @apply lg:w-6;
+}
+
+.pet-sitter-wizard ::-webkit-scrollbar-track {
+    background: theme('colors.gray.100');
+}
+
+.pet-sitter-wizard ::-webkit-scrollbar-thumb {
+    background: theme('colors.gray.300');
+    border-radius: 3px;
+}
+
+.pet-sitter-wizard ::-webkit-scrollbar-thumb:hover {
+    background: theme('colors.gray.400');
+}
+
+/* ==============================================
+   DARK MODE RESPONSIVE ADJUSTMENTS
+   ============================================== */
+
+.dark .pet-sitter-wizard {
+    color-scheme: dark;
+}
+
+.dark .wizard-modal {
+    @apply bg-gray-900 text-gray-100;
+}
+
+.dark .wizard-header {
+    @apply border-gray-700;
+}
+
+.dark .wizard-input,
+.dark .wizard-textarea,
+.dark .wizard-select {
+    @apply bg-gray-800 border-gray-600 text-gray-100;
+    @apply focus:border-emerald-400 focus:ring-emerald-400;
+}
+
+.dark .wizard-selection-card {
+    @apply border-gray-700 bg-gray-800;
+    @apply hover:border-emerald-400 hover:bg-gray-700;
+    @apply data-[selected=true]:border-emerald-500 data-[selected=true]:bg-gray-700;
+}
+
+.dark .wizard-button-secondary {
+    @apply bg-gray-700 text-gray-200 hover:bg-gray-600;
+}
+
+.dark .wizard-step-dot {
+    @apply bg-gray-600;
+    @apply data-[active=true]:bg-emerald-500;
+    @apply data-[completed=true]:bg-emerald-400;
+}
+
+/* ==============================================
+   ACCESSIBILITY & REDUCED MOTION
+   ============================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .pet-sitter-wizard *,
+    .pet-sitter-wizard *::before,
+    .pet-sitter-wizard *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .wizard-button-primary {
+        @apply border-2 border-gray-900;
+    }
+
+    .wizard-selection-card {
+        @apply border-2 border-gray-900;
+    }
+}
+
+/* ==============================================
+   LANDSCAPE MODE OPTIMIZATIONS
+   ============================================== */
+
+@media (max-width: 767px) and (orientation: landscape) {
+    .wizard-modal {
+        @apply inset-2;
+    }
+
+    .wizard-content {
+        @apply max-h-[85vh];
+    }
+
+    .wizard-header {
+        @apply p-3;
+    }
+
+    .wizard-step {
+        @apply p-3;
+    }
+
+    .wizard-button-group {
+        @apply mt-4;
+    }
+}
+
+/* ==============================================
+   SAFE AREA INSETS FOR MOBILE DEVICES
+   ============================================== */
+
+.wizard-modal {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ==============================================
+   PRINT STYLES
+   ============================================== */
+
+@media print {
+    .wizard-modal {
+        @apply static inset-auto shadow-none;
+    }
+
+    .wizard-button-group,
+    .wizard-close-button,
+    .wizard-step-navigation {
+        @apply hidden;
+    }
+}
+
+/* ==============================================
+   CUSTOM SCROLLBAR FOR WIZARD CONTENT
+   ============================================== */
+
+.wizard-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.5) rgba(249, 250, 251, 0.3);
+}
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+.wizard-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.wizard-scrollbar::-webkit-scrollbar-track {
+    background: rgba(249, 250, 251, 0.3);
+    border-radius: 4px;
+    margin: 8px 0;
+}
+
+.wizard-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.5);
+    border-radius: 4px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+    transition: all 0.3s ease;
+}
+
+.wizard-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(107, 114, 128, 0.7);
+    border: 1px solid transparent;
+}
+
+.wizard-scrollbar::-webkit-scrollbar-thumb:active {
+    background: rgba(75, 85, 99, 0.8);
+}
+
+/* Mobile specific adjustments */
+@media (max-width: 768px) {
+    .wizard-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .wizard-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(156, 163, 175, 0.6);
+    }
+}
+
+/* Dark mode scrollbar */
+.dark .wizard-scrollbar {
+    scrollbar-color: rgba(107, 114, 128, 0.6) rgba(31, 41, 55, 0.3);
+}
+
+.dark .wizard-scrollbar::-webkit-scrollbar-track {
+    background: rgba(31, 41, 55, 0.3);
+}
+
+.dark .wizard-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(107, 114, 128, 0.6);
+}
+
+.dark .wizard-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(75, 85, 99, 0.8);
+}
