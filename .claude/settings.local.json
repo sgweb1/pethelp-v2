@@ -38,7 +38,12 @@
       "Bash(ls:*)",
       "Bash(composer show:*)",
       "Bash(composer require:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(for file in app/Filament/Resources/Disputes/Pages/*.php)",
+      "Bash(do sed -i 's/namespace App\\\\Filament\\\\Resources\\\\Disputes\\\\Disputes\\\\Pages;/namespace App\\\\Filament\\\\Resources\\\\Disputes\\\\Pages;/g' \"$file\")",
+      "Bash(git push:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
