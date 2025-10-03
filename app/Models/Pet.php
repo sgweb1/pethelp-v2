@@ -230,7 +230,7 @@ class Pet extends Model
 
     public function getPhotoUrlAttribute(): string
     {
-        if ($this->attributes['photo_url']) {
+        if (isset($this->attributes['photo_url']) && $this->attributes['photo_url']) {
             // If it's already a full URL, return as is
             if (str_starts_with($this->attributes['photo_url'], 'http')) {
                 return $this->attributes['photo_url'];
