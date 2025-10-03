@@ -297,4 +297,17 @@ class Service extends Model
     {
         return $this->reviews()->count();
     }
+
+    /**
+     * Accessor dla zgodności wstecznej - zwraca title jako name.
+     *
+     * Niektóre miejsca w kodzie (np. Filament) oczekują kolumny 'name',
+     * ale w tabeli services używamy 'title'.
+     *
+     * @return string
+     */
+    public function getNameAttribute(): string
+    {
+        return $this->title;
+    }
 }
