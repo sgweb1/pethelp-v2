@@ -8,7 +8,6 @@ use App\Filament\Resources\Disputes\Pages\ListDisputes;
 use App\Filament\Resources\Disputes\Schemas\DisputeForm;
 use App\Filament\Resources\Disputes\Tables\DisputesTable;
 use App\Models\Dispute;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -30,7 +29,7 @@ class DisputeResource extends Resource
 {
     protected static ?string $model = Dispute::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedExclamationTriangle;
+    protected static ?string $navigationIcon = 'heroicon-o-exclamation-triangle';
 
     protected static ?string $navigationLabel = 'Zgłoszenia i spory';
 
@@ -38,7 +37,7 @@ class DisputeResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Zgłoszenia';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Moderacja';
+    protected static ?string $navigationGroup = 'Moderacja';
 
     protected static ?int $navigationSort = 3;
 

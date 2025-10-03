@@ -7,7 +7,6 @@ use App\Filament\Resources\Notifications\Pages\EditNotification;
 use App\Filament\Resources\Notifications\Pages\ListNotifications;
 use App\Filament\Resources\Notifications\Schemas\NotificationForm;
 use App\Filament\Resources\Notifications\Tables\NotificationsTable;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -30,7 +29,7 @@ class NotificationResource extends Resource
 {
     protected static ?string $model = DatabaseNotification::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBell;
+    protected static ?string $navigationIcon = 'heroicon-o-bell';
 
     protected static ?string $navigationLabel = 'Powiadomienia';
 
@@ -38,7 +37,7 @@ class NotificationResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Powiadomienia';
 
-    protected static string|UnitEnum|null $navigationGroup = 'System';
+    protected static ?string $navigationGroup = 'System';
 
     protected static ?int $navigationSort = 1;
 

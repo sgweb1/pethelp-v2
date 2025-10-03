@@ -10,7 +10,6 @@ use App\Filament\Resources\Pets\Schemas\PetForm;
 use App\Filament\Resources\Pets\Schemas\PetInfolist;
 use App\Filament\Resources\Pets\Tables\PetsTable;
 use App\Models\Pet;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -30,7 +29,7 @@ class PetResource extends Resource
 {
     protected static ?string $model = Pet::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedHeart;
+    protected static ?string $navigationIcon = 'heroicon-o-heart';
 
     protected static ?string $navigationLabel = 'Zwierzęta';
 

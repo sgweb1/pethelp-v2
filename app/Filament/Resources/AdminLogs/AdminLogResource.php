@@ -28,7 +28,7 @@ class AdminLogResource extends Resource
 {
     protected static ?string $model = AdminLog::class;
 
-    protected static $navigationIcon = Heroicon::OutlineClipboardDocumentList;
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
     protected static ?string $navigationLabel = 'Logi aktywności';
 

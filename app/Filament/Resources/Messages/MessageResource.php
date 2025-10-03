@@ -8,7 +8,6 @@ use App\Filament\Resources\Messages\Pages\ListMessages;
 use App\Filament\Resources\Messages\Schemas\MessageForm;
 use App\Filament\Resources\Messages\Tables\MessagesTable;
 use App\Models\Message;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -30,7 +29,7 @@ class MessageResource extends Resource
 {
     protected static ?string $model = Message::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleLeftRight;
+    protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-left-right';
 
     protected static ?string $navigationLabel = 'Wiadomości';
 
@@ -38,7 +37,7 @@ class MessageResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Wiadomości';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Moderacja';
+    protected static ?string $navigationGroup = 'Moderacja';
 
     protected static ?int $navigationSort = 2;
 
