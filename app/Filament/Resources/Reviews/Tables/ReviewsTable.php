@@ -61,7 +61,7 @@ class ReviewsTable
                     ->label('Rezerwacja')
                     ->formatStateUsing(fn ($state, $record) => "#{$state}")
                     ->url(fn ($record) => $record->booking
-                        ? route('filament.admin.resources.bookings.bookings.edit', ['record' => $record->booking])
+                        ? route('filament.admin.resources.bookings.edit', ['record' => $record->booking])
                         : null)
                     ->color('info')
                     ->sortable(),

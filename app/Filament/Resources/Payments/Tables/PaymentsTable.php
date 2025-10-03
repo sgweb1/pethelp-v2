@@ -57,7 +57,7 @@ class PaymentsTable
                     ->searchable()
                     ->sortable()
                     ->url(fn ($record) => $record->booking_id
-                        ? route('filament.admin.resources.bookings.bookings.view', ['record' => $record->booking_id])
+                        ? route('filament.admin.resources.bookings.view', ['record' => $record->booking_id])
                         : null
                     )
                     ->color(fn ($record) => $record->booking_id ? 'primary' : 'gray'),
