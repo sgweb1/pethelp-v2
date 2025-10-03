@@ -54,7 +54,7 @@ class ReviewForm
                         Placeholder::make('booking.id')
                             ->label('Rezerwacja')
                             ->content(fn ($record) => $record?->booking
-                                ? "#{$record->booking->id} - ".($record->booking->service?->name ?? 'Brak usługi')
+                                ? "#{$record->booking->id} - ".($record->booking->service?->title ?? 'Brak usługi')
                                 : 'Brak powiązanej rezerwacji'),
 
                         Placeholder::make('rating')

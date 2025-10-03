@@ -56,7 +56,7 @@ class DisputeForm
                         Placeholder::make('booking_id')
                             ->label('Rezerwacja')
                             ->content(fn ($record) => $record?->booking
-                                ? "#{$record->booking->id} - ".($record->booking->service?->name ?? 'Brak usługi')
+                                ? "#{$record->booking->id} - ".($record->booking->service?->title ?? 'Brak usługi')
                                 : 'Nie dotyczy rezerwacji'),
 
                         Placeholder::make('category_label')

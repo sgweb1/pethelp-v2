@@ -365,7 +365,7 @@ class ReviewsTable
                     'reviewer:id,name,email',
                     'reviewee:id,name,email',
                     'booking:id,service_id',
-                    'booking.service:id,name',
+                    'booking.service:id,title',
                     'moderator:id,name',
                 ]);
             });
