@@ -29,6 +29,11 @@ if (app()->environment('local')) {
     Route::get('/wizard-ai-presentation', function () {
         return view('pages.wizard-ai-presentation');
     })->name('wizard-ai-presentation');
+
+    // Smart Search Mockup
+    Route::get('/mockups/smart-search', function () {
+        return view('mockups.smart-search');
+    })->name('mockups.smart-search');
 }
 
 Route::get('/sitter/{sitter}', [SitterController::class, 'show'])->name('sitter.show');
@@ -388,12 +393,27 @@ Route::prefix('profil')->name('profile.')->middleware('auth')->group(function ()
 // PayU webhook (bez autoryzacji)
 Route::post('/payu/notify', [PaymentController::class, 'payuNotification'])->name('payu.notify');
 
+// Campaign tracking (bez autoryzacji i CSRF - dostępne dla emaili)
+Route::prefix('campaigns')->name('campaigns.')->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class])->group(function () {
+    Route::get('/track/open/{campaign}/{user}', [\App\Http\Controllers\Api\CampaignTrackingController::class, 'trackOpen'])
+        ->name('track.open');
+
+    Route::get('/track/click/{campaign}/{user}', [\App\Http\Controllers\Api\CampaignTrackingController::class, 'trackClick'])
+        ->name('track.click');
+
+    Route::get('/unsubscribe/{campaign}/{user}', [\App\Http\Controllers\Api\CampaignTrackingController::class, 'unsubscribe'])
+        ->name('unsubscribe');
+
+    Route::post('/track/conversion/{campaign}/{user}', [\App\Http\Controllers\Api\CampaignTrackingController::class, 'trackConversion'])
+        ->name('track.conversion');
+});
+
 // AI Assistant API (without CSRF protection for easier integration)
 Route::prefix('api/ai')->name('api.ai.')->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class])->group(function () {
     Route::post('/suggestions/{step}', function (int $step) {
         $wizardData = request()->validate([
             'wizard_data' => 'required|array',
-            'context' => 'array'
+            'context' => 'array',
         ]);
 
         $hybridAI = app(\App\Services\AI\HybridAIAssistant::class);
@@ -407,13 +427,13 @@ Route::prefix('api/ai')->name('api.ai.')->withoutMiddleware([\App\Http\Middlewar
 
             return response()->json([
                 'success' => true,
-                'data' => $suggestions
+                'data' => $suggestions,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'error' => 'Nie udało się wygenerować sugestii',
-                'message' => app()->environment('local') ? $e->getMessage() : null
+                'message' => app()->environment('local') ? $e->getMessage() : null,
             ], 500);
         }
     })->name('suggestions');
@@ -421,7 +441,7 @@ Route::prefix('api/ai')->name('api.ai.')->withoutMiddleware([\App\Http\Middlewar
     Route::delete('/cache/{step}', function (int $step) {
         $wizardData = request()->validate([
             'wizard_data' => 'array',
-            'context' => 'array'
+            'context' => 'array',
         ]);
 
         $hybridAI = app(\App\Services\AI\HybridAIAssistant::class);
@@ -434,7 +454,7 @@ Route::prefix('api/ai')->name('api.ai.')->withoutMiddleware([\App\Http\Middlewar
 
         return response()->json([
             'success' => $cleared,
-            'message' => $cleared ? 'Cache został wyczyszczony' : 'Nie udało się wyczyścić cache'
+            'message' => $cleared ? 'Cache został wyczyszczony' : 'Nie udało się wyczyścić cache',
         ]);
     })->name('cache.clear');
 
@@ -443,7 +463,7 @@ Route::prefix('api/ai')->name('api.ai.')->withoutMiddleware([\App\Http\Middlewar
 
         return response()->json([
             'success' => true,
-            'data' => $hybridAI->getUsageStats()
+            'data' => $hybridAI->getUsageStats(),
         ]);
     })->name('stats');
 
@@ -452,7 +472,7 @@ Route::prefix('api/ai')->name('api.ai.')->withoutMiddleware([\App\Http\Middlewar
 
         return response()->json([
             'success' => true,
-            'data' => $hybridAI->getPerformanceMetrics()
+            'data' => $hybridAI->getPerformanceMetrics(),
         ]);
     })->name('performance');
 
@@ -465,7 +485,7 @@ Route::prefix('api/ai')->name('api.ai.')->withoutMiddleware([\App\Http\Middlewar
         return response()->json([
             'success' => true,
             'message' => "Optymalizacja zakończona. Usunięto {$deleted} wpisów.",
-            'deleted_entries' => $deleted
+            'deleted_entries' => $deleted,
         ]);
     })->name('optimize.cache');
 });
@@ -509,7 +529,7 @@ Route::middleware('local-only')->group(function () {
             9 => 'Weryfikacja',
             10 => 'Cennik',
             11 => 'Podsumowanie',
-            12 => 'Podgląd'
+            12 => 'Podgląd',
         ];
 
         return view('domains.dev.wizard-test', compact('stepNames'));
