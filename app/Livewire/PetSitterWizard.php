@@ -2,15 +2,16 @@
 
 namespace App\Livewire;
 
-use App\Models\WizardDraft;
-use App\Models\ServiceCategory;
+use App\Helpers\PhotoStorageHelper;
 use App\Models\PetType;
+use App\Models\ServiceCategory;
+use App\Models\WizardDraft;
 use App\Services\AI\HybridAIAssistant;
+use App\Services\GUSApiService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use App\Helpers\PhotoStorageHelper;
 
 /**
  * Komponent wizard'a rejestracji Pet Sittera w stylu Airbnb.
@@ -64,18 +65,25 @@ class PetSitterWizard extends Component
      * Stan animacji i loading states.
      */
     public bool $isTransitioning = false;
+
     public bool $isSaving = false;
+
     public bool $isValidating = false;
+
     public string $lastValidationMessage = '';
+
     public bool $showSuccessFeedback = false;
 
     // ===== KROK 1: WPROWADZENIE =====
     public string $motivation = '';
+
     public string $aiEditPrompt = '';
+
     public bool $isEditingWithAI = false;
 
     // ===== AI ASSISTANT FOR EXPERIENCE DESCRIPTION =====
     public string $aiEditPromptExperience = '';
+
     public bool $isEditingExperienceWithAI = false;
 
     // ===== KROK 2: DOŚWIADCZENIE Z ZWIERZĘTAMI =====
@@ -98,11 +106,40 @@ class PetSitterWizard extends Component
     // ===== KROK 5: LOKALIZACJA I PROMIEŃ =====
     public string $address = '';
 
+    // Strukturalne dane adresowe z Nominatim API
+    public string $road = '';
+
+    public string $house_number = '';
+
+    public string $postcode = '';
+
+    public string $city = '';
+
+    public string $town = '';
+
+    public string $village = '';
+
+    public string $municipality = '';
+
+    public string $county = '';
+
+    public string $state = '';
+
+    public string $gus_city_name = '';
+
+    public string $district = '';
+
     public float $latitude = 0;
 
     public float $longitude = 0;
 
     public int $serviceRadius = 10;
+
+    /**
+     * Szacowana liczba potencjalnych klientów w promieniu obsługi.
+     * Wyliczana dynamicznie na podstawie rzeczywistych użytkowników w bazie.
+     */
+    public int $estimatedClients = 0;
 
     // ===== KROK 6: DOSTĘPNOŚĆ =====
     public array $weeklyAvailability = [];
@@ -124,7 +161,9 @@ class PetSitterWizard extends Component
 
     // ===== KROK 8: ZDJĘCIA =====
     public $profilePhoto;
+
     public $tempHomePhoto; // Tymczasowe zdjęcie domu do zapisania
+
     private $profilePhotoProcessed = false; // Flaga zapobiegająca duplikacji
 
     public array $homePhotos = [];
@@ -231,7 +270,7 @@ class PetSitterWizard extends Component
         $this->loadDraft();
 
         // Inicjalizacja domyślnych wartości (jeśli nie załadowano draft'u)
-        if (!$this->currentDraft) {
+        if (! $this->currentDraft) {
             $this->initializeDefaults();
         }
 
@@ -268,6 +307,65 @@ class PetSitterWizard extends Component
     }
 
     /**
+     * Lifecycle hook wywoływany gdy promień obsługi się zmienia.
+     * Automatycznie przelicza potencjalną liczbę klientów.
+     *
+     * @param  int  $value  Nowa wartość promienia
+     */
+    public function updatedServiceRadius(int $value): void
+    {
+        // Przelicz potencjalnych klientów z nowym promieniem
+        $this->calculatePotentialClients();
+
+        Log::info('Promień obsługi zaktualizowany', [
+            'new_radius' => $value,
+            'estimated_clients' => $this->estimatedClients,
+        ]);
+    }
+
+    /**
+     * Lifecycle hook wywoływany gdy szerokość geograficzna się zmienia.
+     * Automatycznie przelicza estymację gdy mamy komplet danych.
+     *
+     * @param  float  $value  Nowa wartość latitude
+     */
+    public function updatedLatitude(float $value): void
+    {
+        // Przelicz estymację tylko jeśli mamy kompletne współrzędne
+        if ($this->latitude != 0 && $this->longitude != 0 && $this->serviceRadius > 0) {
+            $this->calculatePotentialClients();
+
+            Log::info('Współrzędne zaktualizowane (latitude)', [
+                'latitude' => $this->latitude,
+                'longitude' => $this->longitude,
+                'radius' => $this->serviceRadius,
+                'estimated_clients' => $this->estimatedClients,
+            ]);
+        }
+    }
+
+    /**
+     * Lifecycle hook wywoływany gdy długość geograficzna się zmienia.
+     * Automatycznie przelicza estymację gdy mamy komplet danych.
+     *
+     * @param  float  $value  Nowa wartość longitude
+     */
+    public function updatedLongitude(float $value): void
+    {
+        // Przelicz estymację tylko jeśli mamy kompletne współrzędne
+        if ($this->latitude != 0 && $this->longitude != 0 && $this->serviceRadius > 0) {
+            $this->calculatePotentialClients();
+
+            Log::info('Współrzędne zaktualizowane (longitude)', [
+                'latitude' => $this->latitude,
+                'longitude' => $this->longitude,
+                'radius' => $this->serviceRadius,
+                'estimated_clients' => $this->estimatedClients,
+            ]);
+        }
+    }
+
+    /**
      * Mapuje aktualny krok wizarda na odpowiedni plik widoku.
      *
      * Nowa kolejność kroków - najpierw zbieramy dane, potem AI generuje opisy.
@@ -276,22 +374,9 @@ class PetSitterWizard extends Component
      */
     public function getStepFileNumber(): int
     {
-        // Mapowanie: currentStep => numer pliku widoku
-        $stepMapping = [
-            1 => 3,  // Rodzaje zwierząt (stary krok 3)
-            2 => 4,  // Usługi (stary krok 4)
-            3 => 5,  // Lokalizacja i promień (stary krok 5)
-            4 => 6,  // Dostępność (stary krok 6)
-            5 => 7,  // Środowisko domowe (stary krok 7)
-            6 => 1,  // Wprowadzenie i motywacja (stary krok 1) - AI z kontekstem
-            7 => 2,  // Doświadczenie (stary krok 2) - AI z kontekstem
-            8 => 8,  // Zdjęcia profilu (bez zmian)
-            9 => 9,  // Weryfikacja (bez zmian)
-            10 => 10, // Cennik (bez zmian)
-            11 => 11, // Finalizacja (bez zmian)
-        ];
-
-        return $stepMapping[$this->currentStep] ?? $this->currentStep;
+        // Po refaktoryzacji: każdy krok odpowiada numerowi pliku widoku
+        // Krok 1 → step-1.blade.php, Krok 2 → step-2.blade.php, itd.
+        return $this->currentStep;
     }
 
     /**
@@ -324,7 +409,7 @@ class PetSitterWizard extends Component
     public function togglePetExperience(string $value): void
     {
         if (in_array($value, $this->petExperience)) {
-            $this->petExperience = array_values(array_filter($this->petExperience, fn($item) => $item !== $value));
+            $this->petExperience = array_values(array_filter($this->petExperience, fn ($item) => $item !== $value));
         } else {
             $this->petExperience[] = $value;
         }
@@ -338,17 +423,17 @@ class PetSitterWizard extends Component
         \Log::info('toggleAnimalType() została wywołana', [
             'value' => $value,
             'current_animalTypes' => $this->animalTypes,
-            'step' => $this->currentStep
+            'step' => $this->currentStep,
         ]);
 
         if (in_array($value, $this->animalTypes)) {
-            $this->animalTypes = array_values(array_filter($this->animalTypes, fn($item) => $item !== $value));
+            $this->animalTypes = array_values(array_filter($this->animalTypes, fn ($item) => $item !== $value));
         } else {
             $this->animalTypes[] = $value;
         }
 
         \Log::info('toggleAnimalType() po zmianie', [
-            'new_animalTypes' => $this->animalTypes
+            'new_animalTypes' => $this->animalTypes,
         ]);
 
         // Wyczyść błędy walidacji po zmianie
@@ -365,17 +450,17 @@ class PetSitterWizard extends Component
         \Log::info('toggleAnimalSize() została wywołana', [
             'value' => $value,
             'current_animalSizes' => $this->animalSizes,
-            'step' => $this->currentStep
+            'step' => $this->currentStep,
         ]);
 
         if (in_array($value, $this->animalSizes)) {
-            $this->animalSizes = array_values(array_filter($this->animalSizes, fn($item) => $item !== $value));
+            $this->animalSizes = array_values(array_filter($this->animalSizes, fn ($item) => $item !== $value));
         } else {
             $this->animalSizes[] = $value;
         }
 
         \Log::info('toggleAnimalSize() po zmianie', [
-            'new_animalSizes' => $this->animalSizes
+            'new_animalSizes' => $this->animalSizes,
         ]);
 
         // Wyczyść błędy walidacji po zmianie
@@ -391,13 +476,13 @@ class PetSitterWizard extends Component
     {
         \Log::info('saveStep2Data() została wywołana', [
             'petExperience' => $petExperience,
-            'step' => $this->currentStep
+            'step' => $this->currentStep,
         ]);
 
         $this->petExperience = $petExperience;
 
         \Log::info('saveStep2Data() - dane zapisane', [
-            'new_petExperience' => $this->petExperience
+            'new_petExperience' => $this->petExperience,
         ]);
     }
 
@@ -409,7 +494,7 @@ class PetSitterWizard extends Component
         \Log::info('saveStep3Data() została wywołana', [
             'animalTypes' => $animalTypes,
             'animalSizes' => $animalSizes,
-            'step' => $this->currentStep
+            'step' => $this->currentStep,
         ]);
 
         $this->animalTypes = $animalTypes;
@@ -417,7 +502,7 @@ class PetSitterWizard extends Component
 
         \Log::info('saveStep3Data() - dane zapisane', [
             'new_animalTypes' => $this->animalTypes,
-            'new_animalSizes' => $this->animalSizes
+            'new_animalSizes' => $this->animalSizes,
         ]);
     }
 
@@ -427,28 +512,27 @@ class PetSitterWizard extends Component
      * Aktualizuje listę zaznaczonych usług i emituje event do frontendu
      * aby zsynchronizować WizardState.
      *
-     * @param string $value Klucz usługi do zaznaczenia/odznaczenia
-     * @return void
+     * @param  string  $value  Klucz usługi do zaznaczenia/odznaczenia
      */
     public function toggleServiceType(string $value): void
     {
         \Log::info('toggleServiceType() została wywołana', [
             'value' => $value,
             'current_serviceTypes' => $this->serviceTypes,
-            'step' => $this->currentStep
+            'step' => $this->currentStep,
         ]);
 
         $wasSelected = in_array($value, $this->serviceTypes);
 
         if ($wasSelected) {
-            $this->serviceTypes = array_values(array_filter($this->serviceTypes, fn($item) => $item !== $value));
+            $this->serviceTypes = array_values(array_filter($this->serviceTypes, fn ($item) => $item !== $value));
         } else {
             $this->serviceTypes[] = $value;
         }
 
         \Log::info('toggleServiceType() po zmianie', [
             'new_serviceTypes' => $this->serviceTypes,
-            'action' => $wasSelected ? 'removed' : 'added'
+            'action' => $wasSelected ? 'removed' : 'added',
         ]);
 
         // Zapisz draft
@@ -458,7 +542,7 @@ class PetSitterWizard extends Component
         $this->dispatch('service-types-updated', [
             'serviceTypes' => $this->serviceTypes,
             'action' => $wasSelected ? 'removed' : 'added',
-            'serviceKey' => $value
+            'serviceKey' => $value,
         ]);
     }
 
@@ -468,19 +552,18 @@ class PetSitterWizard extends Component
      * Pozwala na dodanie usługi bez przechodzenia do kroku 4.
      * Automatycznie dodaje usługę do selectedServices i zapisuje draft.
      *
-     * @param string $serviceKey Klucz usługi do dodania
-     * @return void
+     * @param  string  $serviceKey  Klucz usługi do dodania
      */
     public function quickAddService(string $serviceKey): void
     {
         \Log::info('🚀 quickAddService() wywołana', [
             'serviceKey' => $serviceKey,
             'current_serviceTypes' => $this->serviceTypes,
-            'step' => $this->currentStep
+            'step' => $this->currentStep,
         ]);
 
         // Sprawdź czy usługa nie jest już dodana
-        if (!in_array($serviceKey, $this->serviceTypes)) {
+        if (! in_array($serviceKey, $this->serviceTypes)) {
             $this->serviceTypes[] = $serviceKey;
 
             // Zapisz draft
@@ -488,24 +571,24 @@ class PetSitterWizard extends Component
 
             \Log::info('✅ Usługa dodana pomyślnie', [
                 'serviceKey' => $serviceKey,
-                'new_serviceTypes' => $this->serviceTypes
+                'new_serviceTypes' => $this->serviceTypes,
             ]);
 
             // Wyślij event do frontendu
             $this->dispatch('service-added', [
                 'serviceKey' => $serviceKey,
                 'success' => true,
-                'message' => 'Usługa została dodana!'
+                'message' => 'Usługa została dodana!',
             ]);
         } else {
             \Log::info('ℹ️ Usługa już dodana', [
-                'serviceKey' => $serviceKey
+                'serviceKey' => $serviceKey,
             ]);
 
             $this->dispatch('service-added', [
                 'serviceKey' => $serviceKey,
                 'success' => false,
-                'message' => 'Ta usługa jest już dodana'
+                'message' => 'Ta usługa jest już dodana',
             ]);
         }
     }
@@ -516,15 +599,14 @@ class PetSitterWizard extends Component
      * Obsługuje zmianę strategii cenowej przez użytkownika
      * i automatycznie zapisuje draft.
      *
-     * @param string $strategy Nazwa strategii (budget|competitive|premium)
-     * @return void
+     * @param  string  $strategy  Nazwa strategii (budget|competitive|premium)
      */
     public function updatePricingStrategy(string $strategy): void
     {
         \Log::info('💰 updatePricingStrategy() wywołana', [
             'strategy' => $strategy,
             'old_strategy' => $this->pricingStrategy,
-            'step' => $this->currentStep
+            'step' => $this->currentStep,
         ]);
 
         $this->pricingStrategy = $strategy;
@@ -533,7 +615,7 @@ class PetSitterWizard extends Component
         $this->saveDraft();
 
         \Log::info('✅ Strategia cenowa zaktualizowana', [
-            'new_strategy' => $this->pricingStrategy
+            'new_strategy' => $this->pricingStrategy,
         ]);
     }
 
@@ -544,26 +626,25 @@ class PetSitterWizard extends Component
      * Frontend przesyła prosty obiekt {serviceKey: price}.
      * Backend przechowuje w tej samej strukturze.
      *
-     * @param array $pricing Obiekt z cenami usług {serviceKey: price}
-     * @return void
+     * @param  array  $pricing  Obiekt z cenami usług {serviceKey: price}
      */
     public function updateServicePricing(array $pricing): void
     {
         \Log::info('💰 updateServicePricing() wywołana', [
             'pricing' => $pricing,
             'old_servicePricing' => $this->servicePricing,
-            'step' => $this->currentStep
+            'step' => $this->currentStep,
         ]);
 
         // Zachowaj prostą strukturę {serviceKey: price}
         // Usługi z ceną > 0 są automatycznie "enabled"
-        $this->servicePricing = array_filter($pricing, fn($price) => $price > 0);
+        $this->servicePricing = array_filter($pricing, fn ($price) => $price > 0);
 
         // Zapisz draft
         $this->saveDraft();
 
         \Log::info('✅ Cennik zaktualizowany', [
-            'new_servicePricing' => $this->servicePricing
+            'new_servicePricing' => $this->servicePricing,
         ]);
     }
 
@@ -575,17 +656,17 @@ class PetSitterWizard extends Component
         \Log::info('toggleSpecialService() została wywołana', [
             'value' => $value,
             'current_specialServices' => $this->specialServices,
-            'step' => $this->currentStep
+            'step' => $this->currentStep,
         ]);
 
         if (in_array($value, $this->specialServices)) {
-            $this->specialServices = array_values(array_filter($this->specialServices, fn($item) => $item !== $value));
+            $this->specialServices = array_values(array_filter($this->specialServices, fn ($item) => $item !== $value));
         } else {
             $this->specialServices[] = $value;
         }
 
         \Log::info('toggleSpecialService() po zmianie', [
-            'new_specialServices' => $this->specialServices
+            'new_specialServices' => $this->specialServices,
         ]);
 
         // Livewire automatycznie odświeży widok
@@ -600,7 +681,7 @@ class PetSitterWizard extends Component
         \Log::info('nextStep() została wywołana', [
             'current_step' => $this->currentStep,
             'motivation_length' => strlen($this->motivation),
-            'motivation_content' => substr($this->motivation, 0, 100) . '...'
+            'motivation_content' => substr($this->motivation, 0, 100).'...',
         ]);
 
         $this->isValidating = true;
@@ -610,9 +691,9 @@ class PetSitterWizard extends Component
             $this->validateCurrentStep();
 
             // Debug: loguj sukces walidacji
-            \Log::info('Validation passed in step ' . $this->currentStep, [
+            \Log::info('Validation passed in step '.$this->currentStep, [
                 'motivation_length' => strlen($this->motivation),
-                'current_step' => $this->currentStep
+                'current_step' => $this->currentStep,
             ]);
 
             // Pokaż animację przejścia
@@ -647,7 +728,7 @@ class PetSitterWizard extends Component
                 $this->dispatch('step-changed', [
                     'step' => $this->currentStep,
                     'direction' => 'forward',
-                    'animated' => true
+                    'animated' => true,
                 ]);
 
                 // Ukryj feedback po 2 sekundach
@@ -658,10 +739,10 @@ class PetSitterWizard extends Component
             $this->dispatch('validation-failed', ['errors' => $e->errors()]);
 
             // Debug: loguj błędy walidacji
-            \Log::info('Validation failed in step ' . $this->currentStep, [
+            \Log::info('Validation failed in step '.$this->currentStep, [
                 'errors' => $e->errors(),
                 'motivation_length' => strlen($this->motivation),
-                'motivation_content' => $this->motivation
+                'motivation_content' => $this->motivation,
             ]);
         } finally {
             $this->isValidating = false;
@@ -691,7 +772,7 @@ class PetSitterWizard extends Component
             $this->dispatch('step-changed', [
                 'step' => $this->currentStep,
                 'direction' => 'backward',
-                'animated' => true
+                'animated' => true,
             ]);
 
             $this->isTransitioning = false;
@@ -714,13 +795,13 @@ class PetSitterWizard extends Component
      */
     private function validateCurrentStep(): void
     {
-        if (isset($this->stepValidationRules[$this->currentStep]) && !empty($this->stepValidationRules[$this->currentStep])) {
+        if (isset($this->stepValidationRules[$this->currentStep]) && ! empty($this->stepValidationRules[$this->currentStep])) {
             // Specjalna logika dla kroku 1 - walidacja animalSizes
             if ($this->currentStep === 1) {
                 // Sprawdź czy wybrano psy lub koty
                 $hasDogsCats = array_intersect(['dogs', 'cats'], $this->animalTypes);
 
-                if (!empty($hasDogsCats) && empty($this->animalSizes)) {
+                if (! empty($hasDogsCats) && empty($this->animalSizes)) {
                     $this->addError('animalSizes', $this->messages['animalSizes.required_if'] ?? 'Wybierz rozmiary dla psów lub kotów');
                 }
 
@@ -797,7 +878,7 @@ class PetSitterWizard extends Component
             // Fallback w przypadku błędu AI
             \Log::warning('AI suggestions failed, using fallback', [
                 'step' => $this->currentStep,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             $fallback = $this->getFallbackSuggestions();
@@ -846,12 +927,12 @@ class PetSitterWizard extends Component
             'other_pets' => $this->otherPets,
 
             // Krok 8: Zdjęcia
-            'has_profile_photo' => !empty($this->profilePhoto),
+            'has_profile_photo' => ! empty($this->profilePhoto),
             'home_photos_count' => count($this->homePhotos),
 
             // Krok 9: Weryfikacja
-            'has_identity_document' => !empty($this->identityDocument),
-            'has_criminal_record' => !empty($this->criminalRecord),
+            'has_identity_document' => ! empty($this->identityDocument),
+            'has_criminal_record' => ! empty($this->criminalRecord),
             'references_count' => count($this->references),
 
             // Krok 10: Cennik
@@ -864,14 +945,14 @@ class PetSitterWizard extends Component
 
             // Metadane
             'completion_percentage' => $this->getProgressPercentage(),
-            'completed_steps' => array_filter(range(1, $this->currentStep - 1), fn($step) => $this->isStepCompleted($step)),
+            'completed_steps' => array_filter(range(1, $this->currentStep - 1), fn ($step) => $this->isStepCompleted($step)),
         ];
     }
 
     /**
      * Pobiera nazwę kroku dla lepszego kontekstu AI.
      *
-     * @param int $step Numer kroku
+     * @param  int  $step  Numer kroku
      * @return string Nazwa kroku
      */
     private function getStepName(int $step): string
@@ -897,7 +978,7 @@ class PetSitterWizard extends Component
     /**
      * Transformuje odpowiedź AI do formatu oczekiwanego przez frontend.
      *
-     * @param array $aiSuggestions Sugestie z AI Assistant
+     * @param  array  $aiSuggestions  Sugestie z AI Assistant
      * @return array Sugestie w formacie frontend
      */
     private function transformAISuggestionsForFrontend(array $aiSuggestions): array
@@ -916,7 +997,7 @@ class PetSitterWizard extends Component
     /**
      * Wyciąga elementy sugestii z różnych struktur AI.
      *
-     * @param array $aiSuggestions Sugestie AI
+     * @param  array  $aiSuggestions  Sugestie AI
      * @return array Lista elementów sugestii
      */
     private function extractSuggestionsItems(array $aiSuggestions): array
@@ -924,18 +1005,18 @@ class PetSitterWizard extends Component
         $items = [];
 
         // Sprawdź różne możliwe struktury
-        if (!empty($aiSuggestions['suggestions'])) {
+        if (! empty($aiSuggestions['suggestions'])) {
             $items = is_array($aiSuggestions['suggestions']) ? $aiSuggestions['suggestions'] : [$aiSuggestions['suggestions']];
-        } elseif (!empty($aiSuggestions['tips'])) {
+        } elseif (! empty($aiSuggestions['tips'])) {
             $items = is_array($aiSuggestions['tips']) ? $aiSuggestions['tips'] : [$aiSuggestions['tips']];
-        } elseif (!empty($aiSuggestions['examples'])) {
+        } elseif (! empty($aiSuggestions['examples'])) {
             $items = is_array($aiSuggestions['examples']) ? $aiSuggestions['examples'] : [$aiSuggestions['examples']];
         } else {
             return ['Brak dostępnych sugestii dla tego kroku'];
         }
 
         // Upewnij się, że wszystkie elementy są stringami
-        return array_map(function($item) {
+        return array_map(function ($item) {
             if (is_string($item)) {
                 return $item;
             } elseif (is_array($item)) {
@@ -959,116 +1040,166 @@ class PetSitterWizard extends Component
                 'items' => [
                     'Opisz swoją pasję do zwierząt',
                     'Wspomnieć o doświadczeniu z własnymi pupilami',
-                    'Wyjaśnij, dlaczego ludzie mogą Ci zaufać'
-                ]
+                    'Wyjaśnij, dlaczego ludzie mogą Ci zaufać',
+                ],
             ],
             2 => [
                 'title' => 'Jak opisać doświadczenie',
                 'items' => [
                     'Podaj konkretne przykłady opieki nad zwierzętami',
                     'Opisz różne sytuacje, z którymi się zmierzyłeś',
-                    'Wspomnieć o szkoleniach lub kursach'
-                ]
+                    'Wspomnieć o szkoleniach lub kursach',
+                ],
             ],
             3 => [
                 'title' => 'Wybór zwierząt',
                 'items' => [
                     'Wybierz tylko te zwierzęta, z którymi masz doświadczenie',
                     'Małe psy są najłatwiejsze dla początkujących',
-                    'Koty wymagają innego podejścia niż psy'
-                ]
+                    'Koty wymagają innego podejścia niż psy',
+                ],
             ],
             4 => [
                 'title' => 'Dobór usług',
                 'items' => [
                     'Zacznij od 2-3 podstawowych usług',
                     'Spacery z psem to najpopularniejsza usługa',
-                    'Opieka nocna przynosi najwyższe zyski'
-                ]
+                    'Opieka nocna przynosi najwyższe zyski',
+                ],
             ],
             5 => [
                 'title' => 'Lokalizacja i promień',
                 'items' => [
                     'Promień 5-10km to dobry start',
                     'Sprawdź konkurencję w swojej okolicy',
-                    'Większy promień = więcej klientów'
-                ]
+                    'Większy promień = więcej klientów',
+                ],
             ],
             6 => [
                 'title' => 'Planowanie dostępności',
                 'items' => [
                     'Weekendy są najbardziej pożądane',
                     'Elastyczność zwiększa szanse na rezerwacje',
-                    'Unikaj zbyt wąskich okien czasowych'
-                ]
+                    'Unikaj zbyt wąskich okien czasowych',
+                ],
             ],
             7 => [
                 'title' => 'Opis domu',
                 'items' => [
                     'Ogród to duży atut dla właścicieli psów',
                     'Środowisko bez dymu jest ważne',
-                    'Bądź szczery co do swoich zwierząt'
-                ]
+                    'Bądź szczery co do swoich zwierząt',
+                ],
             ],
             8 => [
                 'title' => 'Zdjęcia profilu',
                 'items' => [
                     'Uśmiechnij się naturalnie na zdjęciu profilowym',
                     'Pokaż czyste i bezpieczne przestrzenie',
-                    'Naturalne światło działa najlepiej'
-                ]
+                    'Naturalne światło działa najlepiej',
+                ],
             ],
             9 => [
                 'title' => 'Weryfikacja profilu',
                 'items' => [
                     'Dokument tożsamości to podstawa zaufania',
                     'Referencje znacznie zwiększają wiarygodność',
-                    'Zaświadczenie o niekaralności wyróżnia na rynku'
-                ]
+                    'Zaświadczenie o niekaralności wyróżnia na rynku',
+                ],
             ],
             10 => [
                 'title' => 'Strategia cenowa',
                 'items' => [
                     'Sprawdź ceny konkurencji w okolicy',
                     'Zacznij od cen competitive, podnieś po zebraniu opinii',
-                    'Weekend i święta można wycenić 20-30% wyżej'
-                ]
+                    'Weekend i święta można wycenić 20-30% wyżej',
+                ],
             ],
             11 => [
                 'title' => 'Finalizacja rejestracji',
                 'items' => [
                     'Sprawdź wszystkie dane przed potwierdzeniem',
                     'Przeczytaj regulamin dokładnie',
-                    'Po rejestracji będziesz mógł edytować profil'
-                ]
+                    'Po rejestracji będziesz mógł edytować profil',
+                ],
             ],
             12 => [
                 'title' => 'Podgląd profilu',
                 'items' => [
                     'Sprawdź jak wygląda Twój profil dla klientów',
                     'Upewnij się, że wszystkie informacje są poprawne',
-                    'Możesz wrócić i edytować dowolny krok'
-                ]
-            ]
+                    'Możesz wrócić i edytować dowolny krok',
+                ],
+            ],
         ];
 
         return $fallbackSuggestions[$this->currentStep] ?? [
             'title' => 'Ogólne wskazówki',
-            'items' => ['Wypełnij formularz zgodnie ze swoimi możliwościami i doświadczeniem']
+            'items' => ['Wypełnij formularz zgodnie ze swoimi możliwościami i doświadczeniem'],
         ];
     }
 
     /**
-     * Wyciąga miasto z adresu.
+     * Wyciąga miejscowość i ulicę z pełnego adresu.
      *
-     * @param string $address Pełny adres
-     * @return string Miasto
+     * Parsuje adres zwrócony przez Nominatim i wyciąga tylko najważniejsze
+     * elementy: ulicę i miejscowość (bez kodu pocztowego, powiatu, województwa).
+     *
+     * @param  string  $address  Pełny adres
+     * @return string Uproszczona lokalizacja (ulica, miejscowość)
+     *
+     * @example
+     * extractCityFromAddress("ul. Poligon, 05-075 Droga czołgowa, powiat wołomiński, woj. mazowieckie")
+     * // zwraca: "ul. Poligon, Droga czołgowa"
      */
     private function extractCityFromAddress(string $address): string
     {
-        // Prosta ekstrakcja miasta - można rozszerzyć o bardziej zaawansowaną logikę
-        $parts = explode(',', $address);
-        return trim($parts[1] ?? $parts[0] ?? 'Warszawa');
+        if (empty($address)) {
+            return 'Warszawa';
+        }
+
+        // Rozdziel adres po przecinkach
+        $parts = array_map('trim', explode(',', $address));
+
+        $street = '';
+        $city = '';
+
+        foreach ($parts as $part) {
+            // Pomijamy kod pocztowy (XX-XXX)
+            if (preg_match('/^\d{2}-\d{3}/', $part)) {
+                continue;
+            }
+
+            // Pomijamy "powiat ...", "gmina ...", "woj. ...", "województwo ..."
+            if (preg_match('/(powiat|gmina|woj\.|województwo)/i', $part)) {
+                continue;
+            }
+
+            // Pierwsza część z "ul.", "al." to ulica
+            if (empty($street) && preg_match('/(ul\.|al\.)/i', $part)) {
+                $street = $part;
+
+                continue;
+            }
+
+            // Pierwsza inna niepusta część to miejscowość
+            if (empty($city) && ! empty($part)) {
+                // Usuń ewentualny kod pocztowy z początku
+                $city = preg_replace('/^\d{2}-\d{3}\s+/', '', $part);
+            }
+        }
+
+        // Zbuduj wynik
+        if (! empty($street) && ! empty($city)) {
+            return $street.', '.$city;
+        } elseif (! empty($street)) {
+            return $street;
+        } elseif (! empty($city)) {
+            return $city;
+        }
+
+        // Fallback - pierwsza część
+        return trim($parts[0] ?? 'Warszawa');
     }
 
     /**
@@ -1093,7 +1224,7 @@ class PetSitterWizard extends Component
             // Wyemituj event dla frontend
             $this->dispatch('ai-suggestions-refreshed', [
                 'step' => $this->currentStep,
-                'suggestions' => $this->getAISuggestions()
+                'suggestions' => $this->getAISuggestions(),
             ]);
 
         } catch (\Exception $e) {
@@ -1113,11 +1244,12 @@ class PetSitterWizard extends Component
             'aiEditPrompt' => $this->aiEditPrompt,
             'motivation_length' => strlen($this->motivation),
             'user_id' => Auth::id(),
-            'step' => $this->currentStep
+            'step' => $this->currentStep,
         ]);
 
         if (empty($this->aiEditPrompt)) {
             \Log::warning('🔧 Pusta instrukcja AI');
+
             return;
         }
 
@@ -1140,8 +1272,8 @@ class PetSitterWizard extends Component
                     'min_length' => 50,
                     'max_length' => 500,
                     'style' => 'professional_friendly',
-                    'language' => 'polish'
-                ]
+                    'language' => 'polish',
+                ],
             ];
 
             // Wywołaj AI do edycji tekstu
@@ -1153,40 +1285,40 @@ class PetSitterWizard extends Component
                 'is_empty' => empty($editedText),
                 'original_preview' => substr($this->motivation, 0, 100),
                 'edited_preview' => substr($editedText, 0, 100),
-                'instruction' => $this->aiEditPrompt
+                'instruction' => $this->aiEditPrompt,
             ]);
 
-            if (!empty($editedText)) {
+            if (! empty($editedText)) {
                 $this->motivation = $editedText;
                 $this->aiEditPrompt = '';
 
                 \Log::info('🔧 Text updated successfully', [
-                    'new_motivation_length' => strlen($this->motivation)
+                    'new_motivation_length' => strlen($this->motivation),
                 ]);
 
                 // Wyślij feedback
                 $this->dispatch('ai-suggestion-applied', [
                     'field' => 'motivation',
                     'success' => true,
-                    'message' => 'Tekst został przepisany przez AI'
+                    'message' => 'Tekst został przepisany przez AI',
                 ]);
             } else {
                 \Log::warning('🔧 AI returned empty text!', [
                     'instruction' => $this->aiEditPrompt,
-                    'original_text' => $this->motivation
+                    'original_text' => $this->motivation,
                 ]);
             }
 
         } catch (\Exception $e) {
             \Log::warning('Failed to edit motivation with AI', [
                 'error' => $e->getMessage(),
-                'prompt' => $this->aiEditPrompt
+                'prompt' => $this->aiEditPrompt,
             ]);
 
             $this->dispatch('ai-suggestion-applied', [
                 'field' => 'motivation',
                 'success' => false,
-                'message' => 'Nie udało się przepisać tekstu. Spróbuj ponownie.'
+                'message' => 'Nie udało się przepisać tekstu. Spróbuj ponownie.',
             ]);
         } finally {
             $this->isEditingWithAI = false;
@@ -1217,9 +1349,8 @@ class PetSitterWizard extends Component
         \Log::info('🔧 generateMotivationSuggestion wywołana', [
             'user_id' => Auth::id(),
             'step' => $this->currentStep,
-            'current_motivation_length' => strlen($this->motivation)
+            'current_motivation_length' => strlen($this->motivation),
         ]);
-
 
         $this->isEditingWithAI = true;
 
@@ -1252,41 +1383,41 @@ class PetSitterWizard extends Component
                 'requirements' => [
                     'include_name' => true,
                     'use_context' => true,
-                    'mention_animals' => !empty($wizardData['animal_types']),
-                    'mention_services' => !empty($wizardData['service_types']),
-                    'mention_location' => !empty($wizardData['city']),
+                    'mention_animals' => ! empty($wizardData['animal_types']),
+                    'mention_services' => ! empty($wizardData['service_types']),
+                    'mention_location' => ! empty($wizardData['city']),
                     'professional_tone' => true,
                     'min_length' => 50,
                     'max_length' => 500,
-                    'language' => 'polish'
+                    'language' => 'polish',
                 ],
                 'suggestions' => [
                     'Wspomnieć o rodzajach zwierząt którymi się zajmujesz',
                     'Podkreślić oferowane usługi',
                     'Nawiązać do lokalizacji i obszaru działania',
                     'Wymienić prawdziwe imię dla budowania zaufania',
-                    'Zachować przyjazny ale profesjonalny ton'
-                ]
+                    'Zachować przyjazny ale profesjonalny ton',
+                ],
             ];
 
             $suggestion = $aiAssistant->generateText($context);
 
             \Log::info('🔧 AI wygenerował tekst', [
                 'suggestion_length' => strlen($suggestion),
-                'suggestion_preview' => substr($suggestion, 0, 100) . '...',
-                'is_empty' => empty($suggestion)
+                'suggestion_preview' => substr($suggestion, 0, 100).'...',
+                'is_empty' => empty($suggestion),
             ]);
 
-            if (!empty($suggestion)) {
+            if (! empty($suggestion)) {
                 $this->motivation = $suggestion;
 
                 \Log::info('🔧 Tekst przypisany do $this->motivation', [
-                    'motivation_length' => strlen($this->motivation)
+                    'motivation_length' => strlen($this->motivation),
                 ]);
 
                 $this->dispatch('ai-suggestion-applied', [
                     'field' => 'motivation',
-                    'message' => 'Wygenerowano profesjonalny tekst motywacji'
+                    'message' => 'Wygenerowano profesjonalny tekst motywacji',
                 ]);
             } else {
                 \Log::warning('🔧 AI zwrócił pusty tekst!');
@@ -1310,11 +1441,12 @@ class PetSitterWizard extends Component
         \Log::info('editExperienceWithAI wywołana', [
             'aiEditPromptExperience' => $this->aiEditPromptExperience,
             'experienceDescription_length' => strlen($this->experienceDescription),
-            'user_id' => Auth::id()
+            'user_id' => Auth::id(),
         ]);
 
         if (empty($this->aiEditPromptExperience)) {
             \Log::warning('Pusta instrukcja AI dla doświadczenia');
+
             return;
         }
 
@@ -1340,14 +1472,14 @@ class PetSitterWizard extends Component
                     'max_length' => 1000,
                     'style' => 'professional_detailed',
                     'language' => 'polish',
-                    'focus' => 'experience_examples'
-                ]
+                    'focus' => 'experience_examples',
+                ],
             ];
 
             // Wywołaj AI do edycji tekstu
             $editedText = $aiAssistant->editText($context);
 
-            if (!empty($editedText)) {
+            if (! empty($editedText)) {
                 $this->experienceDescription = $editedText;
                 $this->aiEditPromptExperience = '';
 
@@ -1355,20 +1487,20 @@ class PetSitterWizard extends Component
                 $this->dispatch('ai-suggestion-applied', [
                     'field' => 'experienceDescription',
                     'success' => true,
-                    'message' => 'Opis doświadczenia został przepisany przez AI'
+                    'message' => 'Opis doświadczenia został przepisany przez AI',
                 ]);
             }
 
         } catch (\Exception $e) {
             \Log::warning('Failed to edit experience description with AI', [
                 'error' => $e->getMessage(),
-                'prompt' => $this->aiEditPromptExperience
+                'prompt' => $this->aiEditPromptExperience,
             ]);
 
             $this->dispatch('ai-suggestion-applied', [
                 'field' => 'experienceDescription',
                 'success' => false,
-                'message' => 'Nie udało się przepisać opisu AI'
+                'message' => 'Nie udało się przepisać opisu AI',
             ]);
         } finally {
             $this->isEditingExperienceWithAI = false;
@@ -1383,9 +1515,8 @@ class PetSitterWizard extends Component
         \Log::info('🔧 generateExperienceSuggestion wywołana', [
             'user_id' => Auth::id(),
             'step' => $this->currentStep,
-            'current_experienceDescription_length' => strlen($this->experienceDescription)
+            'current_experienceDescription_length' => strlen($this->experienceDescription),
         ]);
-
 
         $this->isEditingExperienceWithAI = true;
 
@@ -1424,35 +1555,35 @@ class PetSitterWizard extends Component
                     'use_context' => true,
                     'language' => 'polish',
                     'include_examples' => true,
-                    'mention_specific_animals' => !empty($wizardData['animal_types']),
-                    'mention_services' => !empty($wizardData['service_types']),
-                    'mention_home_environment' => !empty($wizardData['home_type']),
-                ]
+                    'mention_specific_animals' => ! empty($wizardData['animal_types']),
+                    'mention_services' => ! empty($wizardData['service_types']),
+                    'mention_home_environment' => ! empty($wizardData['home_type']),
+                ],
             ];
 
             // Wywołaj AI do generowania tekstu
             $generatedText = $aiAssistant->generateText($context);
 
-            if (!empty($generatedText)) {
+            if (! empty($generatedText)) {
                 $this->experienceDescription = $generatedText;
 
                 // Wyślij feedback
                 $this->dispatch('ai-suggestion-applied', [
                     'field' => 'experienceDescription',
                     'success' => true,
-                    'message' => 'Opis doświadczenia został wygenerowany przez AI'
+                    'message' => 'Opis doświadczenia został wygenerowany przez AI',
                 ]);
             }
 
         } catch (\Exception $e) {
             \Log::warning('Failed to generate experience description with AI', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             $this->dispatch('ai-suggestion-applied', [
                 'field' => 'experienceDescription',
                 'success' => false,
-                'message' => 'Nie udało się wygenerować opisu AI'
+                'message' => 'Nie udało się wygenerować opisu AI',
             ]);
         } finally {
             $this->isEditingExperienceWithAI = false;
@@ -1476,13 +1607,15 @@ class PetSitterWizard extends Component
         try {
             $this->validateCurrentStep();
             \Log::info('canGoNext: validation passed', ['step' => $this->currentStep]);
+
             return true;
         } catch (\Exception $e) {
             \Log::info('canGoNext: validation failed', [
                 'step' => $this->currentStep,
                 'error' => $e->getMessage(),
-                'motivation_length' => strlen($this->motivation)
+                'motivation_length' => strlen($this->motivation),
             ]);
+
             return false;
         }
     }
@@ -1524,6 +1657,7 @@ class PetSitterWizard extends Component
         if (! $this->agreedToTerms) {
             $this->addError('agreedToTerms', 'Musisz zaakceptować regulamin.');
             $this->goToStep(11);
+
             return;
         }
 
@@ -1627,7 +1761,7 @@ class PetSitterWizard extends Component
      * Dynamicznie mapuje klucze usług wizarda na slug'i kategorii w bazie
      * i zwraca odpowiednie ID kategorii.
      *
-     * @param string $serviceKey Klucz usługi z wizarda (np. 'dog_walking')
+     * @param  string  $serviceKey  Klucz usługi z wizarda (np. 'dog_walking')
      * @return int ID kategorii usługi lub ID pierwszej kategorii jako fallback
      */
     private function getServiceCategoryId(string $serviceKey): int
@@ -1644,6 +1778,7 @@ class PetSitterWizard extends Component
 
         // Fallback - zwróć ID pierwszej aktywnej kategorii
         $firstCategory = ServiceCategory::active()->ordered()->first();
+
         return $firstCategory ? $firstCategory->id : 1;
     }
 
@@ -1681,7 +1816,7 @@ class PetSitterWizard extends Component
         }
 
         // Zapisz zdjęcia domu (przechowaj ścieżki jako JSON w profilu)
-        if (!empty($this->homePhotos) && $profile) {
+        if (! empty($this->homePhotos) && $profile) {
             $homePhotosPaths = [];
             foreach ($this->homePhotos as $photo) {
                 $path = $photo->store('home-photos', 'public');
@@ -1700,7 +1835,7 @@ class PetSitterWizard extends Component
         $user = Auth::user();
         $profile = $user->profile;
 
-        if (!$profile) {
+        if (! $profile) {
             return;
         }
 
@@ -1719,12 +1854,12 @@ class PetSitterWizard extends Component
         }
 
         // Zapisz referencje
-        if (!empty($this->references)) {
+        if (! empty($this->references)) {
             $verificationData['references'] = $this->references;
         }
 
         // Zaktualizuj profil z danymi weryfikacyjnymi
-        if (!empty($verificationData)) {
+        if (! empty($verificationData)) {
             $profile->update([
                 'verification_documents' => json_encode($verificationData),
                 'verification_status' => 'pending', // pending, verified, rejected
@@ -1735,8 +1870,7 @@ class PetSitterWizard extends Component
     /**
      * Usuwa zdjęcie domu o podanym indeksie.
      *
-     * @param int $index
-     * @return void
+     * @param  int  $index
      */
     /**
      * Usuwa zdjęcie profilowe.
@@ -1791,14 +1925,15 @@ class PetSitterWizard extends Component
     public function uploadAndSaveProfilePhoto()
     {
         \Log::info('📸 uploadAndSaveProfilePhoto() called', [
-            'hasProfilePhoto' => !!$this->profilePhoto,
-            'profilePhotoType' => $this->profilePhoto ? (is_object($this->profilePhoto) ? get_class($this->profilePhoto) : gettype($this->profilePhoto)) : 'null'
+            'hasProfilePhoto' => (bool) $this->profilePhoto,
+            'profilePhotoType' => $this->profilePhoto ? (is_object($this->profilePhoto) ? get_class($this->profilePhoto) : gettype($this->profilePhoto)) : 'null',
         ]);
 
         if ($this->profilePhoto) {
             // Jeśli profilePhoto jest już array, to znaczy że zostało już zapisane
             if (is_array($this->profilePhoto)) {
                 \Log::info('📸 Profile photo already saved, returning existing data');
+
                 return $this->profilePhoto;
             }
 
@@ -1810,7 +1945,7 @@ class PetSitterWizard extends Component
                 // Wygeneruj unikalną nazwę pliku
                 $originalName = $this->profilePhoto->getClientOriginalName();
                 $extension = $this->profilePhoto->getClientOriginalExtension();
-                $filename = time() . '_' . uniqid() . '.' . $extension;
+                $filename = time().'_'.uniqid().'.'.$extension;
 
                 // Użyj PhotoStorageHelper do generowania ścieżki
                 $storagePath = PhotoStorageHelper::generateProfilePhotoPath($userId, $filename);
@@ -1824,7 +1959,7 @@ class PetSitterWizard extends Component
                 \Log::info('📸 File stored successfully', [
                     'path' => $path,
                     'user_id' => $userId,
-                    'group_info' => PhotoStorageHelper::getUserGroupInfo($userId)
+                    'group_info' => PhotoStorageHelper::getUserGroupInfo($userId),
                 ]);
 
                 // Create a permanent URL object for the frontend
@@ -1833,7 +1968,7 @@ class PetSitterWizard extends Component
                     'name' => $originalName,
                     'size' => $this->profilePhoto->getSize(),
                     'path' => $path,
-                    'user_id' => $userId
+                    'user_id' => $userId,
                 ];
 
                 \Log::info('📸 Photo data prepared', $photoData);
@@ -1852,13 +1987,15 @@ class PetSitterWizard extends Component
                 $this->dispatch('photo-saved', ['type' => 'profile', 'data' => $photoData]);
 
                 \Log::info('📸 Profile photo saved successfully');
+
                 return $photoData;
             } catch (\Exception $e) {
                 \Log::error('📸 Failed to save profile photo', [
                     'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
+                    'trace' => $e->getTraceAsString(),
                 ]);
                 $this->addError('profilePhoto', 'Błąd podczas zapisywania zdjęcia. Spróbuj ponownie.');
+
                 return null;
             }
         } else {
@@ -1883,12 +2020,13 @@ class PetSitterWizard extends Component
     {
         \Log::info('📸 updatedProfilePhoto() triggered', [
             'alreadyProcessed' => $this->profilePhotoProcessed,
-            'isArray' => is_array($this->profilePhoto)
+            'isArray' => is_array($this->profilePhoto),
         ]);
 
         // Jeśli już przetworzone lub to jest array (już zapisane), pomiń
         if ($this->profilePhotoProcessed || is_array($this->profilePhoto)) {
             \Log::info('📸 Skipping duplicate processing');
+
             return;
         }
 
@@ -1915,13 +2053,14 @@ class PetSitterWizard extends Component
     public function updatedTempHomePhoto()
     {
         \Log::info('📸 updatedTempHomePhoto() triggered', [
-            'hasTempHomePhoto' => !!$this->tempHomePhoto,
-            'isArray' => is_array($this->tempHomePhoto)
+            'hasTempHomePhoto' => (bool) $this->tempHomePhoto,
+            'isArray' => is_array($this->tempHomePhoto),
         ]);
 
         // Jeśli to jest array (już zapisane), pomiń
         if (is_array($this->tempHomePhoto)) {
             \Log::info('📸 Skipping - tempHomePhoto is already processed array');
+
             return;
         }
 
@@ -1944,12 +2083,13 @@ class PetSitterWizard extends Component
     public function updatedIdentityDocument()
     {
         \Log::info('📄 updatedIdentityDocument() triggered', [
-            'hasIdentityDocument' => !!$this->identityDocument,
-            'isArray' => is_array($this->identityDocument)
+            'hasIdentityDocument' => (bool) $this->identityDocument,
+            'isArray' => is_array($this->identityDocument),
         ]);
 
         if (is_array($this->identityDocument)) {
             \Log::info('📄 Skipping - identityDocument is already processed array');
+
             return;
         }
 
@@ -1964,8 +2104,6 @@ class PetSitterWizard extends Component
 
     /**
      * Zapisuje dokument tożsamości permanentnie.
-     *
-     * @return array|null
      */
     public function saveIdentityDocument(): ?array
     {
@@ -1976,11 +2114,11 @@ class PetSitterWizard extends Component
                 // Wygeneruj unikalną nazwę pliku
                 $originalName = $this->identityDocument->getClientOriginalName();
                 $extension = $this->identityDocument->getClientOriginalExtension();
-                $filename = time() . '_' . uniqid() . '.' . $extension;
+                $filename = time().'_'.uniqid().'.'.$extension;
 
                 // Użyj PhotoStorageHelper do generowania ścieżki
                 $storagePath = PhotoStorageHelper::generateUserPhotoPath($userId, 'verification/identity');
-                $fullPath = $storagePath . '/' . $filename;
+                $fullPath = $storagePath.'/'.$filename;
 
                 // Upewnij się że katalog istnieje
                 PhotoStorageHelper::ensureDirectoryExists($userId, 'verification/identity');
@@ -1991,7 +2129,7 @@ class PetSitterWizard extends Component
                 \Log::info('📄 Identity document saved successfully', [
                     'path' => $path,
                     'filename' => $filename,
-                    'userId' => $userId
+                    'userId' => $userId,
                 ]);
 
                 // Cleanup starych plików - zostaw tylko najnowszy
@@ -2002,7 +2140,7 @@ class PetSitterWizard extends Component
                     'name' => $originalName,
                     'path' => $path,
                     'url' => \Storage::disk('public')->url($path),
-                    'size' => $this->identityDocument->getSize()
+                    'size' => $this->identityDocument->getSize(),
                 ];
 
                 // Zastąp Livewire temporary file object array'em
@@ -2015,9 +2153,10 @@ class PetSitterWizard extends Component
             } catch (\Exception $e) {
                 \Log::error('📄 Identity document save error', [
                     'error' => $e->getMessage(),
-                    'userId' => Auth::id()
+                    'userId' => Auth::id(),
                 ]);
                 $this->addError('identityDocument', 'Błąd podczas zapisywania dokumentu.');
+
                 return null;
             }
         }
@@ -2037,7 +2176,7 @@ class PetSitterWizard extends Component
                 // Wygeneruj unikalną nazwę pliku
                 $originalName = $this->tempHomePhoto->getClientOriginalName();
                 $extension = $this->tempHomePhoto->getClientOriginalExtension();
-                $filename = time() . '_' . uniqid() . '.' . $extension;
+                $filename = time().'_'.uniqid().'.'.$extension;
 
                 // Użyj PhotoStorageHelper do generowania ścieżki
                 $storagePath = PhotoStorageHelper::generateHomePhotoPath($userId, $filename);
@@ -2051,7 +2190,7 @@ class PetSitterWizard extends Component
                 \Log::info('📸 Home photo stored successfully', [
                     'path' => $path,
                     'user_id' => $userId,
-                    'group_info' => PhotoStorageHelper::getUserGroupInfo($userId)
+                    'group_info' => PhotoStorageHelper::getUserGroupInfo($userId),
                 ]);
 
                 // Create a permanent URL object for the frontend
@@ -2060,7 +2199,7 @@ class PetSitterWizard extends Component
                     'name' => $originalName,
                     'size' => $this->tempHomePhoto->getSize(),
                     'path' => $path,
-                    'user_id' => $userId
+                    'user_id' => $userId,
                 ];
 
                 // Wyczyść stare zdjęcia domu (zachowaj 5 najnowszych)
@@ -2083,16 +2222,16 @@ class PetSitterWizard extends Component
             } catch (\Exception $e) {
                 \Log::error('Failed to save home photo', ['error' => $e->getMessage()]);
                 $this->addError('homePhotos', 'Błąd podczas zapisywania zdjęcia. Spróbuj ponownie.');
+
                 return null;
             }
         }
+
         return null;
     }
 
     /**
      * Dodaje nową referencję do listy.
-     *
-     * @return void
      */
     public function addReference(): void
     {
@@ -2105,9 +2244,6 @@ class PetSitterWizard extends Component
 
     /**
      * Usuwa referencję o podanym indeksie.
-     *
-     * @param int $index
-     * @return void
      */
     public function removeReference(int $index): void
     {
@@ -2120,8 +2256,6 @@ class PetSitterWizard extends Component
 
     /**
      * Usuwa dokument tożsamości.
-     *
-     * @return void
      */
     public function removeIdentityDocument(): void
     {
@@ -2143,8 +2277,6 @@ class PetSitterWizard extends Component
 
     /**
      * Usuwa zaświadczenie o niekaralności.
-     *
-     * @return void
      */
     public function removeCriminalRecord(): void
     {
@@ -2157,7 +2289,7 @@ class PetSitterWizard extends Component
     public function loadDraft(): void
     {
         // Ładuj draft tylko raz - przy pierwszym załadowaniu komponentu
-        if ($this->draftLoaded || !Auth::check()) {
+        if ($this->draftLoaded || ! Auth::check()) {
             return;
         }
 
@@ -2173,10 +2305,21 @@ class PetSitterWizard extends Component
             // Automatycznie aktywuj wizard gdy jest zapisany draft
             $this->isActive = true;
 
+            // Przelicz estymację jeśli mamy kompletne dane lokalizacji
+            if ($this->latitude != 0 && $this->longitude != 0 && $this->serviceRadius > 0) {
+                $this->calculatePotentialClients();
+                Log::info('Estymacja przeliczona po załadowaniu draftu', [
+                    'latitude' => $this->latitude,
+                    'longitude' => $this->longitude,
+                    'radius' => $this->serviceRadius,
+                    'estimated_clients' => $this->estimatedClients,
+                ]);
+            }
+
             // Aktualizuj czas dostępu
             $this->currentDraft->touch();
 
-            session()->flash('info', 'Kontynuujesz swoją rejestrację od kroku ' . $this->currentStep);
+            session()->flash('info', 'Kontynuujesz swoją rejestrację od kroku '.$this->currentStep);
         }
 
         // Oznacz że draft został załadowany
@@ -2188,7 +2331,7 @@ class PetSitterWizard extends Component
      */
     public function saveDraft(): void
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return;
         }
 
@@ -2198,7 +2341,7 @@ class PetSitterWizard extends Component
             WizardDraft::updateOrCreate(
                 [
                     'user_id' => Auth::id(),
-                    'wizard_type' => 'pet_sitter'
+                    'wizard_type' => 'pet_sitter',
                 ],
                 [
                     'current_step' => $this->currentStep,
@@ -2320,13 +2463,13 @@ class PetSitterWizard extends Component
         $this->dispatch('option-selected', [
             'field' => $field,
             'value' => $value,
-            'animated' => true
+            'animated' => true,
         ]);
 
         // Aktualizuj wartość po krótkiej animacji
         $this->dispatch('option-animation-complete', [
             'field' => $field,
-            'value' => $value
+            'value' => $value,
         ]);
     }
 
@@ -2338,7 +2481,7 @@ class PetSitterWizard extends Component
         $this->dispatch('option-preview', [
             'field' => $field,
             'value' => $value,
-            'preview' => true
+            'preview' => true,
         ]);
     }
 
@@ -2351,7 +2494,7 @@ class PetSitterWizard extends Component
             'field' => 'motivation',
             'value' => $this->motivation,
             'length' => strlen($this->motivation),
-            'isValid' => strlen($this->motivation) >= 50
+            'isValid' => strlen($this->motivation) >= 50,
         ]);
 
         // Debounced auto-save po 1.5 sekundy bez zmian
@@ -2367,7 +2510,7 @@ class PetSitterWizard extends Component
             'field' => 'experienceDescription',
             'value' => $this->experienceDescription,
             'length' => strlen($this->experienceDescription),
-            'isValid' => strlen($this->experienceDescription) >= 100
+            'isValid' => strlen($this->experienceDescription) >= 100,
         ]);
 
         // Debounced auto-save po 1.5 sekundy bez zmian
@@ -2385,7 +2528,7 @@ class PetSitterWizard extends Component
         // Wyślij event do JavaScript do obsługi debounce
         $this->dispatch('trigger-auto-save', [
             'delay' => 1500, // 1.5 sekundy
-            'showIndicator' => true
+            'showIndicator' => true,
         ]);
     }
 
@@ -2395,7 +2538,7 @@ class PetSitterWizard extends Component
      */
     public function performAutoSave(): void
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return;
         }
 
@@ -2405,7 +2548,7 @@ class PetSitterWizard extends Component
             // Wyślij event o pomyślnym auto-save
             $this->dispatch('auto-save-success', [
                 'timestamp' => now()->format('H:i:s'),
-                'step' => $this->currentStep
+                'step' => $this->currentStep,
             ]);
 
         } catch (\Exception $e) {
@@ -2413,7 +2556,7 @@ class PetSitterWizard extends Component
 
             // Wyślij event o błędzie auto-save
             $this->dispatch('auto-save-error', [
-                'message' => 'Nie udało się automatycznie zapisać postępu'
+                'message' => 'Nie udało się automatycznie zapisać postępu',
             ]);
         }
     }
@@ -2425,7 +2568,7 @@ class PetSitterWizard extends Component
     {
         $this->dispatch('highlight-element', [
             'elementId' => $elementId,
-            'duration' => 2000
+            'duration' => 2000,
         ]);
     }
 
@@ -2437,16 +2580,16 @@ class PetSitterWizard extends Component
         $this->dispatch('show-tooltip', [
             'content' => $content,
             'position' => $position,
-            'animated' => true
+            'animated' => true,
         ]);
     }
 
     /**
      * Aktualizuje adres i współrzędne z komponentu autocomplete.
      *
-     * @param string $address Nowy adres
-     * @param float $latitude Szerokość geograficzna
-     * @param float $longitude Długość geograficzna
+     * @param  string  $address  Nowy adres
+     * @param  float  $latitude  Szerokość geograficzna
+     * @param  float  $longitude  Długość geograficzna
      */
     public function updateAddressWithCoordinates(string $address, float $latitude, float $longitude): void
     {
@@ -2461,22 +2604,140 @@ class PetSitterWizard extends Component
         $this->dispatch('location-updated', [
             'address' => $address,
             'latitude' => $latitude,
-            'longitude' => $longitude
+            'longitude' => $longitude,
         ]);
 
         Log::info('Address updated with coordinates', [
             'address' => $address,
             'latitude' => $latitude,
             'longitude' => $longitude,
-            'step' => $this->currentStep
+            'step' => $this->currentStep,
         ]);
+    }
+
+    /**
+     * Aktualizuje pełne strukturalne dane adresowe z reverse geocoding.
+     *
+     * Metoda wywoływana z JavaScript po reverse geocoding aby zapisać
+     * wszystkie pola adresowe w formacie wymaganym przez GUS i wyświetlanie.
+     *
+     * @param  array  $addressData  Pełne dane adresowe z Nominatim API
+     */
+    public function updateAddressStructured(array $addressData): void
+    {
+        // Aktualizuj główny adres (sformatowany string)
+        $this->address = $addressData['formatted_address'] ?? '';
+
+        // Aktualizuj strukturalne pola adresowe
+        $this->road = $addressData['road'] ?? '';
+        $this->house_number = $addressData['house_number'] ?? '';
+        $this->postcode = $addressData['postcode'] ?? '';
+        $this->city = $addressData['city'] ?? '';
+        $this->town = $addressData['town'] ?? '';
+        $this->village = $addressData['village'] ?? '';
+        $this->municipality = $addressData['municipality'] ?? '';
+        $this->county = $addressData['county'] ?? '';
+        $this->state = $addressData['state'] ?? '';
+        $this->gus_city_name = $addressData['gus_city_name'] ?? '';
+        $this->district = $addressData['district'] ?? '';
+
+        // Zapisz do draft
+        $this->saveDraft();
+
+        Log::info('Strukturalne dane adresowe zaktualizowane', [
+            'formatted_address' => $this->address,
+            'road' => $this->road,
+            'house_number' => $this->house_number,
+            'postcode' => $this->postcode,
+            'gus_city_name' => $this->gus_city_name,
+            'municipality' => $this->municipality,
+            'county' => $this->county,
+            'step' => $this->currentStep,
+        ]);
+
+        // Wyślij event do frontendu z potwierdzeniem
+        $this->dispatch('address-structured-updated', [
+            'success' => true,
+            'city' => $this->gus_city_name ?: $this->city ?: $this->town,
+        ]);
+    }
+
+    /**
+     * Oblicza potencjalną liczbę klientów na podstawie danych GUS.
+     *
+     * Wykorzystuje dane demograficzne z API GUS oraz współczynniki:
+     * - 37% Polaków ma zwierzęta (dane GUS 2023)
+     * - 25% właścicieli zwierząt szuka profesjonalnej opieki
+     * - Promień obsługi wpływa na dostępność
+     */
+    public function calculatePotentialClients(): void
+    {
+        // Jeśli nie mamy współrzędnych, nie obliczamy
+        if ($this->latitude == 0 || $this->longitude == 0) {
+            $this->estimatedClients = 0;
+
+            return;
+        }
+
+        try {
+            // Użyj serwisu GUS do obliczenia potencjalnych klientów
+            $gusService = app(GUSApiService::class);
+
+            $this->estimatedClients = $gusService->estimatePotentialClients(
+                $this->latitude,
+                $this->longitude,
+                $this->serviceRadius
+            );
+
+            Log::info('Obliczono potencjalnych klientów', [
+                'latitude' => $this->latitude,
+                'longitude' => $this->longitude,
+                'radius' => $this->serviceRadius,
+                'estimated_clients' => $this->estimatedClients,
+            ]);
+
+            // Wyślij event do frontendu z aktualizacją (dla panelu AI i innych komponentów)
+            // Używamy $this->js() aby wysłać event na poziomie window (browser event)
+            $this->js('window.dispatchEvent(new CustomEvent("estimation-refreshed", { detail: { count: '.$this->estimatedClients.' } }))');
+        } catch (\Exception $e) {
+            Log::error('Błąd podczas obliczania potencjalnych klientów', [
+                'error' => $e->getMessage(),
+                'latitude' => $this->latitude,
+                'longitude' => $this->longitude,
+            ]);
+
+            // Wartość domyślna w przypadku błędu
+            $this->estimatedClients = 0;
+        }
+    }
+
+    /**
+     * Odświeża estymację potencjalnych klientów.
+     *
+     * Wywołuje ponowne obliczenie estymacji na podstawie aktualnych danych
+     * (lokalizacja + promień obsługi). Używane przez przycisk "odśwież" w UI.
+     */
+    public function refreshEstimation(): void
+    {
+        $this->calculatePotentialClients();
+
+        Log::info('Estymacja klientów odświeżona ręcznie', [
+            'latitude' => $this->latitude,
+            'longitude' => $this->longitude,
+            'radius' => $this->serviceRadius,
+            'estimated_clients' => $this->estimatedClients,
+        ]);
+
+        // Wyślij event do przeglądarki z potwierdzeniem
+        // Używamy $this->js() aby wysłać event na poziomie window (browser event)
+        $this->js('window.dispatchEvent(new CustomEvent("estimation-refreshed", { detail: { count: '.$this->estimatedClients.' } }))');
     }
 
     /**
      * Aktualizuje tylko współrzędne (np. po kliknięciu na mapę).
      *
-     * @param float $latitude Szerokość geograficzna
-     * @param float $longitude Długość geograficzna
+     * @param  float  $latitude  Szerokość geograficzna
+     * @param  float  $longitude  Długość geograficzna
      */
     public function updateCoordinates(float $latitude, float $longitude): void
     {
@@ -2489,15 +2750,15 @@ class PetSitterWizard extends Component
         Log::info('Coordinates updated', [
             'latitude' => $latitude,
             'longitude' => $longitude,
-            'step' => $this->currentStep
+            'step' => $this->currentStep,
         ]);
     }
 
     /**
      * Waliduje współrzędne geograficzne.
      *
-     * @param float $latitude Szerokość geograficzna
-     * @param float $longitude Długość geograficzna
+     * @param  float  $latitude  Szerokość geograficzna
+     * @param  float  $longitude  Długość geograficzna
      * @return bool Czy współrzędne są prawidłowe
      */
     private function validateCoordinates(float $latitude, float $longitude): bool
@@ -2524,7 +2785,7 @@ class PetSitterWizard extends Component
             $longitude = $this->longitude;
 
             // Jeśli nie ma lokalizacji w wizardzie, spróbuj pobrać z profilu
-            if (!$latitude || !$longitude) {
+            if (! $latitude || ! $longitude) {
                 $userProfile = Auth::user()?->profile;
                 $latitude = $userProfile?->latitude;
                 $longitude = $userProfile?->longitude;
@@ -2533,7 +2794,7 @@ class PetSitterWizard extends Component
             Log::info('📊 Pobieranie analizy cen', [
                 'latitude' => $latitude,
                 'longitude' => $longitude,
-                'has_location' => ($latitude && $longitude)
+                'has_location' => ($latitude && $longitude),
             ]);
 
             // Pobierz pełne podsumowanie rynku
@@ -2550,19 +2811,19 @@ class PetSitterWizard extends Component
                     'location' => [
                         'latitude' => $latitude,
                         'longitude' => $longitude,
-                    ]
-                ]
+                    ],
+                ],
             ];
 
         } catch (\Exception $e) {
-            Log::error('📊 Błąd pobierania analizy cen: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString()
+            Log::error('📊 Błąd pobierania analizy cen: '.$e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return [
                 'success' => false,
                 'error' => 'Nie udało się pobrać analizy cen',
-                'data' => []
+                'data' => [],
             ];
         }
     }

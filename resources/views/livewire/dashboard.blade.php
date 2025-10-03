@@ -33,6 +33,46 @@ new #[Layout('layouts.app')] class extends Component {
         }
     }
 
+    /**
+     * Sprawdza status użytkownika względem programu pet sittera.
+     *
+     * @return array{
+     *     isSitter: bool,
+     *     hasDraft: bool,
+     *     draftStep: int|null,
+     *     totalSteps: int
+     * }
+     */
+    public function getSitterStatusProperty(): array
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return [
+                'isSitter' => false,
+                'hasDraft' => false,
+                'draftStep' => null,
+                'totalSteps' => 11,
+            ];
+        }
+
+        $profile = $user->profile;
+
+        // Sprawdź czy użytkownik jest już aktywnym pet sitterem
+        $isSitter = $profile && $profile->sitter_activated_at !== null;
+
+        // Sprawdź czy istnieje draft wizarda
+        $draft = \App\Models\WizardDraft::where('user_id', $user->id)
+            ->where('wizard_type', 'pet_sitter')
+            ->first();
+
+        return [
+            'isSitter' => $isSitter,
+            'hasDraft' => $draft !== null,
+            'draftStep' => $draft?->current_step,
+            'totalSteps' => 11,
+        ];
+    }
+
     public function with()
     {
         $user = auth()->user();
@@ -44,6 +84,7 @@ new #[Layout('layouts.app')] class extends Component {
                 'totalBookings' => 0,
                 'upcomingBookings' => 0,
                 'recentPets' => collect(),
+                'sitterStatus' => $this->sitterStatus,
             ];
         }
 
@@ -69,6 +110,7 @@ new #[Layout('layouts.app')] class extends Component {
             'totalBookings' => $totalBookings,
             'upcomingBookings' => $upcomingBookings,
             'recentPets' => $recentPets,
+            'sitterStatus' => $this->sitterStatus,
         ];
     }
 }; ?>
@@ -145,6 +187,117 @@ new #[Layout('layouts.app')] class extends Component {
             />
         </div>
 
+        {{-- Sekcja zachęty do zostania pet sitterem --}}
+        @if(!$sitterStatus['isSitter'])
+            @if($sitterStatus['hasDraft'])
+                {{-- Użytkownik ma rozpoczęty draft - zachęta do dokończenia --}}
+                <div class="mb-8">
+                    <div class="relative overflow-hidden bg-gradient-to-br from-amber-500 via-orange-500 to-rose-500 rounded-3xl shadow-2xl">
+                        {{-- Dekoracyjne elementy tła --}}
+                        <div class="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32"></div>
+                        <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24"></div>
+
+                        <div class="relative px-8 py-10 lg:px-12 lg:py-12">
+                            <div class="flex flex-col lg:flex-row items-center justify-between gap-6">
+                                <div class="flex-1 text-center lg:text-left">
+                                    {{-- Ikona/emoji --}}
+                                    <div class="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-md rounded-2xl mb-4">
+                                        <span class="text-3xl">⏸️</span>
+                                    </div>
+
+                                    {{-- Nagłówek --}}
+                                    <h2 class="text-3xl lg:text-4xl font-bold text-white mb-3">
+                                        Dokończ swoją rejestrację!
+                                    </h2>
+
+                                    {{-- Opis --}}
+                                    <p class="text-white/90 text-lg mb-4 max-w-2xl">
+                                        Jesteś blisko celu! Dokończ proces rejestracji i zacznij zarabiać na opiece nad zwierzętami.
+                                    </p>
+
+                                    {{-- Postęp --}}
+                                    <div class="inline-flex items-center bg-white/20 backdrop-blur-md rounded-full px-4 py-2 text-white font-semibold">
+                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        Ukończono {{ $sitterStatus['draftStep'] - 1 }} z {{ $sitterStatus['totalSteps'] }} kroków
+                                    </div>
+                                </div>
+
+                                {{-- CTA Button --}}
+                                <div class="flex-shrink-0">
+                                    <a href="{{ route('profile.become-sitter') }}" class="inline-flex items-center px-8 py-4 bg-white text-orange-600 font-bold text-lg rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                                        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                                        </svg>
+                                        Kontynuuj rejestrację
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @else
+                {{-- Użytkownik nie ma draftu - zachęta do rozpoczęcia --}}
+                <div class="mb-8">
+                    <div class="relative overflow-hidden bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-3xl shadow-2xl">
+                        {{-- Dekoracyjne elementy tła --}}
+                        <div class="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32"></div>
+                        <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24"></div>
+
+                        <div class="relative px-8 py-10 lg:px-12 lg:py-12">
+                            <div class="flex flex-col lg:flex-row items-center justify-between gap-8">
+                                <div class="flex-1 text-center lg:text-left">
+                                    {{-- Ikona/emoji --}}
+                                    <div class="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-md rounded-2xl mb-4">
+                                        <span class="text-3xl">🐾</span>
+                                    </div>
+
+                                    {{-- Nagłówek --}}
+                                    <h2 class="text-3xl lg:text-4xl font-bold text-white mb-3">
+                                        Zostań opiekunem zwierząt!
+                                    </h2>
+
+                                    {{-- Opis --}}
+                                    <p class="text-white/90 text-lg mb-6 max-w-2xl">
+                                        Zarabiaj na swojej pasji do zwierząt. Elastyczne godziny, praca w swoim tempie i mnóstwo futrzanych przyjaciół!
+                                    </p>
+
+                                    {{-- Korzyści --}}
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                                        <div class="flex items-center justify-center lg:justify-start bg-white/10 backdrop-blur-md rounded-xl px-4 py-3">
+                                            <span class="text-2xl mr-3">💰</span>
+                                            <span class="text-white font-semibold">Dodatkowy zarobek</span>
+                                        </div>
+                                        <div class="flex items-center justify-center lg:justify-start bg-white/10 backdrop-blur-md rounded-xl px-4 py-3">
+                                            <span class="text-2xl mr-3">⏰</span>
+                                            <span class="text-white font-semibold">Elastyczny grafik</span>
+                                        </div>
+                                        <div class="flex items-center justify-center lg:justify-start bg-white/10 backdrop-blur-md rounded-xl px-4 py-3">
+                                            <span class="text-2xl mr-3">❤️</span>
+                                            <span class="text-white font-semibold">Praca z pupilami</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- CTA Button --}}
+                                <div class="flex-shrink-0">
+                                    <a href="{{ route('profile.become-sitter') }}" class="inline-flex items-center px-8 py-4 bg-white text-emerald-600 font-bold text-lg rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                                        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                                        </svg>
+                                        Zacznij teraz
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+        @endif
+
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Recent Pets -->
             <div class="lg:col-span-2">
@@ -192,6 +345,16 @@ new #[Layout('layouts.app')] class extends Component {
                 <div class="bg-white/95 backdrop-blur-md rounded-3xl shadow-large p-6">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Szybkie akcje</h3>
                     <div class="space-y-3">
+                        @if($sitterStatus['isSitter'])
+                            {{-- Link do panelu opiekuna dla aktywnych pet sitterów --}}
+                            <x-ui.button variant="primary" size="sm" fullWidth="true">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                </svg>
+                                Panel opiekuna
+                            </x-ui.button>
+                        @endif
+
                         <x-ui.button variant="outline" size="sm" fullWidth="true">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>

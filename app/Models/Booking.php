@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Booking extends Model
 {
@@ -37,6 +37,8 @@ class Booking extends Model
         'cancellation_reason',
         'confirmed_at',
         'cancelled_at',
+        'admin_notes',
+        'payment_status',
     ];
 
     // Relationships
@@ -139,7 +141,7 @@ class Booking extends Model
 
     public function getStatusLabelAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'pending' => 'Oczekująca',
             'confirmed' => 'Potwierdzona',
             'in_progress' => 'W trakcie',
@@ -151,7 +153,7 @@ class Booking extends Model
 
     public function getStatusColorAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'pending' => 'yellow',
             'confirmed' => 'blue',
             'in_progress' => 'green',
@@ -189,7 +191,7 @@ class Booking extends Model
     {
         return $this->status === 'completed' &&
                ($this->owner_id === $user->id || $this->sitter_id === $user->id) &&
-               !$this->hasReviewBy($user);
+               ! $this->hasReviewBy($user);
     }
 
     public function hasReviewBy(User $user): bool

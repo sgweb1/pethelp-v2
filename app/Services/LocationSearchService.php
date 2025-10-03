@@ -12,22 +12,25 @@ use Illuminate\Support\Facades\Log;
  * Zapewnia elastyczny system geocodingu z automatycznym fallback-iem
  * z lokalnej instancji Nominatim na zewnętrzne API w przypadku awarii.
  *
- * @package App\Services
  * @author Claude AI Assistant
+ *
  * @since 1.0.0
  */
 class LocationSearchService
 {
     private const EXTERNAL_NOMINATIM_URL = 'https://nominatim.openstreetmap.org';
+
     private const CACHE_TTL = 86400; // 24 hours
+
     private const REQUEST_DELAY = 1000; // 1 second delay between requests (Nominatim policy)
+
     private const LOCAL_REQUEST_DELAY = 100; // Faster for local instance
 
     /**
      * Wyszukuje lokalizacje z obsługą lokalnego Nominatim i fallback-u.
      *
-     * @param string $query Zapytanie wyszukiwania
-     * @param int $limit Maksymalna liczba wyników
+     * @param  string  $query  Zapytanie wyszukiwania
+     * @param  int  $limit  Maksymalna liczba wyników
      * @return array Lista znalezionych lokalizacji
      */
     public function searchLocations(string $query, int $limit = 10): array
@@ -144,8 +147,8 @@ class LocationSearchService
     /**
      * Wykonuje wyszukiwanie lokalizacji z automatycznym fallback-iem.
      *
-     * @param string $query Zapytanie wyszukiwania
-     * @param int $limit Maksymalna liczba wyników
+     * @param  string  $query  Zapytanie wyszukiwania
+     * @param  int  $limit  Maksymalna liczba wyników
      * @return array Lista znalezionych lokalizacji
      */
     private function performLocationSearch(string $query, int $limit): array
@@ -157,19 +160,20 @@ class LocationSearchService
             try {
                 $allResults = $this->searchWithLocalNominatim($query, $limit);
 
-                if (!empty($allResults)) {
+                if (! empty($allResults)) {
                     Log::info('Local Nominatim search successful', [
                         'query' => $query,
                         'results_count' => count($allResults),
-                        'source' => 'local_nominatim'
+                        'source' => 'local_nominatim',
                     ]);
+
                     return $this->deduplicateResults($allResults, $limit);
                 }
             } catch (\Exception $e) {
                 Log::warning('Local Nominatim failed, trying fallback', [
                     'query' => $query,
                     'error' => $e->getMessage(),
-                    'fallback' => 'external_nominatim'
+                    'fallback' => 'external_nominatim',
                 ]);
             }
         }
@@ -179,11 +183,11 @@ class LocationSearchService
             try {
                 $allResults = $this->searchWithExternalNominatim($query, $limit);
 
-                if (!empty($allResults)) {
+                if (! empty($allResults)) {
                     Log::info('External Nominatim search successful', [
                         'query' => $query,
                         'results_count' => count($allResults),
-                        'source' => 'external_nominatim'
+                        'source' => 'external_nominatim',
                     ]);
                 }
             } catch (\Exception $e) {
@@ -191,6 +195,7 @@ class LocationSearchService
                     'query' => $query,
                     'error' => $e->getMessage(),
                 ]);
+
                 return [];
             }
         }
@@ -219,6 +224,17 @@ class LocationSearchService
                 'bbox' => $result['boundingbox'] ?? null,
                 'osm_type' => $result['osm_type'] ?? null,
                 'place_rank' => (int) ($result['place_rank'] ?? 0),
+
+                // Rozszerzone dane adresowe dla integracji z GUS
+                'road' => $address['road'] ?? '',
+                'house_number' => $address['house_number'] ?? '',
+                'municipality' => $address['municipality'] ?? '',
+                'county' => $address['county'] ?? '',
+                'town' => $address['town'] ?? '',
+                'village' => $address['village'] ?? '',
+
+                // Nazwa dla GUS - priorytet: town > city > municipality > village
+                'gus_city_name' => $this->extractGUSCityName($address),
             ];
         }
 
@@ -371,16 +387,17 @@ class LocationSearchService
             'town',           // Mniejsze miasta
             'municipality',   // Gminy miejskie
             'village',        // Wsie
-            'hamlet'          // Przysiółki
+            'hamlet',          // Przysiółki
         ];
 
         foreach ($primaryFields as $field) {
-            if (!empty($address[$field])) {
+            if (! empty($address[$field])) {
                 $cityName = trim($address[$field]);
 
                 // Walidacja - sprawdź czy to nie jest przypadkowy tekst
                 if ($this->isValidCityName($cityName)) {
                     Log::info("🏙️ City extracted from field '{$field}': {$cityName}");
+
                     return $cityName;
                 }
             }
@@ -391,30 +408,33 @@ class LocationSearchService
             'suburb',         // Dzielnice (mogą być używane jako miasta w małych obszarach)
             'neighbourhood',  // Osiedla
             'quarter',        // Kwartały
-            'city_district'   // Dzielnice miejskie
+            'city_district',   // Dzielnice miejskie
         ];
 
         foreach ($alternativeFields as $field) {
-            if (!empty($address[$field])) {
+            if (! empty($address[$field])) {
                 $cityName = trim($address[$field]);
 
                 if ($this->isValidCityName($cityName)) {
                     Log::info("🏘️ City extracted from alternative field '{$field}': {$cityName}");
+
                     return $cityName;
                 }
             }
         }
 
         // Trzecia próba - ekstraktuj z display_name jeśli nic nie znaleziono
-        if (!empty($address['display_name'])) {
+        if (! empty($address['display_name'])) {
             $extractedCity = $this->extractCityFromDisplayName($address['display_name']);
             if ($extractedCity) {
                 Log::info("📍 City extracted from display_name: {$extractedCity}");
+
                 return $extractedCity;
             }
         }
 
         Log::warning('⚠️ No valid city found in address data', ['address_keys' => array_keys($address)]);
+
         return '';
     }
 
@@ -453,15 +473,15 @@ class LocationSearchService
         $parts = array_map('trim', explode(',', $displayName));
 
         // Usuń części które na pewno nie są miastami
-        $filteredParts = array_filter($parts, function($part) {
+        $filteredParts = array_filter($parts, function ($part) {
             return $this->isValidCityName($part) &&
-                   !preg_match('/^(województwo|powiat|gmina|woj\.)/i', $part) &&
+                   ! preg_match('/^(województwo|powiat|gmina|woj\.)/i', $part) &&
                    strlen($part) > 2 &&
                    strlen($part) < 50; // Nazwy miast nie powinny być bardzo długie
         });
 
         // Weź pierwszą sensowną część (często jest to miasto)
-        if (!empty($filteredParts)) {
+        if (! empty($filteredParts)) {
             $cityCandidate = reset($filteredParts);
 
             // Dodatkowa walidacja - usuń prefiksy
@@ -474,6 +494,58 @@ class LocationSearchService
         }
 
         return null;
+    }
+
+    /**
+     * Ekstraktuje nazwę miasta dla API GUS (priorytet: town > city > municipality > village).
+     *
+     * GUS wymaga konkretnej nazwy jednostki. Dla obszarów miejskich najlepsze są:
+     * - town (miejscowości typu Łomianki)
+     * - city (duże miasta)
+     * - municipality (gminy, jeśli brak town/city)
+     * - village (wsie)
+     *
+     * @param  array  $address  Dane adresowe z Nominatim
+     * @return string Nazwa miasta dla GUS
+     */
+    private function extractGUSCityName(array $address): string
+    {
+        // Priorytet 1: town - małe miasta i miasteczka (np. Łomianki)
+        if (! empty($address['town']) && $this->isValidCityName($address['town'])) {
+            Log::debug('🏙️ GUS city name from town', ['name' => $address['town']]);
+
+            return trim($address['town']);
+        }
+
+        // Priorytet 2: city - duże miasta (np. Warszawa, Kraków)
+        if (! empty($address['city']) && $this->isValidCityName($address['city'])) {
+            Log::debug('🏙️ GUS city name from city', ['name' => $address['city']]);
+
+            return trim($address['city']);
+        }
+
+        // Priorytet 3: municipality - gminy (usuń prefix "gmina")
+        if (! empty($address['municipality'])) {
+            $municipality = preg_replace('/^gmina\s+/i', '', $address['municipality']);
+            if ($this->isValidCityName($municipality)) {
+                Log::debug('🏙️ GUS city name from municipality', ['name' => $municipality]);
+
+                return trim($municipality);
+            }
+        }
+
+        // Priorytet 4: village - wsie
+        if (! empty($address['village']) && $this->isValidCityName($address['village'])) {
+            Log::debug('🏙️ GUS city name from village', ['name' => $address['village']]);
+
+            return trim($address['village']);
+        }
+
+        // Fallback - użyj extractCity
+        $fallbackCity = $this->extractCity($address);
+        Log::warning('⚠️ GUS city name fallback used', ['name' => $fallbackCity]);
+
+        return $fallbackCity;
     }
 
     private function extractDistrict(array $address): string
@@ -520,7 +592,6 @@ class LocationSearchService
         });
     }
 
-
     public function getCoordinates(string $query): ?array
     {
         $cacheKey = "coordinates:{$query}";
@@ -547,8 +618,6 @@ class LocationSearchService
 
     /**
      * Sprawdza czy lokalny Nominatim jest włączony.
-     *
-     * @return bool
      */
     private function isLocalNominatimEnabled(): bool
     {
@@ -557,8 +626,6 @@ class LocationSearchService
 
     /**
      * Sprawdza czy fallback do zewnętrznego API jest włączony.
-     *
-     * @return bool
      */
     private function isFallbackEnabled(): bool
     {
@@ -567,8 +634,6 @@ class LocationSearchService
 
     /**
      * Zwraca URL do Nominatim API (lokalny lub zewnętrzny).
-     *
-     * @return string
      */
     private function getNominatimUrl(): string
     {
@@ -581,8 +646,6 @@ class LocationSearchService
 
     /**
      * Zwraca TTL cache-u.
-     *
-     * @return int
      */
     private function getCacheTtl(): int
     {
@@ -606,9 +669,10 @@ class LocationSearchService
     /**
      * Wyszukuje lokalizacje używając lokalnego Nominatim.
      *
-     * @param string $query Zapytanie wyszukiwania
-     * @param int $limit Maksymalna liczba wyników
+     * @param  string  $query  Zapytanie wyszukiwania
+     * @param  int  $limit  Maksymalna liczba wyników
      * @return array Lista znalezionych lokalizacji
+     *
      * @throws \Exception
      */
     private function searchWithLocalNominatim(string $query, int $limit): array
@@ -616,7 +680,7 @@ class LocationSearchService
         $localUrl = config('app.nominatim_local_url', 'http://localhost:8080');
 
         // Sprawdź czy lokalny Nominatim jest dostępny
-        if (!$this->isLocalNominatimHealthy()) {
+        if (! $this->isLocalNominatimHealthy()) {
             throw new \Exception('Local Nominatim is not healthy');
         }
 
@@ -627,7 +691,7 @@ class LocationSearchService
             ->withHeaders([
                 'User-Agent' => 'PetHelp/1.0 (contact@pethelp.test)',
             ])
-            ->get($localUrl . '/search', [
+            ->get($localUrl.'/search', [
                 'q' => $query,
                 'format' => 'json',
                 'addressdetails' => 1,
@@ -637,7 +701,7 @@ class LocationSearchService
                 'extratags' => 1,
             ]);
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             throw new \Exception("Local Nominatim request failed: {$response->status()} - {$response->body()}");
         }
 
@@ -647,9 +711,10 @@ class LocationSearchService
     /**
      * Wyszukuje lokalizacje używając zewnętrznego Nominatim.
      *
-     * @param string $query Zapytanie wyszukiwania
-     * @param int $limit Maksymalna liczba wyników
+     * @param  string  $query  Zapytanie wyszukiwania
+     * @param  int  $limit  Maksymalna liczba wyników
      * @return array Lista znalezionych lokalizacji
+     *
      * @throws \Exception
      */
     private function searchWithExternalNominatim(string $query, int $limit): array
@@ -661,7 +726,7 @@ class LocationSearchService
             ->withHeaders([
                 'User-Agent' => 'PetHelp/1.0 (contact@pethelp.test)',
             ])
-            ->get(self::EXTERNAL_NOMINATIM_URL . '/search', [
+            ->get(self::EXTERNAL_NOMINATIM_URL.'/search', [
                 'q' => $query,
                 'format' => 'json',
                 'addressdetails' => 1,
@@ -671,7 +736,7 @@ class LocationSearchService
                 'extratags' => 1,
             ]);
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             throw new \Exception("External Nominatim request failed: {$response->status()} - {$response->body()}");
         }
 
@@ -680,21 +745,20 @@ class LocationSearchService
 
     /**
      * Sprawdza health lokalnego Nominatim.
-     *
-     * @return bool
      */
     private function isLocalNominatimHealthy(): bool
     {
         try {
             $localUrl = config('app.nominatim_local_url', 'http://localhost:8080');
 
-            $response = Http::timeout(5)->get($localUrl . '/status');
+            $response = Http::timeout(5)->get($localUrl.'/status');
 
             return $response->successful();
         } catch (\Exception $e) {
             Log::debug('Local Nominatim health check failed', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return false;
         }
     }
@@ -702,8 +766,8 @@ class LocationSearchService
     /**
      * Usuwa duplikaty z wyników wyszukiwania.
      *
-     * @param array $results Lista wyników
-     * @param int $limit Maksymalna liczba wyników
+     * @param  array  $results  Lista wyników
+     * @param  int  $limit  Maksymalna liczba wyników
      * @return array Unikalne wyniki
      */
     private function deduplicateResults(array $results, int $limit): array
@@ -712,8 +776,8 @@ class LocationSearchService
         $seen = [];
 
         foreach ($results as $result) {
-            $key = $result['lat'] . '_' . $result['lon'];
-            if (!isset($seen[$key])) {
+            $key = $result['lat'].'_'.$result['lon'];
+            if (! isset($seen[$key])) {
                 $seen[$key] = true;
                 $uniqueResults[] = $result;
                 if (count($uniqueResults) >= $limit) {
@@ -728,8 +792,8 @@ class LocationSearchService
     /**
      * Aktualizuje performReverseGeocode do obsługi lokalnego Nominatim.
      *
-     * @param float $lat Szerokość geograficzna
-     * @param float $lon Długość geograficzna
+     * @param  float  $lat  Szerokość geograficzna
+     * @param  float  $lon  Długość geograficzna
      * @return array|null Szczegóły lokalizacji
      */
     private function performReverseGeocode(float $lat, float $lon): ?array
@@ -738,8 +802,8 @@ class LocationSearchService
             $nominatimUrl = $this->getNominatimUrl();
 
             // Sprawdź czy lokalny Nominatim jest dostępny (jeśli jest włączony)
-            if ($this->isLocalNominatimEnabled() && !$this->isLocalNominatimHealthy()) {
-                if (!$this->isFallbackEnabled()) {
+            if ($this->isLocalNominatimEnabled() && ! $this->isLocalNominatimHealthy()) {
+                if (! $this->isFallbackEnabled()) {
                     return null;
                 }
                 $nominatimUrl = self::EXTERNAL_NOMINATIM_URL;
@@ -752,7 +816,7 @@ class LocationSearchService
                 ->withHeaders([
                     'User-Agent' => 'PetHelp/1.0 (contact@pethelp.test)',
                 ])
-                ->get($nominatimUrl . '/reverse', [
+                ->get($nominatimUrl.'/reverse', [
                     'lat' => $lat,
                     'lon' => $lon,
                     'format' => 'json',
@@ -762,7 +826,7 @@ class LocationSearchService
 
             if ($response->successful()) {
                 $result = $response->json();
-                if (!empty($result)) {
+                if (! empty($result)) {
                     return $this->formatLocationResults([$result])[0] ?? null;
                 }
             }

@@ -732,10 +732,16 @@
                 _localServiceRadius: 10,
                 _localNotes: null,
                 _hasData: false,
+                _isLoading: false,
 
                 init() {
                     console.log('🎬 AI Panel Step 5 initialized');
                     this.syncFromWizardState();
+
+                    // Fallback: jeśli WizardState jest pusty, pobierz bezpośrednio z Livewire
+                    if (!this._hasData) {
+                        this.syncFromLivewire();
+                    }
                 },
 
                 syncFromWizardState() {
@@ -768,17 +774,91 @@
                     this._localServiceRadius = window.WizardState?.get('location.serviceRadius') || 10;
                 },
 
+                syncFromLivewire() {
+                    // Pobierz wartość bezpośrednio z Livewire jako fallback
+                    const estimatedClients = $wire.estimatedClients || 0;
+                    const serviceRadius = $wire.serviceRadius || 10;
+
+                    console.log('🔄 Syncing AI Panel from Livewire:', { estimatedClients, serviceRadius });
+
+                    // Aktualizuj radius
+                    this._localServiceRadius = serviceRadius;
+
+                    if (estimatedClients > 0) {
+                        this._localPotentialClients = estimatedClients;
+                        this._localPopulation = Math.round(estimatedClients / (0.37 * 0.25));
+                        this._localHouseholds = Math.round(this._localPopulation / 2.5);
+                        this._localPetOwners = Math.round(this._localHouseholds * 0.38);
+                        this._hasData = true;
+
+                        console.log('✅ AI Panel synced from Livewire:', {
+                            potentialClients: this._localPotentialClients,
+                            population: this._localPopulation,
+                            serviceRadius: this._localServiceRadius,
+                            hasData: this._hasData
+                        });
+                    }
+                },
+
                 refreshEstimation() {
-                    console.log('🔄 Odświeżanie estymacji z AI Panel...');
-                    if (window.wizardStep5 && typeof window.wizardStep5.manualRefreshEstimation === 'function') {
-                        window.wizardStep5.manualRefreshEstimation();
+                    console.log('🔄 Odświeżanie estymacji z AI Panel (krok 3)...');
+
+                    // Użyj Livewire.find() do znalezienia komponentu i wywołania metody
+                    const livewireId = document.querySelector('[wire\\:id]')?.getAttribute('wire:id');
+
+                    if (livewireId) {
+                        const component = window.Livewire.find(livewireId);
+                        if (component) {
+                            console.log('✅ Znaleziono komponent Livewire, wywołuję refreshEstimation()');
+                            component.call('refreshEstimation');
+                        } else {
+                            console.warn('⚠️ Nie znaleziono komponentu Livewire o ID:', livewireId);
+                        }
                     } else {
-                        console.warn('⚠️ Nie można odświeżyć estymacji - brak metody manualRefreshEstimation');
+                        console.warn('⚠️ Nie znaleziono elementu z wire:id');
                     }
                 }
             }"
             @wizard-data-updated.window="syncFromWizardState(); console.log('🔔 AI Panel received wizard-data-updated event')"
-            x-init="init()">
+            @estimation-calculating.window="
+                console.log('🔄 Panel AI: Rozpoczęto przeliczanie estymacji');
+                _isLoading = true;
+            "
+            @estimation-refreshed.window="
+                console.log('✅ Estymacja odświeżona:', $event.detail);
+                const count = $event.detail.count;
+                console.log('📊 Nowa liczba klientów:', count);
+
+                _isLoading = false;
+
+                // Aktualizuj radius z Livewire
+                _localServiceRadius = $wire.serviceRadius || 10;
+
+                if (count > 0) {
+                    // Zaktualizuj lokalne zmienne AI Panelu
+                    _localPotentialClients = count;
+                    _localPopulation = Math.round(count / (0.37 * 0.25));
+                    _localHouseholds = Math.round(_localPopulation / 2.5);
+                    _localPetOwners = Math.round(_localHouseholds * 0.38);
+                    _hasData = true;
+
+                    console.log('✅ UI zaktualizowane:', {
+                        _localPotentialClients,
+                        _localPopulation,
+                        _localServiceRadius
+                    });
+                }
+            "
+            x-init="
+                init();
+                // Nasłuchuj na zmiany radius w czasie rzeczywistym
+                $watch('$wire.serviceRadius', value => {
+                    if (value !== undefined && value !== null) {
+                        _localServiceRadius = value;
+                        console.log('🔄 Panel AI: radius zmieniony na', value);
+                    }
+                });
+            ">
                 <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
                     <h3 class="font-bold text-blue-900 mb-2 flex items-center">
                         <span class="text-xl mr-2">📍</span>
@@ -842,27 +922,40 @@
                             Analiza zasięgu AI
                         </h3>
                         <button @click="refreshEstimation()"
-                                class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-2 py-1 rounded transition-colors">
-                            🔄 Odśwież
+                                :disabled="_isLoading"
+                                class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-2 py-1 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1">
+                            <svg x-show="!_isLoading" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            <svg x-show="_isLoading" class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span x-text="_isLoading ? 'Przeliczanie...' : 'Odśwież'"></span>
                         </button>
                     </div>
                     <p class="text-sm text-indigo-800 mb-2">
                         Statystyki dla promienia <strong x-text="_localServiceRadius + ' km'"></strong>:
                     </p>
+                    <div class="bg-white/60 rounded-lg px-2 py-1 mb-2">
+                        <p class="text-xs text-indigo-600 italic">
+                            📍 Dane z Eurostat 2021
+                        </p>
+                    </div>
 
                     {{-- Loading State --}}
-                    <div x-show="!_hasData" class="bg-white rounded-lg p-3 mb-2">
+                    <div x-show="!_hasData || _isLoading" class="bg-white rounded-lg p-3 mb-2">
                         <div class="flex items-center justify-center space-x-2 text-indigo-600">
                             <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                            <span class="text-sm">Obliczanie estymacji AI...</span>
+                            <span class="text-sm" x-text="_isLoading ? 'Przeliczanie...' : 'Obliczanie estymacji AI...'"></span>
                         </div>
                     </div>
 
                     {{-- Data Display --}}
-                    <div x-show="_hasData" class="bg-white rounded-lg p-3 mb-2">
+                    <div x-show="_hasData && !_isLoading" class="bg-white rounded-lg p-3 mb-2">
                         <div class="text-sm text-indigo-700 space-y-2">
                             <div class="flex justify-between items-center">
                                 <span>👥 Liczba mieszkańców:</span>

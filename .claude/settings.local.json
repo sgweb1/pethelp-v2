@@ -30,7 +30,15 @@
       "Bash(echo \"Backup created at: $BACKUP_DIR\")",
       "Bash(vendor/bin/pint:*)",
       "Bash(del \"C:\\laragon\\www\\pethelp\\resources\\views\\livewire\\pet-sitter-wizard\\steps\\step-12.blade.php\")",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(powershell:*)",
+      "Bash(mv:*)",
+      "Bash(php:*)",
+      "WebFetch(domain:ec.europa.eu)",
+      "Bash(ls:*)",
+      "Bash(composer show:*)",
+      "Bash(composer require:*)",
+      "Bash(findstr:*)"
     ],
     "deny": [],
     "ask": []

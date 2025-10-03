@@ -1,303 +1,275 @@
-{{-- Krok 7: Opowiedz o swoim domu - Architektura v3.0 + UI v4 ENHANCED WIDE --}}
-<div class="max-w-4xl mx-auto px-4" x-data="wizardStep7()" x-init="init()">
+{{-- Krok 2: Doświadczenie - V4 Design --}}
+<div x-data="{
+    petExperience: @js($petExperience),
+    yearsOfExperience: '{{ $yearsOfExperience }}',
+    characterCount: {{ strlen($experienceDescription) }},
+    get isDescriptionValid() { return this.characterCount >= 100; },
+    get progressPercentage() { return Math.min((this.characterCount / 100) * 100, 100); }
+}" x-init="console.log('Step 2 Alpine initialized:', {petExperience, yearsOfExperience, characterCount})">
 
-    {{-- Header z gradient --}}
-    <div class="text-center mb-8">
-        <div class="inline-block mb-4">
-            <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <span class="text-3xl">🏠</span>
+    {{-- Hero Section z gradientem --}}
+    <div style="background: linear-gradient(135deg, #10b981 0%, #14b8a6 50%, #06b6d4 100%);" class="text-white px-4 py-8 sm:py-12 mb-6">
+        <div class="max-w-2xl mx-auto">
+            <div class="flex items-center justify-between mb-6">
+                <div class="text-5xl sm:text-6xl">⭐</div>
+                <button @click="$wire.showAIPanel = !$wire.showAIPanel"
+                        class="hidden lg:flex items-center space-x-2 px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl transition-all">
+                    <span class="text-2xl">🤖</span>
+                    <span class="text-sm font-semibold" x-text="$wire.showAIPanel ? 'Zamknij panel' : 'Otwórz AI Assistant'"></span>
+                </button>
             </div>
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 leading-tight">
+                Jakie masz doświadczenie z zwierzętami?
+            </h1>
+            <p class="text-emerald-50 text-sm sm:text-base">
+                Pomóż nam lepiej zrozumieć Twoje umiejętności i wiedzę
+            </p>
         </div>
-        <h1 class="text-3xl font-bold text-gray-900 mb-3">Opowiedz o swoim domu</h1>
-        <p class="text-gray-600 text-lg">Klienci chcą wiedzieć, w jakim środowisku będą przebywały ich zwierzęta</p>
     </div>
 
-    <div class="grid lg:grid-cols-3 gap-6">
-        {{-- Główna sekcja - Formularze (2/3) --}}
-        <div class="lg:col-span-2 space-y-6">
-            {{-- Typ mieszkania Card --}}
-            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow">
-                <div class="flex items-center justify-between mb-6">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
-                            <span class="text-xl">🏘️</span>
-                        </div>
-                        <div>
-                            <label class="block text-base font-bold text-gray-900">
-                                Typ mieszkania <span class="text-red-500">*</span>
-                            </label>
-                            <p class="text-xs text-gray-500 mt-0.5">Wybierz jedną opcję</p>
-                        </div>
+    <div class="max-w-2xl mx-auto px-4 space-y-6 pb-8">
+        {{-- AI Assistant Card (Inline Introduction) --}}
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            {{-- Header z gradientem --}}
+            <div style="background: linear-gradient(135deg, #10b981 0%, #14b8a6 50%, #06b6d4 100%);" class="p-4 sm:p-6 text-white">
+                <div class="flex items-start space-x-3">
+                    <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center flex-shrink-0 text-2xl">
+                        🤖
                     </div>
-                    <button type="button"
-                            @click="$wire.showAIPanel = !$wire.showAIPanel"
-                            class="flex items-center text-xs cursor-pointer hover:scale-105 transition-transform duration-200 px-3 py-2 rounded-lg bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 hover:border-emerald-300">
-                        <div class="w-5 h-5 bg-gradient-to-r from-emerald-500 to-green-500 rounded-full flex items-center justify-center mr-2 shadow-sm">
-                            <span class="text-white text-xs">💡</span>
-                        </div>
-                        <span class="font-semibold text-emerald-700" x-text="$wire.showAIPanel ? 'Ukryj' : 'Wskazówki'"></span>
-                    </button>
+                    <div class="flex-1 min-w-0">
+                        <h2 class="text-lg sm:text-xl font-bold mb-1">AI Assistant</h2>
+                        <p class="text-emerald-50 text-xs sm:text-sm">
+                            Pomożemy Ci opisać doświadczenie
+                        </p>
+                    </div>
                 </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    @php
-                        $homeTypes = [
-                            'apartment' => ['icon' => '🏢', 'title' => 'Mieszkanie', 'desc' => 'W budynku wielorodzinnym'],
-                            'house' => ['icon' => '🏠', 'title' => 'Dom jednorodzinny', 'desc' => 'Wolnostojący lub w zabudowie'],
-                            'studio' => ['icon' => '🏡', 'title' => 'Kawalerka/Studio', 'desc' => 'Mały metraż'],
-                            'townhouse' => ['icon' => '🏘️', 'title' => 'Dom szeregowy', 'desc' => 'W zabudowie szeregowej']
-                        ];
-                    @endphp
-
-                    @foreach($homeTypes as $key => $home)
-                        <label class="wizard-checkbox-tile"
-                               :class="{ 'selected': (typeof homeType !== 'undefined') && homeType === '{{ $key }}' }"
-                               @click.prevent="(typeof selectHomeType === 'function') && selectHomeType('{{ $key }}')">
-                            <input type="radio"
-                                   name="homeType"
-                                   value="{{ $key }}"
-                                   class="sr-only">
-                            <div class="flex items-center w-full">
-                                <span class="wizard-checkbox-emoji">{{ $home['icon'] }}</span>
-                                <div class="flex-1 min-w-0">
-                                    <span class="wizard-checkbox-text">{{ $home['title'] }}</span>
-                                    <div class="wizard-checkbox-description">{{ $home['desc'] }}</div>
-                                </div>
-                                <svg class="wizard-checkbox-icon" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                </svg>
-                            </div>
-                        </label>
-                    @endforeach
-                </div>
-
-                @error('homeType')
-                    <p class="mt-2 text-sm text-red-600 flex items-center">
-                        <span class="mr-1">⚠️</span>
-                        {{ $message }}
-                    </p>
-                @enderror
             </div>
 
-            {{-- Cechy mieszkania Card --}}
-            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center">
-                        <span class="text-xl">✨</span>
-                    </div>
-                    <div>
-                        <label class="block text-base font-bold text-gray-900">
-                            Cechy Twojego domu
-                        </label>
-                        <p class="text-xs text-gray-500 mt-0.5">Zaznacz wszystkie które pasują</p>
-                    </div>
-                </div>
-
+            {{-- Content --}}
+            <div class="p-4 sm:p-6 space-y-4">
+                {{-- Wskazówki --}}
                 <div class="space-y-3">
-                    {{-- Ogród/balkon --}}
-                    <label class="flex items-start p-4 border-2 rounded-xl cursor-pointer transition-all hover:scale-[1.01] hover:shadow-md"
-                           :class="{
-                               'border-emerald-500 bg-emerald-50': (typeof hasGarden !== 'undefined') && hasGarden,
-                               'border-gray-200': !(typeof hasGarden !== 'undefined') || !hasGarden
-                           }"
-                           @click.prevent="(typeof toggleGarden === 'function') && toggleGarden()">
-                        <input type="checkbox" class="sr-only">
-                        <div class="flex items-center w-full">
-                            <div class="relative mr-3">
-                                <div x-show="(typeof hasGarden !== 'undefined') && hasGarden" class="w-5 h-5 bg-emerald-600 rounded border border-emerald-600 flex items-center justify-center">
-                                    <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                    </svg>
-                                </div>
-                                <div x-show="!(typeof hasGarden !== 'undefined') || !hasGarden" class="w-5 h-5 border-2 border-gray-300 rounded"></div>
-                            </div>
-                            <div class="flex-1 select-none">
-                                <div class="font-medium text-gray-900 text-sm">Ogród lub duży balkon</div>
-                                <div class="text-xs text-gray-500 mt-0.5">Bezpieczne miejsce do zabawy dla zwierząt</div>
-                            </div>
-                            <div class="text-2xl">🌱</div>
+                    <div class="flex items-start space-x-3">
+                        <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 text-blue-600 font-bold text-sm">
+                            1
                         </div>
-                    </label>
-
-                    {{-- Niepalący --}}
-                    <label class="flex items-start p-4 border-2 rounded-xl cursor-pointer transition-all hover:scale-[1.01] hover:shadow-md"
-                           :class="{
-                               'border-green-500 bg-green-50': (typeof isSmoking !== 'undefined') && !isSmoking,
-                               'border-gray-200': !(typeof isSmoking !== 'undefined') || isSmoking
-                           }"
-                           @click.prevent="(typeof toggleSmoking === 'function') && toggleSmoking()">
-                        <input type="checkbox" class="sr-only">
-                        <div class="flex items-center w-full">
-                            <div class="relative mr-3">
-                                <div x-show="(typeof isSmoking !== 'undefined') && !isSmoking" class="w-5 h-5 bg-green-600 rounded border border-green-600 flex items-center justify-center">
-                                    <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                    </svg>
-                                </div>
-                                <div x-show="!(typeof isSmoking !== 'undefined') || isSmoking" class="w-5 h-5 border-2 border-gray-300 rounded"></div>
-                            </div>
-                            <div class="flex-1 select-none">
-                                <div class="font-medium text-gray-900 text-sm">Środowisko bez dymu</div>
-                                <div class="text-xs text-gray-500 mt-0.5">Nie palę w domu (ważne dla zdrowia zwierząt)</div>
-                            </div>
-                            <div class="text-2xl">🚭</div>
-                        </div>
-                    </label>
-                </div>
-
-                @error('hasGarden')
-                    <p class="mt-2 text-sm text-red-600 flex items-center">
-                        <span class="mr-1">⚠️</span>
-                        {{ $message }}
-                    </p>
-                @enderror
-
-                @error('isSmoking')
-                    <p class="mt-2 text-sm text-red-600 flex items-center">
-                        <span class="mr-1">⚠️</span>
-                        {{ $message }}
-                    </p>
-                @enderror
-            </div>
-
-            {{-- Inne zwierzęta Card --}}
-            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow">
-                <div class="flex items-center justify-between mb-6">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center">
-                            <span class="text-xl">🐾</span>
-                        </div>
-                        <div>
-                            <label class="text-base font-bold text-gray-900">
-                                Czy masz inne zwierzęta?
-                            </label>
-                            <p class="text-xs text-gray-500 mt-0.5">Ważne dla kompatybilności</p>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-semibold text-gray-900 text-sm sm:text-base mb-1">Rodzaje doświadczenia</h4>
+                            <p class="text-xs sm:text-sm text-gray-600">Wybierz wszystkie pasujące typy</p>
                         </div>
                     </div>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox"
-                               class="sr-only peer"
-                               :checked="(typeof hasOtherPets !== 'undefined') && hasOtherPets"
-                               @change="(typeof toggleOtherPets === 'function') && toggleOtherPets()">
-                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
-                    </label>
-                </div>
 
-                <div x-show="(typeof hasOtherPets !== 'undefined') && hasOtherPets"
-                     x-transition:enter="transition ease-out duration-300"
-                     x-transition:enter-start="opacity-0 transform scale-95"
-                     x-transition:enter-end="opacity-100 transform scale-100"
-                     class="space-y-3">
-                    <p class="text-sm text-gray-600 mb-3">Jakie zwierzęta masz w domu? (Pomoże to w doborze odpowiednich gości)</p>
+                    <div class="flex items-start space-x-3">
+                        <div class="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0 text-purple-600 font-bold text-sm">
+                            2
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-semibold text-gray-900 text-sm sm:text-base mb-1">Lata praktyki</h4>
+                            <p class="text-xs sm:text-sm text-gray-600">Podaj realną liczbę lat</p>
+                        </div>
+                    </div>
 
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        @foreach($this->formattedPetTypes as $key => $pet)
-                            <label class="wizard-checkbox-tile small"
-                                   :class="{ 'selected': (typeof isPetSelected === 'function') && isPetSelected('{{ $key }}') }"
-                                   @click.prevent="(typeof togglePet === 'function') && togglePet('{{ $key }}')">
-                                <input type="checkbox" value="{{ $key }}" class="sr-only">
-                                <div class="flex flex-col items-center text-center">
-                                    <span class="text-2xl mb-1">{{ $pet['icon'] }}</span>
-                                    <span class="text-xs font-medium">{{ $pet['title'] }}</span>
-                                    <svg class="wizard-checkbox-icon absolute top-1 right-1" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                    </svg>
-                                </div>
-                            </label>
-                        @endforeach
+                    <div class="flex items-start space-x-3">
+                        <div class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 text-emerald-600 font-bold text-sm">
+                            3
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-semibold text-gray-900 text-sm sm:text-base mb-1">Szczegółowy opis</h4>
+                            <p class="text-xs sm:text-sm text-gray-600">Minimum 100 znaków</p>
+                        </div>
                     </div>
                 </div>
 
-                @error('otherPets')
-                    <p class="mt-2 text-sm text-red-600 flex items-center">
-                        <span class="mr-1">⚠️</span>
-                        {{ $message }}
-                    </p>
-                @enderror
+                {{-- Link do pełnego panelu --}}
+                <button @click="$wire.showAIPanel = true"
+                        type="button"
+                        class="w-full text-sm text-emerald-600 hover:text-emerald-700 font-medium py-2 flex items-center justify-center space-x-1">
+                    <span>📖 Zobacz więcej wskazówek</span>
+                    <span>→</span>
+                </button>
             </div>
         </div>
 
-        {{-- Sticky Sidebar - Live Preview (1/3) --}}
-        <div class="lg:col-span-1">
-            <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl shadow-xl border-2 border-blue-200 p-6 sticky top-4">
+        {{-- Pet Experience Types Card --}}
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6">
+            <label class="font-semibold text-gray-900 text-sm sm:text-base mb-4 block">
+                Rodzaje doświadczenia <span class="text-red-500">*</span>
+            </label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                @foreach([
+                    'own_pets' => ['Własne zwierzęta', '🏠'],
+                    'family_pets' => ['Zwierzęta rodziny/przyjaciół', '👨‍👩‍👧‍👦'],
+                    'volunteering' => ['Wolontariat w schronisku', '❤️'],
+                    'professional' => ['Praca zawodowa', '💼'],
+                    'training' => ['Kursy/szkolenia', '📚'],
+                    'veterinary' => ['Doświadczenie weterynaryjne', '⚕️'],
+                ] as $value => $info)
+                    <label class="flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all hover:scale-[1.02] @if(in_array($value, $petExperience)) border-emerald-500 bg-white text-gray-900 @else bg-white border-gray-200 hover:border-gray-300 text-gray-900 @endif"
+                           wire:click.prevent="togglePetExperience('{{ $value }}')">
+                        <input type="checkbox"
+                               value="{{ $value }}"
+                               class="sr-only">
+                        <span class="text-2xl mr-3">{{ $info[1] }}</span>
+                        <span class="flex-1 font-medium text-sm">{{ $info[0] }}</span>
+                        @if(in_array($value, $petExperience))
+                            <span class="text-emerald-500">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                            </span>
+                        @endif
+                    </label>
+                @endforeach
+            </div>
+            @error('petExperience')
+                <p class="mt-2 text-sm text-red-600 flex items-center">
+                    <span class="mr-1">⚠️</span>
+                    {{ $message }}
+                </p>
+            @enderror
+        </div>
 
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                        <span class="text-2xl">✅</span>
-                    </div>
-                    <h4 class="text-lg font-bold text-gray-900">
-                        Twój dom
-                    </h4>
+        {{-- Years of Experience Card --}}
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6">
+            <label for="yearsOfExperience" class="font-semibold text-gray-900 text-sm sm:text-base mb-3 block">
+                Ile lat doświadczenia masz z zwierzętami? <span class="text-red-500">*</span>
+            </label>
+            <select wire:model="yearsOfExperience"
+                    @change="yearsOfExperience = $el.value"
+                    id="yearsOfExperience"
+                    :class="yearsOfExperience ? 'border-emerald-500' : 'border-gray-200 hover:border-gray-300'"
+                    class="w-full px-4 py-4 text-sm sm:text-base font-medium border-2 rounded-xl bg-white text-gray-900 focus:outline-none transition-all cursor-pointer">
+                <option value="" disabled selected class="text-gray-400">Wybierz zakres...</option>
+                <option value="less_than_1" class="text-gray-900 py-2">Mniej niż 1 rok</option>
+                <option value="1_to_3" class="text-gray-900 py-2">1-3 lata</option>
+                <option value="3_to_5" class="text-gray-900 py-2">3-5 lat</option>
+                <option value="5_to_10" class="text-gray-900 py-2">5-10 lat</option>
+                <option value="more_than_10" class="text-gray-900 py-2">Więcej niż 10 lat</option>
+            </select>
+            @error('yearsOfExperience')
+                <p class="mt-2 text-sm text-red-600 flex items-center">
+                    <span class="mr-1">⚠️</span>
+                    {{ $message }}
+                </p>
+            @enderror
+        </div>
+
+        {{-- Experience Description Card --}}
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6">
+            <div class="wizard-form-group">
+                <div class="flex items-center justify-between mb-3">
+                    <label for="experienceDescription" class="font-semibold text-gray-900 text-sm sm:text-base mb-0">
+                        Opisz swoje doświadczenie <span class="text-red-500">*</span>
+                    </label>
+                    <span class="text-xs sm:text-sm transition-colors"
+                          :class="isDescriptionValid ? 'text-emerald-600 font-semibold' : characterCount > 1000 ? 'text-red-600' : 'text-gray-400'"
+                          x-text="`${characterCount}/1000`"></span>
                 </div>
 
-                {{-- Placeholder gdy nic nie wybrano --}}
-                <div x-show="!(typeof homeType !== 'undefined') || !homeType"
-                     class="text-center py-8">
-                    <div class="text-6xl mb-4 opacity-50">🏠</div>
-                    <p class="text-sm text-gray-600">
-                        Wybierz typ mieszkania, aby zobaczyć podgląd
+                <div class="relative">
+                    <textarea
+                        wire:model.blur="experienceDescription"
+                        @input="characterCount = $el.value.length"
+                        id="experienceDescription"
+                        rows="6"
+                        @focus="$el.classList.add('ring-2', 'ring-emerald-500', 'border-emerald-500')"
+                        @blur="$el.classList.remove('ring-2', 'ring-emerald-500', 'border-emerald-500')"
+                        :class="isDescriptionValid ? 'border-emerald-500' : ''"
+                        class="w-full px-4 py-3 text-sm sm:text-base border-2 border-gray-200 rounded-xl resize-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all"
+                        placeholder="Np. Mam 5 lat doświadczenia w opiece nad psami różnych ras. Pracowałem w schronisku dla zwierząt, gdzie zdobyłem doświadczenie w karmieniu, spacerach oraz podstawowej opiece medycznej. Dodatkowo ukończyłem kurs behawiorysty psów..."
+                        maxlength="1000"></textarea>
+
+                    {{-- Character Counter with Animation --}}
+                    <div class="absolute bottom-3 right-3 flex items-center space-x-2">
+                        <span x-show="isDescriptionValid"
+                              x-transition:enter="transition ease-out duration-200"
+                              x-transition:enter-start="opacity-0 scale-95"
+                              x-transition:enter-end="opacity-100 scale-100"
+                              class="text-emerald-600 text-sm">
+                            ✓
+                        </span>
+                    </div>
+                </div>
+
+                @error('experienceDescription')
+                    <p class="mt-2 text-sm text-red-600 flex items-center">
+                        <span class="mr-1">⚠️</span>
+                        {{ $message }}
+                    </p>
+                @enderror
+
+                {{-- Progress Bar --}}
+                <div class="mt-4">
+                    <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-500"
+                             :style="isDescriptionValid ? `background: linear-gradient(135deg, #10b981, #06b6d4); width: ${progressPercentage}%` : `background: ${characterCount > 0 ? '#d1d5db' : '#e5e7eb'}; width: ${progressPercentage}%`"></div>
+                    </div>
+                    <p class="text-xs sm:text-sm mt-2" :class="isDescriptionValid ? 'text-emerald-600' : 'text-gray-500'">
+                        <span x-show="!isDescriptionValid && characterCount < 100">
+                            Minimum 100 znaków (jeszcze <span x-text="100 - characterCount"></span>)
+                        </span>
+                        <span x-show="isDescriptionValid">✓ Świetnie! Twój opis spełnia wymagania</span>
                     </p>
                 </div>
+            </div>
+        </div>
 
-                {{-- Live preview gdy są dane --}}
-                <div x-show="(typeof homeType !== 'undefined') && homeType"
-                     x-transition
-                     class="space-y-3">
-                    {{-- Typ mieszkania --}}
-                    <div class="bg-white rounded-xl p-4 shadow-sm border border-blue-100">
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <span class="text-lg">🏘️</span>
-                            </div>
-                            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Typ</span>
-                        </div>
-                        <span class="text-sm font-semibold text-gray-900" x-text="(typeof getHomeTypeLabel === 'function') ? getHomeTypeLabel() : ''"></span>
-                    </div>
+        {{-- Wskazówki pisania --}}
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6">
+            <h3 class="font-bold text-gray-900 mb-3 flex items-center text-sm sm:text-base">
+                <span class="text-xl sm:text-2xl mr-2">💡</span>
+                Co warto zawrzeć w opisie?
+            </h3>
 
-                    {{-- Ogród/balkon --}}
-                    <div x-show="(typeof hasGarden !== 'undefined') && hasGarden"
-                         x-transition
-                         class="bg-white rounded-xl p-4 shadow-sm border border-emerald-100">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
-                                <span class="text-lg">🌱</span>
-                            </div>
-                            <span class="text-sm font-semibold text-gray-900">Ogród/balkon dostępny</span>
-                        </div>
+            <div class="space-y-3">
+                <div class="flex items-start space-x-3 p-3 bg-blue-50 rounded-xl border border-blue-100">
+                    <span class="text-lg sm:text-xl flex-shrink-0">🐕</span>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="font-medium text-gray-900 text-xs sm:text-sm mb-1">Zwierzęta</h4>
+                        <p class="text-xs text-gray-600">Z jakimi zwierzętami pracowałeś</p>
                     </div>
+                </div>
 
-                    {{-- Bez dymu --}}
-                    <div x-show="(typeof isSmoking !== 'undefined') && !isSmoking"
-                         x-transition
-                         class="bg-white rounded-xl p-4 shadow-sm border border-green-100">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                                <span class="text-lg">🚭</span>
-                            </div>
-                            <span class="text-sm font-semibold text-gray-900">Środowisko bez dymu</span>
-                        </div>
+                <div class="flex items-start space-x-3 p-3 bg-purple-50 rounded-xl border border-purple-100">
+                    <span class="text-lg sm:text-xl flex-shrink-0">🎓</span>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="font-medium text-gray-900 text-xs sm:text-sm mb-1">Szkolenia</h4>
+                        <p class="text-xs text-gray-600">Ukończone kursy lub certyfikaty</p>
                     </div>
+                </div>
 
-                    {{-- Inne zwierzęta --}}
-                    <div x-show="(typeof hasOtherPets !== 'undefined') && hasOtherPets && (typeof otherPets !== 'undefined') && otherPets.length > 0"
-                         x-transition
-                         class="bg-white rounded-xl p-4 shadow-sm border border-amber-100">
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
-                                <span class="text-lg">🐾</span>
-                            </div>
-                            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Inne zwierzęta</span>
-                        </div>
-                        <span class="text-sm font-semibold text-gray-900" x-text="(typeof otherPets !== 'undefined') ? `${otherPets.length} typ${otherPets.length > 1 ? 'y' : ''}` : ''"></span>
+                <div class="flex items-start space-x-3 p-3 bg-emerald-50 rounded-xl border border-emerald-100">
+                    <span class="text-lg sm:text-xl flex-shrink-0">💪</span>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="font-medium text-gray-900 text-xs sm:text-sm mb-1">Umiejętności</h4>
+                        <p class="text-xs text-gray-600">Jakie trudne sytuacje rozwiązywałeś</p>
                     </div>
+                </div>
+            </div>
+        </div>
 
-                    {{-- Wskazówka --}}
-                    <div class="mt-6 pt-6 border-t border-blue-200">
-                        <p class="text-xs text-gray-600 italic flex items-start gap-2">
-                            <span class="text-base">💡</span>
-                            <span>Szczegółowe informacje o domu zwiększają zaufanie klientów i szansę na rezerwację</span>
-                        </p>
-                    </div>
+        {{-- Experience Summary --}}
+        <div x-show="petExperience.length > 0"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 transform scale-95"
+             x-transition:enter-end="opacity-100 transform scale-100"
+             class="bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-2xl p-4 sm:p-6">
+            <h4 class="font-bold text-emerald-900 mb-3 flex items-center">
+                <span class="text-xl mr-2">✨</span>
+                Twoje doświadczenie
+            </h4>
+            <div class="text-emerald-800 space-y-2 text-sm">
+                <div class="flex items-center">
+                    <span class="text-emerald-600 mr-2">✓</span>
+                    <span x-text="`${petExperience.length} ${petExperience.length === 1 ? 'typ' : petExperience.length < 5 ? 'typy' : 'typów'} doświadczenia`"></span>
+                </div>
+                <div x-show="yearsOfExperience" class="flex items-center">
+                    <span class="text-emerald-600 mr-2">✓</span>
+                    <span>Lata doświadczenia określone</span>
+                </div>
+                <div x-show="isDescriptionValid" class="flex items-center">
+                    <span class="text-emerald-600 mr-2">✓</span>
+                    <span>Szczegółowy opis doświadczenia</span>
                 </div>
             </div>
         </div>
@@ -305,29 +277,22 @@
 </div>
 
 {{--
-    ✅ ARCHITEKTURA v3.0 - EXTERNAL COMPONENT + UI v4 WIDE LAYOUT
+    ✅ V4 DESIGN - MOBILE FIRST
 
-    Komponent wizardStep7 został przeniesiony do zewnętrznego pliku:
-    📁 resources/js/components/wizard-step-7-v3.js
+    Zachowana cała logika z wizardStep7():
+    - petExperience, yearsOfExperience, experienceDescription
+    - characterCount, isDescriptionValid, progressPercentage
+    - togglePetExperience(), isPetExperienceSelected()
+    - updateYearsOfExperience(), updateExperienceDescription()
+    - syncFromLivewire()
+    - Wszystkie bindingi Alpine.js
 
-    Nowa architektura v3.0:
-    - ✅ Stateless components (brak lokalnego state)
-    - ✅ Single Source of Truth przez window.WizardState
-    - ✅ Eliminacja duplikacji zmiennych między krokami
-    - ✅ Centralized state management
-
-    UI v4 WIDE:
-    - ✅ max-w-4xl mx-auto px-4 wrapper (szerszy układ)
-    - ✅ Grid 3 kolumny: 2/3 formularze + 1/3 sidebar
-    - ✅ Sticky sidebar z live preview
-    - ✅ bg-white rounded-2xl shadow-lg cards
-    - ✅ Przycisk AI Panel w nagłówku
-
-    Import w app.js: import './components/wizard-step-7-v3';
-
-    Wszystkie zmienne i metody są teraz computed properties z globalnego state:
-    - homeType, hasGarden, isSmoking, hasOtherPets, otherPets
-    - selectHomeType(), toggleGarden(), toggleSmoking()
-    - toggleOtherPets(), togglePet(), isPetSelected()
-    - getHomeTypeLabel(), getHomeSummary()
+    Nowy wygląd:
+    - Gradient hero section (⭐)
+    - Białe karty z rounded-2xl i shadow-lg
+    - AI Assistant card inline
+    - Checkbox tiles z hover effects
+    - Mobile-first responsive
+    - Progress bar i character counter
+    - Experience summary z animacją
 --}}

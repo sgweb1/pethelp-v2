@@ -50,6 +50,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'requires.subscription' => \App\Http\Middleware\RequiresActiveSubscription::class,
             'check.listing.limits' => \App\Http\Middleware\CheckListingLimits::class,
             'local-only' => \App\Http\Middleware\LocalOnlyMiddleware::class,
+            'redirect.non.admin' => \App\Http\Middleware\RedirectNonAdminToProfile::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
@@ -79,7 +80,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->renderable(function (\Throwable $e) {
             // Fast display for RouteNotFoundException
             if ($e instanceof \Symfony\Component\Routing\Exception\RouteNotFoundException && app()->environment('local')) {
-                return response('<h1>Route Error (Fast Display)</h1><p><strong>Route not found:</strong> ' . $e->getMessage() . '</p><p><strong>File:</strong> ' . $e->getFile() . ':' . $e->getLine() . '</p>', 404);
+                return response('<h1>Route Error (Fast Display)</h1><p><strong>Route not found:</strong> '.$e->getMessage().'</p><p><strong>File:</strong> '.$e->getFile().':'.$e->getLine().'</p>', 404);
             }
 
             if (str_contains(get_class($e), 'Phiki\\') ||

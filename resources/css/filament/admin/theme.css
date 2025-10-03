@@ -1,0 +1,11 @@
+/**
+ * PetHelp Admin Panel - Custom Theme
+ *
+ * Dostosowany theme dla panelu administracyjnego PetHelp
+ */
+
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@config '../../../../tailwind.admin.config.js';
+
+/* Custom styles for PetHelp branding */

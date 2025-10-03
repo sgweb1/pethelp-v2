@@ -1,262 +1,221 @@
-{{-- Krok 6: Dostępność - Architektura v3.0 --}}
-<div class="max-w-2xl mx-auto px-4" x-data="wizardStep6()" x-init="init(); console.log('🔍 Alpine x-init called for step 6'); console.log('🔍 Component methods:', { isDayEnabled: typeof isDayEnabled, getDayClasses: typeof getDayClasses, toggleHintsPanel: typeof toggleHintsPanel }); console.log('🔍 Window functions:', { wizardStep6: typeof window.wizardStep6 });">
+{{-- Krok 1: Motywacja - V4 Design --}}
+<div x-data="wizardStep6()" x-init="init()"
+     @ai-suggestion-applied.window="syncFromLivewire(); console.log('🎯 AI suggestion applied, syncing...', $event.detail)">
 
-    {{-- Header --}}
-    <div class="text-center mb-8">
-        <h1 class="text-2xl font-bold text-gray-900 mb-2">Kiedy jesteś dostępny?</h1>
-        <p class="text-gray-600 text-lg">Określ swój typowy harmonogram i preferencje czasowe</p>
-    </div>
-
-    <div class="space-y-6">
-        {{-- Szybkie szablony harmonogramów --}}
-        <div class="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl border-2 border-emerald-200 p-4 sm:p-6">
-            <div class="flex items-center mb-4">
-                <span class="text-2xl mr-3">⚡</span>
-                <div>
-                    <h3 class="text-sm font-semibold text-gray-900">Szybki wybór harmonogramu</h3>
-                    <p class="text-xs text-gray-600">Kliknij aby zastosować gotowy szablon</p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {{-- Pełny etat --}}
-                <button type="button"
-                        @click="(typeof applyScheduleTemplate === 'function') && applyScheduleTemplate('full_time')"
-                        class="group p-3 bg-white hover:bg-emerald-50 border-2 border-gray-200 hover:border-emerald-500 rounded-xl transition-all hover:scale-[1.02]">
-                    <div class="text-2xl mb-2">💼</div>
-                    <div class="text-xs font-semibold text-gray-900 mb-1">Pełny etat</div>
-                    <div class="text-xs text-gray-500">Pn-Pt 9:00-17:00</div>
-                </button>
-
-                {{-- Part-time --}}
-                <button type="button"
-                        @click="(typeof applyScheduleTemplate === 'function') && applyScheduleTemplate('part_time')"
-                        class="group p-3 bg-white hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-500 rounded-xl transition-all hover:scale-[1.02]">
-                    <div class="text-2xl mb-2">⏰</div>
-                    <div class="text-xs font-semibold text-gray-900 mb-1">Part-time</div>
-                    <div class="text-xs text-gray-500">Pn,Śr,Pt 10:00-14:00</div>
-                </button>
-
-                {{-- Weekendy --}}
-                <button type="button"
-                        @click="(typeof applyScheduleTemplate === 'function') && applyScheduleTemplate('weekends')"
-                        class="group p-3 bg-white hover:bg-purple-50 border-2 border-gray-200 hover:border-purple-500 rounded-xl transition-all hover:scale-[1.02]">
-                    <div class="text-2xl mb-2">🎉</div>
-                    <div class="text-xs font-semibold text-gray-900 mb-1">Weekendy</div>
-                    <div class="text-xs text-gray-500">Sb-Nd 10:00-16:00</div>
-                </button>
-
-                {{-- Poranny --}}
-                <button type="button"
-                        @click="(typeof applyScheduleTemplate === 'function') && applyScheduleTemplate('morning')"
-                        class="group p-3 bg-white hover:bg-amber-50 border-2 border-gray-200 hover:border-amber-500 rounded-xl transition-all hover:scale-[1.02]">
-                    <div class="text-2xl mb-2">🌅</div>
-                    <div class="text-xs font-semibold text-gray-900 mb-1">Poranny</div>
-                    <div class="text-xs text-gray-500">Codziennie 7:00-12:00</div>
-                </button>
-
-                {{-- Wieczorny --}}
-                <button type="button"
-                        @click="(typeof applyScheduleTemplate === 'function') && applyScheduleTemplate('evening')"
-                        class="group p-3 bg-white hover:bg-orange-50 border-2 border-gray-200 hover:border-orange-500 rounded-xl transition-all hover:scale-[1.02]">
-                    <div class="text-2xl mb-2">🌆</div>
-                    <div class="text-xs font-semibold text-gray-900 mb-1">Wieczorny</div>
-                    <div class="text-xs text-gray-500">Codziennie 15:00-20:00</div>
-                </button>
-
-                {{-- Nocny --}}
-                <button type="button"
-                        @click="(typeof applyScheduleTemplate === 'function') && applyScheduleTemplate('night')"
-                        class="group p-3 bg-white hover:bg-indigo-50 border-2 border-gray-200 hover:border-indigo-500 rounded-xl transition-all hover:scale-[1.02]">
-                    <div class="text-2xl mb-2">🌙</div>
-                    <div class="text-xs font-semibold text-gray-900 mb-1">Nocny</div>
-                    <div class="text-xs text-gray-500">Codziennie 20:00-08:00</div>
+    {{-- Hero Section z gradientem --}}
+    <div style="background: linear-gradient(135deg, #10b981 0%, #14b8a6 50%, #06b6d4 100%);" class="text-white px-4 py-8 sm:py-12 mb-6">
+        <div class="max-w-2xl mx-auto">
+            <div class="flex items-center justify-between mb-6">
+                <div class="text-5xl sm:text-6xl">👋</div>
+                <button @click="$wire.showAIPanel = !$wire.showAIPanel"
+                        class="hidden lg:flex items-center space-x-2 px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl transition-all">
+                    <span class="text-2xl">🤖</span>
+                    <span class="text-sm font-semibold" x-text="$wire.showAIPanel ? 'Zamknij panel' : 'Otwórz AI Assistant'"></span>
                 </button>
             </div>
-
-            <div class="mt-3 text-xs text-gray-600 bg-white/50 rounded-lg p-2 flex items-start">
-                <span class="mr-2">💡</span>
-                <span>Po wybraniu szablonu możesz dostosować godziny dla każdego dnia indywidualnie</span>
-            </div>
-        </div>
-
-        {{-- Harmonogram tygodniowy Card --}}
-        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6">
-            <div class="flex items-center justify-between mb-4">
-                <label class="block text-sm font-semibold text-gray-900">
-                    Dostępność w tygodniu <span class="text-red-500">*</span>
-                </label>
-                <button type="button"
-                        @click="$wire.showAIPanel = !$wire.showAIPanel"
-                        class="flex items-center text-xs cursor-pointer hover:scale-105 transition-transform duration-200 px-3 py-1.5 rounded-lg hover:bg-emerald-50">
-                    <div class="w-5 h-5 bg-gradient-to-r from-emerald-500 to-green-500 rounded-full flex items-center justify-center mr-2">
-                        <span class="text-white text-xs">💡</span>
-                    </div>
-                    <span class="font-medium text-gray-700" x-text="$wire.showAIPanel ? 'Ukryj wskazówki' : 'Wskazówki AI'"></span>
-                </button>
-            </div>
-
-            <div class="space-y-3">
-        @php
-            $days = [
-                'monday' => 'Poniedziałek',
-                'tuesday' => 'Wtorek',
-                'wednesday' => 'Środa',
-                'thursday' => 'Czwartek',
-                'friday' => 'Piątek',
-                'saturday' => 'Sobota',
-                'sunday' => 'Niedziela'
-            ];
-        @endphp
-
-                @foreach($days as $key => $day)
-                    <div class="flex items-center justify-between p-3 border-2 rounded-xl transition-all"
-                         :class="(typeof getDayClasses === 'function') ? getDayClasses('{{ $key }}') : 'border-gray-200'">
-                        <div class="flex items-center flex-1">
-                            <label class="flex items-center cursor-pointer" @click="(typeof toggleDay === 'function') && toggleDay('{{ $key }}')">
-                                <div class="relative">
-                                    <div x-show="(typeof isDayEnabled === 'function') && isDayEnabled('{{ $key }}')"
-                                         class="w-5 h-5 bg-emerald-600 rounded border border-emerald-600 flex items-center justify-center">
-                                        <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                        </svg>
-                                    </div>
-                                    <div x-show="!(typeof isDayEnabled === 'function') || !isDayEnabled('{{ $key }}')"
-                                         class="w-5 h-5 border-2 border-gray-300 rounded"></div>
-                                </div>
-                                <span class="ml-3 font-medium text-gray-900 text-sm">{{ $day }}</span>
-                            </label>
-                        </div>
-
-                        <div x-show="(typeof isDayEnabled === 'function') && isDayEnabled('{{ $key }}')"
-                             x-transition
-                             class="flex items-center space-x-2"
-                             role="group"
-                             aria-labelledby="time-range-{{ $key }}">
-                            <label for="start-time-{{ $key }}" class="sr-only">Godzina rozpoczęcia dla {{ $day }}</label>
-                            <input
-                                id="start-time-{{ $key }}"
-                                type="time"
-                                :value="(typeof getDayTime === 'function') ? getDayTime('{{ $key }}', 'start') : ''"
-                                @change="(typeof updateTime === 'function') && updateTime('{{ $key }}', 'start', $event.target.value)"
-                                class="border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                                aria-describedby="time-error-{{ $key }}"
-                                aria-label="Godzina rozpoczęcia dla {{ $day }}"
-                            >
-                            <span class="text-gray-400 text-sm" aria-hidden="true">-</span>
-                            <label for="end-time-{{ $key }}" class="sr-only">Godzina zakończenia dla {{ $day }}</label>
-                            <input
-                                id="end-time-{{ $key }}"
-                                type="time"
-                                :value="(typeof getDayTime === 'function') ? getDayTime('{{ $key }}', 'end') : ''"
-                                @change="(typeof updateTime === 'function') && updateTime('{{ $key }}', 'end', $event.target.value)"
-                                class="border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                                aria-describedby="time-error-{{ $key }}"
-                                aria-label="Godzina zakończenia dla {{ $day }}"
-                            >
-
-                            {{-- Error feedback dla walidacji --}}
-                            <div id="time-error-{{ $key }}" class="text-red-600 text-xs ml-2" x-show="false" aria-live="polite">
-                                <!-- Miejsce na błędy walidacji czasów -->
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-
-            @error('weeklyAvailability')
-                <p class="mt-2 text-sm text-red-600 flex items-center">
-                    <span class="mr-1">⚠️</span>
-                    {{ $message }}
-                </p>
-            @enderror
-        </div>
-
-        {{-- Dodatkowe opcje Card --}}
-        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6">
-            <label class="block text-sm font-semibold text-gray-900 mb-4">
-                Preferencje elastyczności
-            </label>
-
-            <div class="space-y-3">
-                {{-- Elastyczny harmonogram --}}
-                <div class="p-4 border-2 rounded-xl cursor-pointer transition-all hover:scale-[1.02]"
-                     :class="(typeof getFlexibleClasses === 'function') ? getFlexibleClasses() : 'border-gray-200'"
-                     @click="(typeof toggleFlexible === 'function') && toggleFlexible()">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center flex-1">
-                            <div class="w-5 h-5 border-2 rounded mr-3 flex items-center justify-center"
-                                 :class="{ 'bg-emerald-600 border-emerald-600': (typeof flexibleSchedule !== 'undefined') && flexibleSchedule, 'border-gray-300': (typeof flexibleSchedule === 'undefined') || !flexibleSchedule }">
-                                <svg x-show="(typeof flexibleSchedule !== 'undefined') && flexibleSchedule" class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <h4 class="font-medium text-gray-900 text-sm">Elastyczny harmonogram</h4>
-                                <p class="text-xs text-gray-500 mt-0.5">Mogę dostosować godziny do potrzeb klienta</p>
-                            </div>
-                        </div>
-                        <span class="text-2xl">⏰</span>
-                    </div>
-                </div>
-
-                {{-- Dostępność w nagłych przypadkach --}}
-                <div class="p-4 border-2 rounded-xl cursor-pointer transition-all hover:scale-[1.02]"
-                     :class="(typeof getEmergencyClasses === 'function') ? getEmergencyClasses() : 'border-gray-200'"
-                     @click="(typeof toggleEmergency === 'function') && toggleEmergency()">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center flex-1">
-                            <div class="w-5 h-5 border-2 rounded mr-3 flex items-center justify-center"
-                                 :class="{ 'bg-emerald-600 border-emerald-600': (typeof emergencyAvailable !== 'undefined') && emergencyAvailable, 'border-gray-300': (typeof emergencyAvailable === 'undefined') || !emergencyAvailable }">
-                                <svg x-show="(typeof emergencyAvailable !== 'undefined') && emergencyAvailable" class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <h4 class="font-medium text-gray-900 text-sm">Dostępny w nagłych przypadkach</h4>
-                                <p class="text-xs text-gray-500 mt-0.5">Mogę pomóc w sytuacjach awaryjnych</p>
-                            </div>
-                        </div>
-                        <span class="text-2xl">🚨</span>
-                    </div>
-                </div>
-            </div>
-
-            @error('flexibleSchedule')
-                <p class="mt-2 text-sm text-red-600 flex items-center">
-                    <span class="mr-1">⚠️</span>
-                    {{ $message }}
-                </p>
-            @enderror
-
-            @error('emergencyAvailable')
-                <p class="mt-2 text-sm text-red-600 flex items-center">
-                    <span class="mr-1">⚠️</span>
-                    {{ $message }}
-                </p>
-            @enderror
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 leading-tight">
+                Cześć! Dlaczego chcesz zostać pet sitterem?
+            </h1>
+            <p class="text-emerald-50 text-sm sm:text-base">
+                Poznajmy Cię lepiej - opowiedz nam o swojej motywacji
+            </p>
         </div>
     </div>
-</div> {{-- Koniec głównego wrappera z max-w-2xl --}}
+
+    <div class="max-w-2xl mx-auto px-4 space-y-6 pb-8">
+        {{-- AI Assistant Card (Inline Introduction) --}}
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            {{-- Header z gradientem --}}
+            <div style="background: linear-gradient(135deg, #10b981 0%, #14b8a6 50%, #06b6d4 100%);" class="p-4 sm:p-6 text-white">
+                <div class="flex items-start space-x-3">
+                    <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center flex-shrink-0 text-2xl">
+                        🤖
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h2 class="text-lg sm:text-xl font-bold mb-1">AI Assistant</h2>
+                        <p class="text-emerald-50 text-xs sm:text-sm">
+                            Pomożemy Ci stworzyć przekonujący opis
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Content --}}
+            <div class="p-4 sm:p-6 space-y-4">
+                {{-- Wskazówki --}}
+                <div class="space-y-3">
+                    <div class="flex items-start space-x-3">
+                        <div class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 text-emerald-600 font-bold text-sm">
+                            1
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-semibold text-gray-900 text-sm sm:text-base mb-1">Proces rejestracji</h4>
+                            <p class="text-xs sm:text-sm text-gray-600">12 prostych kroków, każdy zajmie tylko chwilę</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-3">
+                        <div class="w-6 h-6 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0 text-teal-600 font-bold text-sm">
+                            2
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-semibold text-gray-900 text-sm sm:text-base mb-1">Szacowany czas</h4>
+                            <p class="text-xs sm:text-sm text-gray-600">15-20 minut na ukończenie całej rejestracji</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-3">
+                        <div class="w-6 h-6 rounded-full bg-cyan-100 flex items-center justify-center flex-shrink-0 text-cyan-600 font-bold text-sm">
+                            3
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-semibold text-gray-900 text-sm sm:text-base mb-1">Co będzie potrzebne</h4>
+                            <p class="text-xs sm:text-sm text-gray-600">Zdjęcie profilowe, podstawowe dane i opis doświadczenia</p>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- AI Generate Button --}}
+                <button
+                    type="button"
+                    @click="$wire.generateMotivationWithAI()"
+                    class="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white font-semibold py-3 px-6 rounded-xl transition-all transform hover:scale-105 flex items-center justify-center space-x-2 text-sm sm:text-base">
+                    <span>✨ Wygeneruj opis z AI</span>
+                </button>
+
+                {{-- Link do pełnego panelu --}}
+                <button @click="$wire.showAIPanel = true"
+                        type="button"
+                        class="w-full text-sm text-emerald-600 hover:text-emerald-700 font-medium py-2 flex items-center justify-center space-x-1">
+                    <span>📖 Zobacz więcej wskazówek</span>
+                    <span>→</span>
+                </button>
+            </div>
+        </div>
+
+        {{-- Main Form Card --}}
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6">
+            <div class="wizard-form-group">
+                <div class="flex items-center justify-between mb-3">
+                    <label for="motivation" class="font-semibold text-gray-900 text-sm sm:text-base mb-0">
+                        Twoja motywacja <span class="text-red-500">*</span>
+                    </label>
+                    <span class="text-xs sm:text-sm transition-colors"
+                          :class="isValid ? 'text-emerald-600 font-semibold' : characterCount > 500 ? 'text-red-600' : 'text-gray-400'"
+                          x-text="`${characterCount}/500`"></span>
+                </div>
+
+                <div class="relative">
+                    <textarea
+                        :value="motivation"
+                        @input.debounce.500ms="updateMotivation($event.target.value)"
+                        id="motivation"
+                        rows="6"
+                        @focus="$el.classList.add('ring-2', 'ring-emerald-500', 'border-emerald-500')"
+                        @blur="$el.classList.remove('ring-2', 'ring-emerald-500', 'border-emerald-500')"
+                        :class="isValid ? 'border-emerald-500' : ''"
+                        class="w-full px-4 py-3 text-sm sm:text-base border-2 border-gray-200 rounded-xl resize-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all"
+                        placeholder="Np. Kocham zwierzęta od dziecka i chciałabym pomóc właścicielom, którzy potrzebują wsparcia w opiece nad swoimi pupilami..."
+                        maxlength="500"></textarea>
+
+                    {{-- Character Counter with Animation --}}
+                    <div class="absolute bottom-3 right-3 flex items-center space-x-2">
+                        <span x-show="isValid"
+                              x-transition:enter="transition ease-out duration-200"
+                              x-transition:enter-start="opacity-0 scale-95"
+                              x-transition:enter-end="opacity-100 scale-100"
+                              class="text-emerald-600">
+                            <span x-html="window.SafeSVGIcons?.checkMark || '✓'" class="text-emerald-600 text-sm"></span>
+                        </span>
+                    </div>
+                </div>
+
+                @error('motivation')
+                    <p class="mt-2 text-sm text-red-600 flex items-center">
+                        <span x-html="window.SafeSVGIcons?.exclamation || '!'" class="w-4 h-4 mr-1 flex-shrink-0 text-red-600"></span>
+                        {{ $message }}
+                    </p>
+                @enderror
+
+                {{-- Progress Bar --}}
+                <div class="mt-4">
+                    <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-500"
+                             :style="isValid ? `background: linear-gradient(135deg, #10b981, #06b6d4); width: ${progressPercentage}%` : `background: ${characterCount > 0 ? '#d1d5db' : '#e5e7eb'}; width: ${progressPercentage}%`"></div>
+                    </div>
+                    <p class="text-xs sm:text-sm mt-2" :class="isValid ? 'text-emerald-600' : 'text-gray-500'">
+                        <span x-show="!isValid && characterCount < 100">
+                            Minimum 100 znaków (jeszcze <span x-text="100 - characterCount"></span>)
+                        </span>
+                        <span x-show="isValid">✓ Świetnie! Twój opis spełnia wymagania</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+
+        {{-- Przykłady inspirujące --}}
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6">
+            <h3 class="font-bold text-gray-900 mb-3 flex items-center text-sm sm:text-base">
+                <span class="text-xl sm:text-2xl mr-2">⭐</span>
+                Przykłady inspirujących opisów
+            </h3>
+
+            <div class="space-y-3">
+                {{-- Przykład 1 --}}
+                <button
+                    type="button"
+                    @click="updateMotivation('Od dziecka otaczałam się zwierzętami i doskonale rozumiem ich potrzeby. Chciałabym pomagać właścicielom, którzy z różnych powodów nie mogą zapewnić opieki swoim pupilom, jednocześnie rozwijając swoją pasję.')"
+                    class="w-full text-left p-4 bg-gradient-to-br from-emerald-50 to-teal-50 hover:from-emerald-100 hover:to-teal-100 border-2 border-emerald-200 rounded-xl transition-all transform hover:scale-[1.02] group">
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm group-hover:scale-110 transition-transform">
+                            1
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs sm:text-sm text-gray-700 line-clamp-2">
+                                "Od dziecka otaczałam się zwierzętami i doskonale rozumiem ich potrzeby..."
+                            </p>
+                            <span class="text-xs text-emerald-600 font-medium mt-1 inline-block">👆 Kliknij aby użyć</span>
+                        </div>
+                    </div>
+                </button>
+
+                {{-- Przykład 2 --}}
+                <button
+                    type="button"
+                    @click="updateMotivation('Mam doświadczenie w pracy z różnymi rasami psów i kotów. Widzę, jak ważna jest odpowiednia opieka dla dobrostanu zwierząt, dlatego chcę oferować profesjonalne usługi pet sittingu w mojej okolicy.')"
+                    class="w-full text-left p-4 bg-gradient-to-br from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100 border-2 border-blue-200 rounded-xl transition-all transform hover:scale-[1.02] group">
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm group-hover:scale-110 transition-transform">
+                            2
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs sm:text-sm text-gray-700 line-clamp-2">
+                                "Mam doświadczenie w pracy z różnymi rasami psów i kotów. Widzę jak ważna jest..."
+                            </p>
+                            <span class="text-xs text-blue-600 font-medium mt-1 inline-block">👆 Kliknij aby użyć</span>
+                        </div>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 {{--
-    ✅ ARCHITEKTURA v3.0 - EXTERNAL COMPONENT
+    ✅ V4 DESIGN - MOBILE FIRST
 
-    Komponent wizardStep6 został przeniesiony do zewnętrznego pliku:
-    📁 resources/js/components/wizard-step-6-v3.js
+    Zachowana cała logika z wizardStep6():
+    - motivation, characterCount, isValid, progress
+    - updateMotivation(), syncFromLivewire()
+    - Wire calls: $wire.generateMotivationWithAI(), $wire.showAIPanel
+    - Wszystkie bindingi Alpine.js (@click, x-text, :class, x-show, etc.)
 
-    Nowa architektura v3.0:
-    - ✅ Stateless components (brak lokalnego state)
-    - ✅ Single Source of Truth przez window.WizardState
-    - ✅ Eliminacja duplikacji zmiennych między krokami
-    - ✅ Centralized state management
-
-    Import w app.js: import './components/wizard-step-6-v3';
-
-    Wszystkie zmienne i metody są teraz computed properties z globalnego state:
-    - weeklyAvailability, flexibleSchedule, emergencyAvailable
-    - toggleDay(), updateTime(), getDayTime()
-    - isDayEnabled(), getDayClasses()
-    - toggleFlexible(), toggleEmergency()
-    - getFlexibleClasses(), getEmergencyClasses()
+    Nowy wygląd:
+    - Gradient hero section
+    - Białe karty z rounded-2xl i shadow-lg
+    - AI Assistant card inline
+    - Mobile-first responsive (text-xs sm:text-sm)
+    - Większe pady i spacing
+    - Hover effects i animations
 --}}

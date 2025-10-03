@@ -2,10 +2,17 @@
     "name": "pethelp/app",
     "type": "project",
     "description": "PetHelp - Platform for pet care services",
-    "keywords": ["laravel", "framework", "pethelp", "pets", "livewire"],
+    "keywords": [
+        "laravel",
+        "framework",
+        "pethelp",
+        "pets",
+        "livewire"
+    ],
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "filament/filament": "^4.0",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
         "laravel/socialite": "^5.23",
@@ -41,7 +48,8 @@
     "scripts": {
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover --ansi"
+            "@php artisan package:discover --ansi",
+            "@php artisan filament:upgrade"
         ],
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"

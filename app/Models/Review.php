@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Review extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'booking_id',
         'reviewer_id',
@@ -15,6 +18,9 @@ class Review extends Model
         'rating',
         'comment',
         'is_visible',
+        'moderation_status',
+        'admin_response',
+        'moderated_by',
         'moderated_at',
     ];
 
@@ -41,9 +47,29 @@ class Review extends Model
         return $this->belongsTo(User::class, 'reviewee_id');
     }
 
+    public function moderator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'moderated_by');
+    }
+
     public function scopeVisible(Builder $query): void
     {
         $query->where('is_visible', true);
+    }
+
+    public function scopePending(Builder $query): void
+    {
+        $query->where('moderation_status', 'pending');
+    }
+
+    public function scopeApproved(Builder $query): void
+    {
+        $query->where('moderation_status', 'approved');
+    }
+
+    public function scopeRejected(Builder $query): void
+    {
+        $query->where('moderation_status', 'rejected');
     }
 
     public function scopeForUser(Builder $query, ?int $userId): void
@@ -112,5 +138,62 @@ class Review extends Model
     public function moderate(): void
     {
         $this->update(['moderated_at' => now()]);
+    }
+
+    public function approve(?int $moderatorId = null, ?string $response = null): void
+    {
+        $this->update([
+            'moderation_status' => 'approved',
+            'is_visible' => true,
+            'moderated_by' => $moderatorId,
+            'moderated_at' => now(),
+            'admin_response' => $response,
+        ]);
+    }
+
+    public function reject(?int $moderatorId = null, ?string $response = null): void
+    {
+        $this->update([
+            'moderation_status' => 'rejected',
+            'is_visible' => false,
+            'moderated_by' => $moderatorId,
+            'moderated_at' => now(),
+            'admin_response' => $response,
+        ]);
+    }
+
+    public function isPending(): bool
+    {
+        return $this->moderation_status === 'pending';
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->moderation_status === 'approved';
+    }
+
+    public function isRejected(): bool
+    {
+        return $this->moderation_status === 'rejected';
+    }
+
+    public function getModerationStatusLabelAttribute(): string
+    {
+        return match ($this->moderation_status) {
+            'pending' => 'Oczekuje',
+            'approved' => 'Zaakceptowana',
+            'rejected' => 'Odrzucona',
+            default => 'Nieznany'
+        };
+    }
+
+    public function getModerationStatusColorAttribute(): string
+    {
+        return match ($this->moderation_status) {
+            'pending' => 'warning',
+            'approved' => 'success',
+            'rejected' => 'danger',
+            default => 'gray'
+        };
     }
 }

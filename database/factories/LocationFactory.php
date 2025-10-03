@@ -19,13 +19,13 @@ class LocationFactory extends Factory
         return [
             'user_id' => \App\Models\User::factory(),
             'name' => fake()->randomElement(['Dom', 'Praca', 'Mieszkanie', 'Biuro']),
-            'street' => fake()->streetAddress(),
+            'address' => fake()->streetAddress(),
             'city' => fake()->randomElement(['Warszawa', 'Kraków', 'Gdańsk', 'Wrocław', 'Poznań']),
             'postal_code' => fake()->postcode(),
             'country' => 'Polska',
             'latitude' => fake()->latitude(49, 55), // Poland coordinates range
             'longitude' => fake()->longitude(14, 24),
-            'is_primary' => false,
+            'is_active' => true,
         ];
     }
 }

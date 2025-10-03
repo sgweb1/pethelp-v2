@@ -1,7 +1,7 @@
 /**
- * Pet Sitter Wizard - Step 7 v3.0 (Stateless)
+ * Pet Sitter Wizard - Step 2 v3.0 (Stateless)
  *
- * Refaktoryzowany krok 7 wizard'a do architektury v3.0 z centralized state management.
+ * Refaktoryzowany krok 2 wizard'a do architektury v3.0 z centralized state management.
  * Brak lokalnego state - wszystko przez WizardStateManager.
  *
  * @author Claude AI Assistant
@@ -9,43 +9,22 @@
  */
 
 /**
- * Stateless komponent dla Step 7 - Home Information
+ * Stateless komponent dla Step 2 - Pet Experience
  * Wszystkie zmienne pochodzą z globalnego WizardState
  */
 function wizardStep7() {
     return {
-        // === REACTIVE PROXY FOR GLOBAL STATE ===
-        // Local reactive variables to trigger Alpine.js updates
-        _reactiveUpdate: 0, // Force reactive updates when this changes
-
-        // NOTE: _hasGarden i _isSmoking zostały usunięte - używamy computed properties
-
-        get _hasOtherPets() {
-            return window.WizardState?.get('home.hasOtherPets') || false;
-        },
-        set _hasOtherPets(value) {
-            window.WizardState?.update('home.hasOtherPets', value);
-        },
-
-        get _homeType() {
-            return window.WizardState?.get('home.homeType') || '';
-        },
-        set _homeType(value) {
-            window.WizardState?.update('home.homeType', value);
-        },
-
-        get _otherPets() {
-            return window.WizardState?.get('home.otherPets') || [];
-        },
-        set _otherPets(value) {
-            window.WizardState?.update('home.otherPets', value);
-        },
+        // === LOKALNE REAKTYWNE WŁAŚCIWOŚCI ===
+        _petExperience: [],
+        _yearsOfExperience: '',
+        _experienceDescription: '',
+        _characterCount: 0,
 
         /**
          * Inicjalizacja komponenty - stateless
          */
         init() {
-            console.log('🏠 Step 7 v3.0 initialized (stateless)');
+            console.log('🐕 Step 2 v3.0 initialized (stateless)');
 
             // Upewnij się że WizardStateManager jest dostępny
             if (!window.WizardState) {
@@ -54,253 +33,230 @@ function wizardStep7() {
             }
 
             this.initializeStateIfNeeded();
-            this.syncLocalVariables();
+            this.setupLivewireSync();
 
-            console.log('✅ Step 7 state initialized:', {
-                homeType: this.homeType,
-                hasGarden: this.hasGarden,
-                isSmoking: this.isSmoking,
-                hasOtherPets: this.hasOtherPets,
-                otherPetsCount: this.otherPets.length
+            console.log('✅ Step 2 state initialized:', {
+                petExperience: this.petExperience,
+                yearsOfExperience: this.yearsOfExperience,
+                experienceDescription: this.experienceDescription?.length || 0,
+                characterCount: this.characterCount
             });
         },
-
-        /**
-         * Force reactive update dla Alpine.js
-         */
-        forceReactiveUpdate() {
-            this._reactiveUpdate++;
-            console.log('🔄 Step 7 Forced reactive update:', this._reactiveUpdate);
-        },
-
-        /**
-         * Synchronizuje lokalne zmienne z globalnym state
-         * NOTE: Już nie używane - wszystko przez computed properties
-         */
-        syncLocalVariables() {
-            console.log('🔄 State synchronization (using computed properties):', {
-                hasGarden: this.hasGarden,
-                isSmoking: this.isSmoking
-            });
-        },
-
 
         /**
          * Inicjalizuje state jeśli jest pusty
          */
         initializeStateIfNeeded() {
-            // Pobierz dane z Livewire jako fallback jeśli potrzebne
-            if (!this.homeType) {
-                window.WizardState.update('home.homeType', '');
+            // Pobierz dane z Livewire jako fallback
+            const livewirePetExperience = this.$wire?.petExperience || [];
+            const livewireYears = this.$wire?.yearsOfExperience || '';
+            const livewireDescription = this.$wire?.experienceDescription || '';
+
+            if (!Array.isArray(this.petExperience) && Array.isArray(livewirePetExperience)) {
+                window.WizardState.update('experience.petExperience', livewirePetExperience);
             }
 
-            if (this.hasGarden === undefined) {
-                window.WizardState.update('home.hasGarden', false);
+            if (!this.yearsOfExperience && livewireYears) {
+                const yearsInt = parseInt(livewireYears, 10) || 0;
+                window.WizardState.update('experience.yearsOfExperience', yearsInt);
             }
 
-            if (this.isSmoking === undefined) {
-                window.WizardState.update('home.isSmoking', false);
+            if (!this.experienceDescription && livewireDescription) {
+                window.WizardState.update('experience.experienceDescription', livewireDescription);
             }
 
-            if (this.hasOtherPets === undefined) {
-                window.WizardState.update('home.hasOtherPets', false);
+            // Ensure arrays are initialized
+            if (!Array.isArray(this.petExperience)) {
+                window.WizardState.update('experience.petExperience', []);
             }
 
-            if (!Array.isArray(this.otherPets)) {
-                window.WizardState.update('home.otherPets', []);
-            }
-        },
-
-        // === COMPUTED PROPERTIES - Z GLOBAL STATE ===
-
-        /**
-         * Typ domu z globalnego state
-         */
-        get homeType() {
-            // Force reactivity by accessing _reactiveUpdate
-            this._reactiveUpdate; // Ensure Alpine.js tracks this dependency
-
-            return window.WizardState?.get('home.homeType') || '';
+            // Update derived state
+            this.updateDerivedState();
         },
 
         /**
-         * Czy ma ogród z globalnego state
+         * Setup synchronizacji z Livewire
          */
-        get hasGarden() {
-            // Force reactivity by accessing _reactiveUpdate
-            this._reactiveUpdate; // Ensure Alpine.js tracks this dependency
+        setupLivewireSync() {
+            // Listen dla AI suggestion applied
+            document.addEventListener('ai-suggestion-applied', (event) => {
+                if (event.detail.field === 'experienceDescription') {
+                    console.log('🎯 AI suggestion applied in step 2:', event.detail);
+                    this.syncFromLivewire();
+                }
+            });
+        },
 
-            return window.WizardState?.get('home.hasGarden') || false;
+        // === COMPUTED PROPERTIES - Z GLOBAL STATE Z SYNCHRONIZACJĄ ===
+
+        /**
+         * Lista typów doświadczenia z globalnego state
+         */
+        get petExperience() {
+            const value = window.WizardState?.get('experience.petExperience') || [];
+            this._petExperience = value;
+            return value;
         },
 
         /**
-         * Czy pali z globalnego state
+         * Lata doświadczenia z globalnego state
          */
-        get isSmoking() {
-            // Force reactivity by accessing _reactiveUpdate
-            this._reactiveUpdate; // Ensure Alpine.js tracks this dependency
-
-            return window.WizardState?.get('home.isSmoking') || false;
+        get yearsOfExperience() {
+            const value = window.WizardState?.get('experience.yearsOfExperience') || '';
+            this._yearsOfExperience = value;
+            return value;
         },
 
         /**
-         * Czy ma inne zwierzęta z globalnego state
+         * Opis doświadczenia z globalnego state
          */
-        get hasOtherPets() {
-            // Force reactivity by accessing _reactiveUpdate
-            this._reactiveUpdate; // Ensure Alpine.js tracks this dependency
-
-            return window.WizardState?.get('home.hasOtherPets') || false;
+        get experienceDescription() {
+            const value = window.WizardState?.get('experience.experienceDescription') || '';
+            this._experienceDescription = value;
+            return value;
         },
 
         /**
-         * Lista innych zwierząt z globalnego state
+         * Liczba znaków w opisie doświadczenia
          */
-        get otherPets() {
-            // Force reactivity by accessing _reactiveUpdate
-            this._reactiveUpdate; // Ensure Alpine.js tracks this dependency
-
-            return window.WizardState?.get('home.otherPets') || [];
-        },
-
-        // === CROSS-STEP VARIABLES - Z GLOBAL STATE ===
-        // Te zmienne są używane przez inne kroki
-
-        /**
-         * Elastyczny harmonogram (z step-6)
-         */
-        get flexibleSchedule() {
-            return window.WizardState?.get('availability.flexibleSchedule') || false;
+        get characterCount() {
+            return this.experienceDescription.length;
         },
 
         /**
-         * Dostępność w nagłych przypadkach (z step-6)
+         * Czy opis doświadczenia jest wystarczający (min 100 znaków)
          */
-        get emergencyAvailable() {
-            return window.WizardState?.get('availability.emergencyAvailable') || false;
+        get isDescriptionValid() {
+            return this.characterCount >= 100;
+        },
+
+        /**
+         * Progress w procentach (0-100) dla progress bar
+         */
+        get progressPercentage() {
+            return Math.min((this.characterCount / 100) * 100, 100);
+        },
+
+        /**
+         * Czy użytkownik zaczął pisać opis
+         */
+        get hasStartedTyping() {
+            return this.characterCount > 0;
+        },
+
+        /**
+         * Progress opisu w procentach
+         */
+        get descriptionProgress() {
+            return Math.min((this.characterCount / 100) * 100, 100);
         },
 
         // === METHODS - OPERACJE NA GLOBAL STATE ===
 
         /**
-         * Wybiera typ domu
+         * Przełącza typ doświadczenia w liście
          */
-        selectHomeType(type) {
-            window.WizardState.update('home.homeType', type);
-            this.syncWithLivewire('homeType', type);
-
-            // Force reactive update dla Alpine.js
-            this.forceReactiveUpdate();
-
-            console.log('🏠 Home type selected:', type);
-        },
-
-        /**
-         * Przełącza obecność ogrodu
-         */
-        toggleGarden() {
-            const oldValue = this.hasGarden;
-            const newValue = !oldValue;
-
-            console.log('🌱 Garden toggle - BEFORE:', {
-                oldValue,
-                newValue,
-                currentState: window.WizardState?.get('home.hasGarden')
-            });
-
-            // Aktualizuj globalny state
-            window.WizardState.update('home.hasGarden', newValue);
-            this.syncWithLivewire('hasGarden', newValue);
-
-            // Force reactive update dla Alpine.js
-            this.forceReactiveUpdate();
-
-            console.log('🌱 Garden toggle - AFTER:', {
-                newValue,
-                updatedState: window.WizardState?.get('home.hasGarden'),
-                computedValue: this.hasGarden
-            });
-        },
-
-        /**
-         * Przełącza status palenia
-         */
-        toggleSmoking() {
-            const oldValue = this.isSmoking;
-            const newValue = !oldValue;
-
-            console.log('🚭 Smoking toggle - BEFORE:', {
-                oldValue,
-                newValue,
-                currentState: window.WizardState?.get('home.isSmoking')
-            });
-
-            // Aktualizuj globalny state
-            window.WizardState.update('home.isSmoking', newValue);
-            this.syncWithLivewire('isSmoking', newValue);
-
-            // Force reactive update dla Alpine.js
-            this.forceReactiveUpdate();
-
-            console.log('🚭 Smoking toggle - AFTER:', {
-                newValue,
-                updatedState: window.WizardState?.get('home.isSmoking'),
-                computedValue: this.isSmoking
-            });
-        },
-
-        /**
-         * Przełącza obecność innych zwierząt
-         */
-        toggleOtherPets() {
-            const newValue = !this.hasOtherPets;
-            window.WizardState.update('home.hasOtherPets', newValue);
-            this.syncWithLivewire('hasOtherPets', newValue);
-
-            // Jeśli wyłączamy innych zwierząt, wyczyść listę
-            if (!newValue) {
-                window.WizardState.update('home.otherPets', []);
-                this.syncWithLivewire('otherPets', []);
-            }
-
-            // Force reactive update dla Alpine.js
-            this.forceReactiveUpdate();
-
-            console.log('🐾 Other pets toggled:', newValue);
-        },
-
-        /**
-         * Przełącza konkretne zwierzę w liście
-         */
-        togglePet(petType) {
-            const currentPets = [...this.otherPets];
-            const index = currentPets.indexOf(petType);
+        togglePetExperience(experienceType) {
+            const currentExperience = [...this.petExperience];
+            const index = currentExperience.indexOf(experienceType);
 
             if (index > -1) {
                 // Usuń z listy
-                currentPets.splice(index, 1);
+                currentExperience.splice(index, 1);
             } else {
                 // Dodaj do listy
-                currentPets.push(petType);
+                currentExperience.push(experienceType);
             }
 
-            window.WizardState.update('home.otherPets', currentPets);
-            this.syncWithLivewire('otherPets', currentPets);
+            // Aktualizuj global state
+            window.WizardState.update('experience.petExperience', currentExperience);
 
-            // Force reactive update dla Alpine.js
-            this.forceReactiveUpdate();
+            // Aktualizuj lokalną właściwość dla reaktywności Alpine
+            this._petExperience = [...currentExperience];
 
-            console.log(`🐾 Pet ${petType} toggled. Current pets:`, currentPets);
+            // Synchronizuj z Livewire
+            this.syncWithLivewire('petExperience', currentExperience);
+
+            console.log(`🐾 Pet experience ${experienceType} toggled. Current:`, currentExperience);
         },
 
         /**
-         * Sprawdza czy dane zwierzę jest wybrane
+         * Wymusza aktualizację UI po zmianie state
          */
-        isPetSelected(petType) {
-            // Force reactivity by accessing _reactiveUpdate
-            this._reactiveUpdate; // Ensure Alpine.js tracks this dependency
+        forceUIUpdate(experienceType) {
+            // Znajdź element i wymuś aktualizację klasy
+            this.$nextTick(() => {
+                const element = document.querySelector(`label[data-experience="${experienceType}"]`);
+                if (element) {
+                    const isSelected = this.isPetExperienceSelected(experienceType);
+                    console.log(`🎨 UI Update for ${experienceType}:`, { isSelected, element });
 
-            return this.otherPets.includes(petType);
+                    if (isSelected) {
+                        element.classList.add('selected');
+                        console.log(`✅ Added 'selected' class to ${experienceType}`);
+                    } else {
+                        element.classList.remove('selected');
+                        console.log(`❌ Removed 'selected' class from ${experienceType}`);
+                    }
+                } else {
+                    console.warn(`⚠️ Element not found for data-experience="${experienceType}"`);
+                }
+            });
+        },
+
+        /**
+         * Sprawdza czy dany typ doświadczenia jest wybrany
+         */
+        isPetExperienceSelected(experienceType) {
+            return this.petExperience.includes(experienceType);
+        },
+
+        /**
+         * Aktualizuje lata doświadczenia
+         */
+        updateYearsOfExperience(value) {
+            const yearsInt = parseInt(value, 10) || 0;
+            window.WizardState.update('experience.yearsOfExperience', yearsInt);
+            this.syncWithLivewire('yearsOfExperience', yearsInt);
+
+            console.log('📅 Years of experience updated:', yearsInt);
+        },
+
+        /**
+         * Aktualizuje opis doświadczenia
+         */
+        updateExperienceDescription(value) {
+            window.WizardState.update('experience.experienceDescription', value);
+            this.updateDerivedState();
+            this.syncWithLivewire('experienceDescription', value);
+
+            console.log('📝 Experience description updated:', {
+                length: value.length,
+                isValid: value.length >= 100
+            });
+        },
+
+        /**
+         * Aktualizuje pochodne właściwości w state
+         */
+        updateDerivedState() {
+            if (!window.WizardState) return;
+
+            const description = this.experienceDescription;
+            const characterCount = description.length;
+            const isValid = characterCount >= 100 && this.petExperience.length > 0;
+            const hasStartedTyping = characterCount > 0;
+
+            // Update derived properties
+            window.WizardState.update('experience.characterCount', characterCount);
+            window.WizardState.update('experience.hasStartedTyping', hasStartedTyping);
+
+            // Update step validity
+            const currentStep = window.WizardState.get('meta.currentStep');
+            if (currentStep === 2) {
+                window.WizardState.state.meta.canProceed = isValid;
+                window.WizardState.state.meta.isValid = isValid;
+            }
         },
 
         /**
@@ -316,77 +272,123 @@ function wizardStep7() {
             }
         },
 
+        /**
+         * Synchronizacja z Livewire po AI suggestions
+         */
+        syncFromLivewire() {
+            if (window.Livewire && this.$wire) {
+                try {
+                    const wireDescription = this.$wire.experienceDescription || '';
+                    const currentDescription = this.experienceDescription;
+
+                    if (wireDescription !== currentDescription) {
+                        console.log('🔄 Syncing from Livewire:', {
+                            old: currentDescription.length,
+                            new: wireDescription.length
+                        });
+
+                        // Aktualizuj global state
+                        window.WizardState.update('experience.experienceDescription', wireDescription);
+                        this.updateDerivedState();
+
+                        // Wymuś aktualizację textarea
+                        this.$nextTick(() => {
+                            const textarea = document.getElementById('experienceDescription');
+                            if (textarea) {
+                                textarea.value = wireDescription;
+                                // Trigger input event to update Alpine.js binding
+                                textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                                console.log('✅ Experience textarea forcefully updated with AI content');
+                            }
+                        });
+                    }
+                } catch (error) {
+                    console.error('🔄 Sync from Livewire error:', error);
+                }
+            }
+        },
+
         // === UI HELPER METHODS ===
 
         /**
          * Sprawdza czy krok jest walid
          */
         isStepValid() {
-            return this.homeType !== '';
+            return this.petExperience.length > 0 && this.isDescriptionValid;
         },
 
         /**
-         * Aktualizuje meta state dla step validation
+         * Zwraca klasy CSS dla textarea na podstawie stanu
          */
-        updateStepValidation() {
-            const currentStep = window.WizardState.get('meta.currentStep');
-            if (currentStep === 7) {
-                const isValid = this.isStepValid();
-                window.WizardState.state.meta.canProceed = isValid;
-                window.WizardState.state.meta.isValid = isValid;
+        getTextareaClasses() {
+            return {
+                'border-emerald-500 bg-emerald-50': this.isDescriptionValid && this.hasStartedTyping,
+                'border-red-300 bg-red-50': this.hasStartedTyping && !this.isDescriptionValid && this.characterCount > 0,
+                'border-gray-300': !this.hasStartedTyping
+            };
+        },
+
+        /**
+         * Zwraca klasy CSS dla progress indicators
+         */
+        getProgressClasses() {
+            return {
+                'text-emerald-600': this.isDescriptionValid,
+                'text-red-500': this.hasStartedTyping && !this.isDescriptionValid && this.characterCount > 0,
+                'text-gray-400': !this.hasStartedTyping || this.characterCount === 0
+            };
+        },
+
+        /**
+         * Zwraca styl dla progress bar
+         */
+        getProgressBarStyle() {
+            return `width: ${this.descriptionProgress}%`;
+        },
+
+        /**
+         * Zwraca tekst dla validation message
+         */
+        getValidationMessage() {
+            if (this.petExperience.length === 0) {
+                return 'Wybierz przynajmniej jeden typ doświadczenia';
             }
+            if (!this.isDescriptionValid) {
+                return `Opisz swoje doświadczenie (${this.characterCount}/100)`;
+            }
+            return 'Wymagania spełnione ✓';
         },
 
         // === HELPER METHODS ===
 
         /**
-         * Zwraca podsumowanie informacji o domu
+         * Zwraca podsumowanie doświadczenia
          */
-        getHomeSummary() {
+        getExperienceSummary() {
             return {
-                homeType: this.homeType,
-                hasGarden: this.hasGarden,
-                isSmoking: this.isSmoking,
-                hasOtherPets: this.hasOtherPets,
-                otherPetsCount: this.otherPets.length,
-                otherPetTypes: this.otherPets,
-                smokeFree: !this.isSmoking,
-                petFriendly: this.hasOtherPets
+                experienceTypes: this.petExperience,
+                experienceTypesCount: this.petExperience.length,
+                yearsOfExperience: this.yearsOfExperience,
+                descriptionLength: this.characterCount,
+                isDescriptionValid: this.isDescriptionValid,
+                isComplete: this.isStepValid()
             };
         },
 
         /**
-         * Zwraca czytelny opis typu domu
+         * Zwraca czytelne nazwy typów doświadczenia
          */
-        getHomeTypeLabel() {
+        getExperienceTypeLabels() {
             const labels = {
-                'apartment': 'Mieszkanie',
-                'house': 'Dom jednorodzinny',
-                'studio': 'Kawalerka/Studio',
-                'townhouse': 'Dom szeregowy'
+                'own_pets': 'Własne zwierzęta',
+                'family_pets': 'Zwierzęta rodziny/przyjaciół',
+                'volunteering': 'Wolontariat w schronisku',
+                'professional': 'Praca zawodowa',
+                'training': 'Kursy/szkolenia',
+                'veterinary': 'Doświadczenie weterynaryjne'
             };
-            return labels[this.homeType] || this.homeType;
-        },
 
-        /**
-         * Zwraca listę cech domu
-         */
-        getHomeFeatures() {
-            const features = [];
-
-            if (this.hasGarden) {
-                features.push('Ogród/balkon');
-            }
-
-            if (!this.isSmoking) {
-                features.push('Środowisko bez dymu');
-            }
-
-            if (this.hasOtherPets) {
-                features.push(`Inne zwierzęta (${this.otherPets.length})`);
-            }
-
-            return features;
+            return this.petExperience.map(type => labels[type] || type);
         }
     };
 }

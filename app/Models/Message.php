@@ -2,18 +2,25 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Builder;
 
 class Message extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'conversation_id',
         'sender_id',
-        'message',
+        'content',
         'is_read',
-        'read_at'
+        'read_at',
+        'is_hidden',
+        'hidden_reason',
+        'hidden_by',
+        'hidden_at',
     ];
 
     protected function casts(): array
@@ -21,6 +28,8 @@ class Message extends Model
         return [
             'is_read' => 'boolean',
             'read_at' => 'datetime',
+            'is_hidden' => 'boolean',
+            'hidden_at' => 'datetime',
         ];
     }
 
@@ -32,6 +41,11 @@ class Message extends Model
     public function sender(): BelongsTo
     {
         return $this->belongsTo(User::class, 'sender_id');
+    }
+
+    public function moderator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'hidden_by');
     }
 
     public function scopeUnread(Builder $query): void
@@ -46,10 +60,10 @@ class Message extends Model
 
     public function markAsRead(): void
     {
-        if (!$this->is_read) {
+        if (! $this->is_read) {
             $this->update([
                 'is_read' => true,
-                'read_at' => now()
+                'read_at' => now(),
             ]);
         }
     }
@@ -62,6 +76,41 @@ class Message extends Model
     public function getTimeAgoAttribute(): string
     {
         return $this->created_at->diffForHumans();
+    }
+
+    public function scopeVisible(Builder $query): void
+    {
+        $query->where('is_hidden', false);
+    }
+
+    public function scopeHidden(Builder $query): void
+    {
+        $query->where('is_hidden', true);
+    }
+
+    public function hide(?int $moderatorId = null, ?string $reason = null): void
+    {
+        $this->update([
+            'is_hidden' => true,
+            'hidden_by' => $moderatorId,
+            'hidden_at' => now(),
+            'hidden_reason' => $reason,
+        ]);
+    }
+
+    public function unhide(): void
+    {
+        $this->update([
+            'is_hidden' => false,
+            'hidden_by' => null,
+            'hidden_at' => null,
+            'hidden_reason' => null,
+        ]);
+    }
+
+    public function isHidden(): bool
+    {
+        return $this->is_hidden;
     }
 
     protected static function boot()

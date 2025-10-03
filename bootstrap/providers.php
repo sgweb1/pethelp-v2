@@ -1,13 +1,9 @@
 <?php
 
-$providers = [
-    App\Providers\AppServiceProvider::class,
-    App\Providers\SubscriptionServiceProvider::class,
+return [
     App\Providers\AIServiceProvider::class,
+    App\Providers\AppServiceProvider::class,
+    App\Providers\Filament\AdminPanelProvider::class,
+    App\Providers\SubscriptionServiceProvider::class,
+    Laravel\Dusk\DuskServiceProvider::class,
 ];
-
-if (app()->environment('local', 'testing')) {
-    $providers[] = Laravel\Dusk\DuskServiceProvider::class;
-}
-
-return $providers;
