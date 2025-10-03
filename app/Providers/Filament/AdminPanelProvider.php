@@ -49,6 +49,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\Filament\Clusters')
             ->middleware([
+                'admin.error.handler', // MUSI być PIERWSZY - izoluje błędy panelu admina
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,

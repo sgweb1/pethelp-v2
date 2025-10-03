@@ -51,6 +51,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'check.listing.limits' => \App\Http\Middleware\CheckListingLimits::class,
             'local-only' => \App\Http\Middleware\LocalOnlyMiddleware::class,
             'redirect.non.admin' => \App\Http\Middleware\RedirectNonAdminToProfile::class,
+            'admin.error.handler' => \App\Http\Middleware\AdminErrorHandler::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
