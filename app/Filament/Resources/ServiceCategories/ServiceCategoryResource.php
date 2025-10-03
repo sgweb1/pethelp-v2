@@ -8,9 +8,9 @@ use App\Filament\Resources\ServiceCategories\Pages\ListServiceCategories;
 use App\Filament\Resources\ServiceCategories\Schemas\ServiceCategoryForm;
 use App\Filament\Resources\ServiceCategories\Tables\ServiceCategoriesTable;
 use App\Models\ServiceCategory;
+use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
 
@@ -18,7 +18,7 @@ class ServiceCategoryResource extends Resource
 {
     protected static ?string $model = ServiceCategory::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static ?string $navigationLabel = 'Kategorie usług';
 
@@ -26,7 +26,7 @@ class ServiceCategoryResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Kategorie usług';
 
-    protected static ?string $navigationGroup = 'Usługi';
+    protected static string|UnitEnum|null $navigationGroup = 'Usługi';
 
     protected static ?int $navigationSort = 1;
 

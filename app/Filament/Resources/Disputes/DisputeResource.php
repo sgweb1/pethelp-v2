@@ -8,9 +8,9 @@ use App\Filament\Resources\Disputes\Pages\ListDisputes;
 use App\Filament\Resources\Disputes\Schemas\DisputeForm;
 use App\Filament\Resources\Disputes\Tables\DisputesTable;
 use App\Models\Dispute;
+use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
 
@@ -21,15 +21,15 @@ use UnitEnum;
  * problemów związanych z rezerwacjami, przypisywanie spraw do adminów
  * oraz prowadzenie historii komunikacji i decyzji.
  *
- * @package App\Filament\Resources\Disputes
  * @author Claude AI Assistant
+ *
  * @since 1.0.0
  */
 class DisputeResource extends Resource
 {
     protected static ?string $model = Dispute::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-exclamation-triangle';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-exclamation-triangle';
 
     protected static ?string $navigationLabel = 'Zgłoszenia i spory';
 
@@ -37,7 +37,7 @@ class DisputeResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Zgłoszenia';
 
-    protected static ?string $navigationGroup = 'Moderacja';
+    protected static string|UnitEnum|null $navigationGroup = 'Moderacja';
 
     protected static ?int $navigationSort = 3;
 

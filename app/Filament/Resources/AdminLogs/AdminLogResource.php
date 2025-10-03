@@ -10,8 +10,8 @@ use App\Models\AdminLog;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 /**
  * Resource zarządzający logami aktywności administratorów.
@@ -28,7 +28,7 @@ class AdminLogResource extends Resource
 {
     protected static ?string $model = AdminLog::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-list';
 
     protected static ?string $navigationLabel = 'Logi aktywności';
 
@@ -36,7 +36,7 @@ class AdminLogResource extends Resource
 
     protected static ?string $pluralModelLabel = 'logi aktywności';
 
-    protected static ?string $navigationGroup = 'System';
+    protected static string|UnitEnum|null $navigationGroup = 'System';
 
     public static function form(Schema $schema): Schema
     {

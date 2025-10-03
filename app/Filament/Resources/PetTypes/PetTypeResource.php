@@ -8,9 +8,9 @@ use App\Filament\Resources\PetTypes\Pages\ListPetTypes;
 use App\Filament\Resources\PetTypes\Schemas\PetTypeForm;
 use App\Filament\Resources\PetTypes\Tables\PetTypesTable;
 use App\Models\PetType;
+use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
 
@@ -18,7 +18,7 @@ class PetTypeResource extends Resource
 {
     protected static ?string $model = PetType::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static ?string $navigationLabel = 'Typy zwierząt';
 
@@ -26,7 +26,7 @@ class PetTypeResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Typy zwierząt';
 
-    protected static ?string $navigationGroup = 'Zwierzęta';
+    protected static string|UnitEnum|null $navigationGroup = 'Zwierzęta';
 
     protected static ?int $navigationSort = 1;
 

@@ -43,7 +43,8 @@
       "Bash(do sed -i 's/namespace App\\\\Filament\\\\Resources\\\\Disputes\\\\Disputes\\\\Pages;/namespace App\\\\Filament\\\\Resources\\\\Disputes\\\\Pages;/g' \"$file\")",
       "Bash(git push:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(composer dump-autoload:*)"
     ],
     "deny": [],
     "ask": []
